@@ -56,7 +56,7 @@ Ubicado en la carpeta /backend. Diseñado para escalar y separar las integracion
 │   └── utils/              # Utilidades compartidas y manejo de errores
 ├── .env                    # Variables de entorno (API Keys de Gemini/Supabase)
 └── package.json            # Dependencias del servidor
-
+```
 
 
 Notas adicionales para el README:
