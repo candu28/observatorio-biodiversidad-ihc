@@ -1,4 +1,4 @@
-export type EstadoCertificacion = 'Casual' | 'Verificado';
+export type EstadoCertificacion = 'Pendiente' | 'Verificado';
 
 export interface IAvistamiento {
     id: string; // Para el 'occurrenceID' de Darwin Core

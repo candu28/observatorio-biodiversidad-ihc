@@ -1,0 +1,13 @@
+{
+  "name": "observatorio-biodiversidad-ihc-workspace",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "start": "pnpm --filter ./frontend start",
+    "android": "pnpm --filter ./frontend android",
+    "ios": "pnpm --filter ./frontend ios",
+    "web": "pnpm --filter ./frontend web",
+    "dev:frontend": "pnpm --filter ./frontend start",
+    "dev:backend": "pnpm --filter ./backend dev"
+  }
+}

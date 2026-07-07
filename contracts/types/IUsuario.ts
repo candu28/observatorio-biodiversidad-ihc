@@ -10,6 +10,7 @@ export interface IUsuario {
     ubicacion: string;
     bio?: string; // Opcional (puede ser nulo)
     fotoPerfilUrl?: string;
+    rol: 'Entusiasta' | 'Experto';
 
     // Gamificación y Métricas
     especialidades: IEspecialidad[]; // Arreglo con los aciertos por categoría
@@ -17,5 +18,5 @@ export interface IUsuario {
 
     // Red de Interés
     intereses: string[]; // Ej: ["#Selva", "#Aves", "#SapoMinero"] (Llenado en el onboarding o al unirse a proyectos)
-    proyectosActivosIds: string[]; // IDs de los proyectos donde participa
+    proyectosAsociadosIds: string[]; // IDs de los proyectos donde participa
 }
