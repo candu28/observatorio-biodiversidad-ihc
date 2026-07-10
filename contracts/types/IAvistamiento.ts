@@ -1,5 +1,12 @@
 export type EstadoCertificacion = 'Pendiente' | 'Verificado';
 
+export interface IComentario {
+    id: string; // UUID
+    autorId: string; // Relación con el Usuario
+    contenido: string; // Texto del comentario
+    fechaCreacion: string; // ISO 8601
+}
+
 export interface IAvistamiento {
     id: string; // Para el 'occurrenceID' de Darwin Core
     numeroPublicacion: number; // Folio o número secuencial
@@ -22,4 +29,7 @@ export interface IAvistamiento {
     // Consenso Comunitario
     estado: EstadoCertificacion;
     especieGanadoraNombre?: string; // Nulo al inicio. Se llena cuando hay consenso ('scientificName')
+
+    // Interacción Comunitaria
+    comentarios: IComentario[]; // Comentarios de distintos usuarios en el avistamiento
 }
