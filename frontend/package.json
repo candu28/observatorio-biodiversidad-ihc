@@ -10,6 +10,7 @@
         "web": "expo start --web"
     },
     "dependencies": {
+        "@nozbe/watermelondb": "^0.28.0",
         "@supabase/supabase-js": "^2.45.4",
         "expo": "^54.0.35",
         "expo-router": "~6.0.24",
@@ -22,6 +23,7 @@
         "react-native-svg": "^15.15.5"
     },
     "devDependencies": {
+        "@babel/plugin-proposal-decorators": "^7.29.7",
         "@types/react": "~19.1.17",
         "typescript": "^5.9.3"
     }
