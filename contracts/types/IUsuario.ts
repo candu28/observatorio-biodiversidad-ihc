@@ -1,14 +1,10 @@
 export interface IUsuario {
-    id: string; // UUID de Supabase
+    id: string; // UUID
     nombre: string;
     ubicacion: string;
-    bio?: string; // Opcional (puede ser nulo)
+    bio?: string;
     fotoPerfilUrl?: string;
-
-    // Gamificación y Métricas
-    totalAvistamientos: number; // Cuántas publicaciones ha hecho
-
-    // Red de Interés
-    intereses: string[]; // Ej: ["#Selva", "#Aves", "#SapoMinero"] (Llenado en el onboarding o al unirse a proyectos)
-    proyectosAsociadosIds: string[]; // IDs de los proyectos donde participa
+    interes: string[]; // TEXT[]
+    totalAvistamientos: number;
+    createdAt: string; // TIMESTAMP
 }

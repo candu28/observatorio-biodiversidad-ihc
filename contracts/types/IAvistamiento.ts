@@ -1,13 +1,4 @@
-import { IEspecie } from './IEspecie';
-
 export type EstadoCertificacion = 'Pendiente' | 'Verificado';
-
-export interface IComentario {
-    id: string; // UUID
-    autorId: string; // Relación con el Usuario
-    contenido: string; // Texto del comentario
-    fechaCreacion: string;
-}
 
 export interface IAvistamiento {
     id: string; // Para el 'occurrenceID' de Darwin Core
@@ -25,15 +16,12 @@ export interface IAvistamiento {
     fechaCreacion: string; // eventDate (ISO 8601)
 
     // Filtros de Taxonomía y Ecosistema
-    bioma: 'Selva' | 'Sabana' | 'Tepuyes';
-    categoriaTaxonomica: 'Aves' | 'Mamíferos' | 'Insectos' | 'Reptiles y Anfibios' | 'Peces y Vida Acuática' | 'Flora';
+    biomaId: string;
+    categoriaId: string;
 
     // Consenso Comunitario
     estado: EstadoCertificacion;
-    especieVerificada?: IEspecie; // Se enlaza directamente con el catálogo (la entidad IEspecie) al haber consenso
-
-
-
-    // Interacción Comunitaria
-    comentarios: IComentario[]; // Comentarios de distintos usuarios en el avistamiento
+    especieVerificadaId?: string;
+    especieVerifNombre?: string;     // Ej: "Sapo Minero"
+    especieVerifNombreCientifico?: string; // Ej: "Adelphobates minutus"
 }

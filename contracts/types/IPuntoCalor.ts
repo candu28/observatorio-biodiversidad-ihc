@@ -1,6 +1,9 @@
+import { NombreCategoria } from './ICategoriaTaxonomica';
+
 export interface IPuntoCalor {
     latitude: number;  // Debe llamarse en inglés para que la librería lo entienda directo
     longitude: number;
     weight: number;
-    categoriaTaxonomica: 'Aves' | 'Mamíferos' | 'Insectos' | 'Reptiles y Anfibios' | 'Peces y Vida Acuática' | 'Flora';
+    categoriaTaxonomica: NombreCategoria; // Enum NombreCategoria
+    especieVerificadaId?: string; // Permitir filtrar el mapa de calor por una especie en específico
 }
