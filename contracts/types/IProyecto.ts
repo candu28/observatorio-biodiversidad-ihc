@@ -23,6 +23,8 @@ export interface IAporteTarea {
     id: string;
     tareaId: string;
     usuarioAportadorId: string;
+    tipoMultimedia: 'Foto' | 'Video' | 'Audio';
     mediaUrl: string; // Foto, video o audio aportado a la tarea
     comentario: string;
+    fechaAporte: string;
 }
