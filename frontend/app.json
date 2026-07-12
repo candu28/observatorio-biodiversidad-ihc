@@ -1,6 +1,11 @@
 {
-  "plugins": [
-    "expo-router",
-    "expo-sqlite"
-  ]
+  "expo": {
+    "name": "Guaya",
+    "slug": "guaya",
+    "scheme": "guaya",
+    "plugins": [
+      "expo-router",
+      "expo-sqlite"
+    ]
+  }
 }

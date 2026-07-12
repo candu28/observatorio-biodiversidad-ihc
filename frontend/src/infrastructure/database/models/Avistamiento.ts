@@ -1,6 +1,6 @@
 import { Model } from '@nozbe/watermelondb';
 import { field, text, date, relation, children } from '@nozbe/watermelondb/decorators';
-import { IAvistamiento, EstadoCertificacion } from '../../../../../contracts/types/IAvistamiento';
+import type { IAvistamiento, EstadoCertificacion } from '../../../../../contracts/types/IAvistamiento';
 
 export default class Avistamiento extends Model implements IAvistamiento {
   static table = 'avistamientos';

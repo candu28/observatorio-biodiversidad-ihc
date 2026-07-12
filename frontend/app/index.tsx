@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, Image, TouchableOpacity, SafeAreaView, Dimensions, Platform } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
+import { View, Text, StyleSheet, ScrollView, Image, TouchableOpacity, Dimensions, Platform } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+
 import { Leaf, Search, MessageCircle, Heart, Home, Plus, Map, CheckCircle2 } from 'lucide-react-native';
 
 const { width } = Dimensions.get('window');
@@ -71,12 +72,7 @@ export default function HomePage() {
   );
 
   return (
-    <LinearGradient
-      colors={['#fdf7e3', '#fdf3d1', '#e8f3d6', '#e0ecd1']}
-      style={styles.container}
-      start={{ x: 0, y: 0 }}
-      end={{ x: 1, y: 1 }}
-    >
+    <View style={[styles.container, { backgroundColor: '#fdf7e3' }]}>
       <SafeAreaView style={styles.safeArea}>
         
         {/* Header */}
@@ -150,7 +146,7 @@ export default function HomePage() {
         </View>
 
       </SafeAreaView>
-    </LinearGradient>
+    </View>
   );
 }
 
