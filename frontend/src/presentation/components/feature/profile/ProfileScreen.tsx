@@ -1,9 +1,18 @@
-import React from 'react';
-import { Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import React, { useState } from 'react';
+import { Image, Modal, Pressable, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { ChevronLeft, ChevronRight, Home, Map, Plus, Sparkles, Star } from 'lucide-react-native';
+import { ChevronLeft, ChevronRight, Home, Map, Plus, Sparkles, Star, X } from 'lucide-react-native';
 import { router } from 'expo-router';
 import { PerfilViewModel } from '../../../../application/useCases/ObtenerPerfilUseCase';
+
+const colorOptions = [
+  { id: 'guaya', label: 'Guaya', color: '#7d7a2a' },
+  { id: 'jade', label: 'Jade', color: '#1b7f5c' },
+  { id: 'oceano', label: 'Océano', color: '#1f4f8b' },
+  { id: 'violeta', label: 'Violeta', color: '#6b1f8f' },
+  { id: 'coral', label: 'Coral', color: '#b2472a' },
+  { id: 'rosa', label: 'Rosa', color: '#9a1f64' },
+];
 
 function SectionHeader({ title }: { title: string }) {
   return (
@@ -74,6 +83,7 @@ type ProfileScreenProps = {
 };
 
 export default function ProfileScreen({ profile }: ProfileScreenProps) {
+  const [personalizeVisible, setPersonalizeVisible] = useState(false);
 
   return (
     <LinearGradient colors={['#f7f0df', '#f4ecd7', '#f7f0df']} style={styles.container}>
@@ -83,7 +93,7 @@ export default function ProfileScreen({ profile }: ProfileScreenProps) {
             <ChevronLeft size={22} color="#6b5b3e" />
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.personalizeButton} onPress={() => {}}>
+          <TouchableOpacity style={styles.personalizeButton} onPress={() => setPersonalizeVisible(true)}>
             <Sparkles size={14} color="#7b5c26" />
             <Text style={styles.personalizeText}>Personalizar</Text>
           </TouchableOpacity>
@@ -165,6 +175,34 @@ export default function ProfileScreen({ profile }: ProfileScreenProps) {
           </View>
         </View>
       </View>
+
+      <Modal visible={personalizeVisible} transparent animationType="fade" onRequestClose={() => setPersonalizeVisible(false)}>
+        <Pressable style={styles.modalBackdrop} onPress={() => setPersonalizeVisible(false)}>
+          <Pressable style={styles.modalCard} onPress={() => {}}>
+            <View style={styles.modalHeader}>
+              <View>
+                <Text style={styles.modalTitle}>Personalizar interfaz</Text>
+                <Text style={styles.modalSubtitle}>Elige un color de acento</Text>
+              </View>
+
+              <Pressable style={styles.modalCloseButton} onPress={() => setPersonalizeVisible(false)}>
+                <X size={16} color="#7c6a4c" />
+              </Pressable>
+            </View>
+
+            <View style={styles.colorGrid}>
+              {colorOptions.map(option => (
+                <Pressable key={option.id} style={styles.colorOption} onPress={() => {}}>
+                  <View style={[styles.colorCircle, { backgroundColor: option.color }]}>
+                    <View style={styles.colorInner} />
+                  </View>
+                  <Text style={styles.colorLabel}>{option.label}</Text>
+                </Pressable>
+              ))}
+            </View>
+          </Pressable>
+        </Pressable>
+      </Modal>
     </LinearGradient>
   );
 }
@@ -183,6 +221,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: 18,
     marginBottom: 8,
+    marginTop:28,
   },
   backButton: {
     width: 38,
@@ -464,5 +503,93 @@ const styles = StyleSheet.create({
     fontSize: 11,
     color: '#7a6440',
     fontWeight: '600',
+  },
+  modalBackdrop: {
+    flex: 1,
+    backgroundColor: 'rgba(44, 35, 18, 0.45)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 24,
+  },
+  modalCard: {
+    width: '100%',
+    maxWidth: 320,
+    borderRadius: 28,
+    backgroundColor: '#fffdf8',
+    paddingHorizontal: 18,
+    paddingTop: 18,
+    paddingBottom: 20,
+    borderWidth: 1,
+    borderColor: '#f0e3c4',
+    shadowColor: '#000',
+    shadowOpacity: 0.2,
+    shadowOffset: { width: 0, height: 10 },
+    shadowRadius: 18,
+    elevation: 10,
+  },
+  modalHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+    marginBottom: 16,
+  },
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: '800',
+    color: '#2d2418',
+  },
+  modalSubtitle: {
+    marginTop: 5,
+    fontSize: 12,
+    color: '#9a8968',
+  },
+  modalCloseButton: {
+    width: 26,
+    height: 26,
+    borderRadius: 13,
+    backgroundColor: '#f2ead9',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  colorGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
+    rowGap: 14,
+  },
+  colorOption: {
+    width: '30%',
+    alignItems: 'center',
+    paddingVertical: 10,
+    borderRadius: 18,
+    borderWidth: 1,
+    borderColor: '#efe2c5',
+    backgroundColor: '#fffaf2',
+  },
+  colorCircle: {
+    width: 52,
+    height: 52,
+    borderRadius: 26,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 8,
+    shadowColor: '#000',
+    shadowOpacity: 0.12,
+    shadowOffset: { width: 0, height: 2 },
+    shadowRadius: 4,
+    elevation: 2,
+  },
+  colorInner: {
+    width: 20,
+    height: 20,
+    borderRadius: 10,
+    borderWidth: 2,
+    borderColor: 'rgba(255,255,255,0.7)',
+    backgroundColor: 'rgba(255,255,255,0.12)',
+  },
+  colorLabel: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: '#3c3122',
   },
 });
