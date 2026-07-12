@@ -1,0 +1,36 @@
+[
+  {
+    "id": "av-1",
+    "numeroPublicacion": 101,
+    "autorId": "mock-user-1",
+    "fotoUrl": "https://images.unsplash.com/photo-1557050543-4d5f4e07ef46?q=80&w=600&auto=format&fit=crop",
+    "descripcionExperiencia": "Avistamiento destacado en la reserva.",
+    "latitud": 8.123,
+    "longitud": -62.123,
+    "ubicacionTexto": "Reserva del Caura",
+    "fechaCreacion": "2026-06-20T10:00:00.000Z",
+    "biomaId": "bioma-selva",
+    "categoriaId": "cat-anfibios",
+    "estado": "Verificado",
+    "especieVerificadaId": "esp-1",
+    "especieVerifNombre": "Sapo Minero",
+    "especieVerifNombreCientifico": "Adelphobates minutus"
+  },
+  {
+    "id": "av-2",
+    "numeroPublicacion": 102,
+    "autorId": "mock-user-1",
+    "fotoUrl": "https://images.unsplash.com/photo-1508672019048-805c876b67e2?q=80&w=600&auto=format&fit=crop",
+    "descripcionExperiencia": "Segundo avistamiento de referencia.",
+    "latitud": 8.234,
+    "longitud": -62.234,
+    "ubicacionTexto": "Sendero del bosque húmedo",
+    "fechaCreacion": "2026-06-12T10:00:00.000Z",
+    "biomaId": "bioma-selva",
+    "categoriaId": "cat-anfibios",
+    "estado": "Pendiente",
+    "especieVerificadaId": null,
+    "especieVerifNombre": "Sapo Minero",
+    "especieVerifNombreCientifico": "Adelphobates minutus"
+  }
+]
