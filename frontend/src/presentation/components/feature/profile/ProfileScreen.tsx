@@ -3,7 +3,6 @@ import { Image, Modal, Pressable, ScrollView, StyleSheet, Text, TouchableOpacity
 import { LinearGradient } from 'expo-linear-gradient';
 import { ChevronLeft, ChevronRight, Home, Map, Plus, Sparkles, Star, X } from 'lucide-react-native';
 import { router } from 'expo-router';
-import { PerfilViewModel } from '../../../../application/useCases/ObtenerPerfilUseCase';
 
 const colorOptions = [
   { id: 'guaya', label: 'Guaya', color: '#7d7a2a' },
@@ -49,21 +48,6 @@ function SightCard({ title, subtitle, imageUrl }: { title: string; subtitle: str
   );
 }
 
-function ExpertRow({ title, subtitle, points, imageUrl }: { title: string; subtitle: string; points: number; imageUrl: string }) {
-  return (
-    <View style={styles.expertRow}>
-      <Image source={{ uri: imageUrl }} style={styles.expertThumb} />
-      <View style={styles.expertText}>
-        <Text style={styles.expertTitle}>{title}</Text>
-        <Text style={styles.expertSubtitle}>{subtitle}</Text>
-      </View>
-      <View style={styles.expertPoints}>
-        <Star size={14} color="#9c6b1f" fill="#9c6b1f" />
-        <Text style={styles.expertPointsText}>{points}</Text>
-      </View>
-    </View>
-  );
-}
 
 function ParticipationRow({ title, date, imageUrl }: { title: string; date: string; imageUrl: string }) {
   return (
@@ -79,7 +63,7 @@ function ParticipationRow({ title, date, imageUrl }: { title: string; date: stri
 }
 
 type ProfileScreenProps = {
-  profile: PerfilViewModel;
+  profile: any;
 };
 
 export default function ProfileScreen({ profile }: ProfileScreenProps) {
@@ -109,14 +93,9 @@ export default function ProfileScreen({ profile }: ProfileScreenProps) {
             <Text style={styles.subtitle}>{profile.usuario.ubicacion}</Text>
             <Text style={styles.bio}>{profile.usuario.bio}</Text>
 
-            <View style={styles.levelPill}>
-              <Sparkles size={14} color="#5b7d2a" />
-              <Text style={styles.levelText}>{profile.nivel}</Text>
-            </View>
 
             <View style={styles.statsRow}>
               <StatCard value={String(profile.usuario.totalAvistamientos)} label="Avistamientos" />
-              <StatCard value={String(profile.puntos)} label="Puntos" />
             </View>
           </View>
 
@@ -132,18 +111,6 @@ export default function ProfileScreen({ profile }: ProfileScreenProps) {
             ))}
           </View>
 
-          <SectionHeader title="Experto en" />
-          <View style={styles.expertsList}>
-            {profile.expertos.map(item => (
-              <ExpertRow
-                key={item.id}
-                title={item.titulo}
-                subtitle={item.subtitulo}
-                points={item.puntos}
-                imageUrl={item.imagenUrl}
-              />
-            ))}
-          </View>
 
           <SectionHeader title="Participa en" />
           <View style={styles.participationList}>
@@ -298,23 +265,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     paddingHorizontal: 14,
   },
-  levelPill: {
-    marginTop: 12,
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-    backgroundColor: '#e7f0d8',
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderRadius: 999,
-    borderWidth: 1,
-    borderColor: '#bfd090',
-  },
-  levelText: {
-    color: '#4f6e1f',
-    fontSize: 13,
-    fontWeight: '700',
-  },
+
   statsRow: {
     marginTop: 18,
     width: '100%',
@@ -407,47 +358,7 @@ const styles = StyleSheet.create({
     textShadowOffset: { width: 0, height: 1 },
     textShadowRadius: 4,
   },
-  expertsList: {
-    gap: 10,
-  },
-  expertRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#fffaf1',
-    borderRadius: 18,
-    padding: 10,
-    borderWidth: 1,
-    borderColor: '#efe1bf',
-  },
-  expertThumb: {
-    width: 40,
-    height: 40,
-    borderRadius: 12,
-    marginRight: 10,
-  },
-  expertText: {
-    flex: 1,
-  },
-  expertTitle: {
-    fontSize: 14,
-    fontWeight: '800',
-    color: '#2f2417',
-  },
-  expertSubtitle: {
-    marginTop: 2,
-    fontSize: 12,
-    color: '#8a7652',
-  },
-  expertPoints: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-  },
-  expertPointsText: {
-    fontSize: 13,
-    fontWeight: '800',
-    color: '#9c6b1f',
-  },
+
   participationList: {
     gap: 10,
   },

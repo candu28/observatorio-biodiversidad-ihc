@@ -1,21 +1,15 @@
 import React, { useEffect, useState } from 'react';
 import { View, StyleSheet, ActivityIndicator } from 'react-native';
 import ProfileScreen from '../src/presentation/components/feature/profile/ProfileScreen';
-import { ObtenerPerfilUseCase, PerfilViewModel } from '../src/application/useCases/ObtenerPerfilUseCase';
-import { MockPerfilUsuarioRepository } from '../src/infrastructure/adapters/mock/perfil/MockPerfilUsuarioRepository';
-import { MockPerfilAvistamientosRepository } from '../src/infrastructure/adapters/mock/perfil/MockPerfilAvistamientosRepository';
-import { MockPerfilProyectosRepository } from '../src/infrastructure/adapters/mock/perfil/MockPerfilProyectosRepository';
+import { ObtenerPerfilUseCase } from '../src/application/useCases/ObtenerPerfilUseCase';
+import { MockPerfilRepository } from '../src/infrastructure/adapters/mock/perfil/MockPerfilRepository';
 
 export default function PerfilScreen() {
-  const [profile, setProfile] = useState<PerfilViewModel | null>(null);
+  const [profile, setProfile] = useState<any>(null);
 
   useEffect(() => {
     const obtenerPerfil = async () => {
-      const useCase = new ObtenerPerfilUseCase(
-        new MockPerfilUsuarioRepository(),
-        new MockPerfilAvistamientosRepository(),
-        new MockPerfilProyectosRepository(),
-      );
+      const useCase = new ObtenerPerfilUseCase(new MockPerfilRepository());
 
       const resultado = await useCase.execute();
       setProfile(resultado);
