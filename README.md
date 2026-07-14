@@ -18,7 +18,7 @@ El proyecto está diseñado bajo los principios de la **Arquitectura Hexagonal (
 
 ```plaintext
 /
-├── contracts/              # Shared Kernel: Interfaces puras y tipos compartidos (La única fuente de verdad)
+├── contracts/              # Shared: Interfaces puras y tipos compartidos (La única fuente de verdad)
 ├── backend/                # Motor de Sincronización (Node.js/Express o Supabase Edge Functions)
 └── frontend/               # Aplicación Móvil (React Native + Expo + WatermelonDB Offline-First)
     ├── app/                # Expo Router (Rutas de UI)

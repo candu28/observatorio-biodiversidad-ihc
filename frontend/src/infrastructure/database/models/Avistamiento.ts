@@ -3,6 +3,7 @@ import { field, text, date, relation, children } from '@nozbe/watermelondb/decor
 import { IAvistamiento } from '../../../../../contracts/types/IAvistamiento';
 import type { EstadoCertificacion } from '../../../../../contracts/types/IAvistamiento';
 
+
 export default class Avistamiento extends Model implements IAvistamiento {
   static table = 'avistamientos';
 
@@ -29,7 +30,7 @@ export default class Avistamiento extends Model implements IAvistamiento {
   @relation('usuarios', 'autor_id') autor!: any;
   @relation('biomas', 'bioma_id') bioma!: any;
   @relation('categorias_taxonomicas', 'categoria_id') categoria!: any;
-  
+
   @children('comentarios_avistamiento') comentarios!: any;
   @children('sugerencias_especie') sugerencias!: any;
   @children('proyectos_avistamientos') proyectos!: any;

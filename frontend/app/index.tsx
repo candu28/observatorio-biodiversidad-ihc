@@ -57,7 +57,7 @@ export default function HomePage() {
   const renderCard = (item: any) => (
     <View key={item.id} style={[styles.card, { height: item.height }]}>
       <Image source={{ uri: item.fotoUrl }} style={styles.cardImage} />
-      
+
       {/* Top Overlay */}
       <View style={styles.cardOverlay}>
         <View style={styles.statusPill}>
@@ -72,14 +72,9 @@ export default function HomePage() {
   );
 
   return (
-    <LinearGradient
-      colors={['#fdf7e3', '#fdf3d1', '#e8f3d6', '#e0ecd1']}
-      style={styles.container}
-      start={{ x: 0, y: 0 }}
-      end={{ x: 1, y: 1 }}
-    >
+    <View style={[styles.container, { backgroundColor: '#fdf7e3' }]}>
       <SafeAreaView style={styles.safeArea}>
-        
+
         {/* Header */}
         <View style={styles.header}>
           <View style={styles.logoContainer}>
@@ -94,9 +89,9 @@ export default function HomePage() {
               <MessageCircle size={20} color="#4b5563" />
             </TouchableOpacity>
             <TouchableOpacity style={styles.avatarContainer} onPress={() => router.push('/perfil')}>
-              <Image 
-                source={{ uri: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=150&auto=format&fit=crop' }} 
-                style={styles.avatar} 
+              <Image
+                source={{ uri: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=150&auto=format&fit=crop' }}
+                style={styles.avatar}
               />
             </TouchableOpacity>
           </View>
@@ -120,7 +115,7 @@ export default function HomePage() {
         </View>
 
         {/* Masonry Grid */}
-        <ScrollView 
+        <ScrollView
           showsVerticalScrollIndicator={false}
           contentContainerStyle={styles.gridContainer}
         >
@@ -151,7 +146,7 @@ export default function HomePage() {
         </View>
 
       </SafeAreaView>
-    </LinearGradient>
+    </View>
   );
 }
 
