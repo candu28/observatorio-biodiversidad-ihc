@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, Image, TouchableOpacity, Dimensions, Platform } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-
+import { View, Text, StyleSheet, ScrollView, Image, TouchableOpacity, SafeAreaView, Dimensions, Platform } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
+import { router } from 'expo-router';
 import { Leaf, Search, MessageCircle, Heart, Home, Plus, Map, CheckCircle2 } from 'lucide-react-native';
 
 const { width } = Dimensions.get('window');
@@ -57,7 +57,7 @@ export default function HomePage() {
   const renderCard = (item: any) => (
     <View key={item.id} style={[styles.card, { height: item.height }]}>
       <Image source={{ uri: item.fotoUrl }} style={styles.cardImage} />
-      
+
       {/* Top Overlay */}
       <View style={styles.cardOverlay}>
         <View style={styles.statusPill}>
@@ -74,7 +74,7 @@ export default function HomePage() {
   return (
     <View style={[styles.container, { backgroundColor: '#fdf7e3' }]}>
       <SafeAreaView style={styles.safeArea}>
-        
+
         {/* Header */}
         <View style={styles.header}>
           <View style={styles.logoContainer}>
@@ -88,10 +88,10 @@ export default function HomePage() {
             <TouchableOpacity style={styles.iconButton}>
               <MessageCircle size={20} color="#4b5563" />
             </TouchableOpacity>
-            <TouchableOpacity style={styles.avatarContainer}>
-              <Image 
-                source={{ uri: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=150&auto=format&fit=crop' }} 
-                style={styles.avatar} 
+            <TouchableOpacity style={styles.avatarContainer} onPress={() => router.push('/perfil')}>
+              <Image
+                source={{ uri: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=150&auto=format&fit=crop' }}
+                style={styles.avatar}
               />
             </TouchableOpacity>
           </View>
@@ -115,7 +115,7 @@ export default function HomePage() {
         </View>
 
         {/* Masonry Grid */}
-        <ScrollView 
+        <ScrollView
           showsVerticalScrollIndicator={false}
           contentContainerStyle={styles.gridContainer}
         >

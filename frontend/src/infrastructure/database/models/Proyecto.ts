@@ -1,7 +1,7 @@
 import { Model } from '@nozbe/watermelondb';
 import { field, text, date, children, relation } from '@nozbe/watermelondb/decorators';
 import { IProyecto } from '../../../../../contracts/types/IProyecto';
-import { NombreBioma } from '../../../../../contracts/types/IBioma';
+import type { NombreBioma } from '../../../../../contracts/types/IBioma';
 import { NombreCategoria } from '../../../../../contracts/types/ICategoriaTaxonomica';
 
 export default class Proyecto extends Model implements IProyecto {

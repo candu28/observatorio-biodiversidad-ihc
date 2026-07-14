@@ -13,7 +13,11 @@
         "@nozbe/watermelondb": "^0.28.0",
         "@supabase/supabase-js": "^2.45.4",
         "expo": "^54.0.35",
+<<<<<<< HEAD
+        "expo-linear-gradient": "~15.0.7",
+=======
         "expo-linear-gradient": "~15.0.8",
+>>>>>>> dev
         "expo-router": "~6.0.24",
         "expo-sqlite": "~16.0.10",
         "lucide-react-native": "^1.23.0",
