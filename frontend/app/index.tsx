@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, Image, TouchableOpacity, SafeAreaView, Dimensions, Platform } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
+import { View, Text, StyleSheet, ScrollView, Image, TouchableOpacity, Dimensions, Platform } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 import { Leaf, Search, MessageCircle, Heart, Home, Plus, Map, CheckCircle2 } from 'lucide-react-native';
 
@@ -51,6 +51,8 @@ const MOCK_AVISTAMIENTOS_RIGHT = [
 
 const MOCK_FILTERS = ['Todo', 'Especies', 'Proyectos'];
 
+import { LinearGradientSvg } from '../src/presentation/components/ui/LinearGradientSvg';
+
 export default function HomePage() {
   const [activeFilter, setActiveFilter] = useState('Todo');
 
@@ -72,7 +74,10 @@ export default function HomePage() {
   );
 
   return (
-    <View style={[styles.container, { backgroundColor: '#fdf7e3' }]}>
+    <LinearGradientSvg 
+      colors={['#fdf7e3', '#fdf3d1', '#e8f3d6', '#e0ecd1']} 
+      style={styles.container}
+    >
       <SafeAreaView style={styles.safeArea}>
 
         {/* Header */}
@@ -146,7 +151,7 @@ export default function HomePage() {
         </View>
 
       </SafeAreaView>
-    </View>
+    </LinearGradientSvg>
   );
 }
 

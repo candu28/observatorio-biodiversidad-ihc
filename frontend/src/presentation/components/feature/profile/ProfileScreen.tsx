@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Image, Modal, Pressable, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
+
 import { ChevronLeft, ChevronRight, Home, Map, Plus, Sparkles, Star, X } from 'lucide-react-native';
 import { router } from 'expo-router';
 
@@ -12,6 +12,8 @@ const colorOptions = [
   { id: 'coral', label: 'Coral', color: '#b2472a' },
   { id: 'rosa', label: 'Rosa', color: '#9a1f64' },
 ];
+
+import { LinearGradientSvg } from '../../ui/LinearGradientSvg';
 
 function SectionHeader({ title }: { title: string }) {
   return (
@@ -48,7 +50,6 @@ function SightCard({ title, subtitle, imageUrl }: { title: string; subtitle: str
   );
 }
 
-
 function ParticipationRow({ title, date, imageUrl }: { title: string; date: string; imageUrl: string }) {
   return (
     <View style={styles.participationRow}>
@@ -70,7 +71,7 @@ export default function ProfileScreen({ profile }: ProfileScreenProps) {
   const [personalizeVisible, setPersonalizeVisible] = useState(false);
 
   return (
-    <LinearGradient colors={['#f7f0df', '#f4ecd7', '#f7f0df']} style={styles.container}>
+    <LinearGradientSvg colors={['#f7f0df', '#f4ecd7', '#f7f0df']} style={styles.container}>
       <View style={styles.safeArea}>
         <View style={styles.topBar}>
           <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
@@ -93,7 +94,6 @@ export default function ProfileScreen({ profile }: ProfileScreenProps) {
             <Text style={styles.subtitle}>{profile.usuario.ubicacion}</Text>
             <Text style={styles.bio}>{profile.usuario.bio}</Text>
 
-
             <View style={styles.statsRow}>
               <StatCard value={String(profile.usuario.totalAvistamientos)} label="Avistamientos" />
             </View>
@@ -101,7 +101,7 @@ export default function ProfileScreen({ profile }: ProfileScreenProps) {
 
           <SectionHeader title="Avistamientos" />
           <View style={styles.sightsGrid}>
-            {profile.avistamientos.map(item => (
+            {profile.avistamientos.map((item: any) => (
               <SightCard
                 key={item.id}
                 title={item.titulo}
@@ -111,10 +111,9 @@ export default function ProfileScreen({ profile }: ProfileScreenProps) {
             ))}
           </View>
 
-
           <SectionHeader title="Participa en" />
           <View style={styles.participationList}>
-            {profile.participaciones.map(item => (
+            {profile.participaciones.map((item: any) => (
               <ParticipationRow
                 key={item.id}
                 title={item.titulo}
@@ -170,7 +169,7 @@ export default function ProfileScreen({ profile }: ProfileScreenProps) {
           </Pressable>
         </Pressable>
       </Modal>
-    </LinearGradient>
+    </LinearGradientSvg>
   );
 }
 
