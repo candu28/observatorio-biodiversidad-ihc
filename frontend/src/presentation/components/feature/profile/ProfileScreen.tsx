@@ -96,6 +96,7 @@ export default function ProfileScreen({ profile }: ProfileScreenProps) {
 
             <View style={styles.statsRow}>
               <StatCard value={String(profile.usuario.totalAvistamientos)} label="Avistamientos" />
+              <StatCard value={String(profile.puntos)} label="Puntos" />
             </View>
           </View>
 
