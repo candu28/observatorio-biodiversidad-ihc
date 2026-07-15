@@ -63,8 +63,11 @@ export class ObtenerPerfilUseCase {
       this.perfilPort.getProyectosPorUsuario(usuario.id),
     ]);
 
+    const puntos = avistamientos.filter(a => a.estado === 'Verificado').length;
+
     return {
       usuario,
+      puntos,
       avistamientos: avistamientos.slice(0, 2).map(mapAvistamiento),
       participaciones: proyectos.slice(0, 3).map(mapParticipacion),
     };

@@ -1,10 +1,14 @@
 import { Stack } from "expo-router";
+import { MediaPickerProvider } from "../src/infrastructure/adapters/hardware/ExpoCameraModal";
 
 export default function Layout() {
   return (
-    <Stack>
-      <Stack.Screen name="index" options={{ headerShown: false }} />
-      <Stack.Screen name="perfil" options={{ headerShown: false }} />
-    </Stack>
+    <MediaPickerProvider>
+      <Stack>
+        <Stack.Screen name="index" options={{ headerShown: false }} />
+        <Stack.Screen name="perfil" options={{ headerShown: false }} />
+        <Stack.Screen name="avistamiento" options={{ headerShown: false }} />
+      </Stack>
+    </MediaPickerProvider>
   );
 }
