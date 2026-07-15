@@ -14,6 +14,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 import { Leaf, Search, MessageCircle, Heart, Home, Plus, Map, CheckCircle2 } from 'lucide-react-native';
 import { LinearGradientSvg } from '../../ui/LinearGradientSvg';
+import { BottomNav } from '../../ui/BottomNav';
 import { ObtenerHomePageUseCase } from '../../../../application/useCases/ObtenerHomePageUseCase';
 import { MockHomePageRepository } from '../../../../infrastructure/adapters/mock/homepage/MockHomePageRepository';
 import { HomePageCard } from '../../../../application/ports/IHomePagePort';
@@ -71,7 +72,12 @@ export default function HomePage() {
   }, [data, numColumns]);
 
   const renderCard = (item: any) => (
-    <View key={item.id} style={[styles.card, { height: item.height }]}>
+    <TouchableOpacity
+      key={item.id}
+      style={[styles.card, { height: item.height }]}
+      onPress={() => router.push(`/detalle/${item.id}`)}
+      activeOpacity={0.8}
+    >
       <Image source={{ uri: item.fotoUrl }} style={styles.cardImage} />
       <View style={styles.cardOverlay}>
         <View style={styles.statusPill}>
@@ -82,7 +88,7 @@ export default function HomePage() {
           <Heart size={16} color="#9ca3af" />
         </TouchableOpacity>
       </View>
-    </View>
+    </TouchableOpacity>
   );
 
   return (
@@ -150,22 +156,7 @@ export default function HomePage() {
         )}
 
         {/* Bottom Navigation */}
-        <View style={styles.bottomNavWrapper}>
-          <View style={styles.bottomNav}>
-            <TouchableOpacity style={styles.navItem}>
-              <Home size={24} color="#4b5563" />
-              <Text style={styles.navText}>Inicio</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.navItem}>
-              <Plus size={24} color="#4b5563" />
-              <Text style={styles.navText}>Avistamiento</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.navItem}>
-              <Map size={24} color="#4b5563" />
-              <Text style={styles.navText}>Mapa</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
+        <BottomNav />
 
       </SafeAreaView>
     </LinearGradientSvg>
@@ -306,37 +297,5 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(255, 255, 255, 0.9)',
     justifyContent: 'center',
     alignItems: 'center',
-  },
-  bottomNavWrapper: {
-    position: 'absolute',
-    bottom: 30,
-    left: 20,
-    right: 20,
-    alignItems: 'center',
-  },
-  bottomNav: {
-    flexDirection: 'row',
-    backgroundColor: 'rgba(255, 255, 255, 0.85)',
-    borderRadius: 30,
-    paddingHorizontal: 30,
-    paddingVertical: 12,
-    justifyContent: 'space-between',
-    width: '100%',
-    maxWidth: 400,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.1,
-    shadowRadius: 10,
-    elevation: 5,
-  },
-  navItem: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 4,
-  },
-  navText: {
-    fontSize: 12,
-    fontWeight: '500',
-    color: '#4b5563',
   },
 });
