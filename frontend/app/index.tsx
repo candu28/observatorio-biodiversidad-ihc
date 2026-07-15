@@ -139,7 +139,7 @@ export default function HomePage() {
               <Home size={24} color="#4b5563" />
               <Text style={styles.navText}>Inicio</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.navItem}>
+            <TouchableOpacity style={styles.navItem} onPress={() => router.push('/avistamiento')}>
               <Plus size={24} color="#4b5563" />
               <Text style={styles.navText}>Avistamiento</Text>
             </TouchableOpacity>
