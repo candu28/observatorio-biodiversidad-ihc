@@ -8,11 +8,15 @@ import {
   TouchableOpacity, 
   Platform, 
   useWindowDimensions, 
-  ActivityIndicator 
+  ActivityIndicator,
+  Modal,
+  Pressable,
+  Alert,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
-import { Leaf, Search, MessageCircle, Heart, Home, Plus, Map, CheckCircle2 } from 'lucide-react-native';
+import { Leaf, Search, MessageCircle, Heart, Home, Plus, Map, CheckCircle2, Camera, Image as ImageIcon, X } from 'lucide-react-native';
+import * as ImagePicker from 'expo-image-picker';
 import { LinearGradientSvg } from '../../ui/LinearGradientSvg';
 import { ObtenerHomePageUseCase } from '../../../../application/useCases/ObtenerHomePageUseCase';
 import { MockHomePageRepository } from '../../../../infrastructure/adapters/mock/homepage/MockHomePageRepository';
@@ -24,6 +28,44 @@ export default function HomePage() {
   const [data, setData] = useState<HomePageCard[]>([]);
   const [filters, setFilters] = useState<string[]>(['Todo']);
   const [isLoading, setIsLoading] = useState(true);
+  const [sheetVisible, setSheetVisible] = useState(false);
+
+  const handleOpenCamera = async () => {
+    setSheetVisible(false);
+    const { status } = await ImagePicker.requestCameraPermissionsAsync();
+    if (status !== 'granted') {
+      Alert.alert('Permiso Denegado', 'Necesitamos acceso a tu cámara para registrar avistamientos.');
+      return;
+    }
+    const result = await ImagePicker.launchCameraAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      quality: 0.9,
+      allowsEditing: false,
+    });
+    if (!result.canceled && result.assets.length > 0) {
+      const uris = result.assets.map(a => a.uri);
+      router.push({ pathname: '/avistamiento', params: { photos: JSON.stringify(uris) } });
+    }
+  };
+
+  const handleOpenGallery = async () => {
+    setSheetVisible(false);
+    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (status !== 'granted') {
+      Alert.alert('Permiso Denegado', 'Necesitamos acceso a tu galería para registrar avistamientos.');
+      return;
+    }
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      quality: 0.9,
+      allowsMultipleSelection: true,
+      selectionLimit: 10,
+    });
+    if (!result.canceled && result.assets.length > 0) {
+      const uris = result.assets.map(a => a.uri);
+      router.push({ pathname: '/avistamiento', params: { photos: JSON.stringify(uris) } });
+    }
+  };
 
   useEffect(() => {
     const loadData = async () => {
@@ -156,7 +198,7 @@ export default function HomePage() {
               <Home size={24} color="#4b5563" />
               <Text style={styles.navText}>Inicio</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.navItem}>
+            <TouchableOpacity style={styles.navItem} onPress={() => setSheetVisible(true)}>
               <Plus size={24} color="#4b5563" />
               <Text style={styles.navText}>Avistamiento</Text>
             </TouchableOpacity>
@@ -168,6 +210,47 @@ export default function HomePage() {
         </View>
 
       </SafeAreaView>
+
+      {/* Bottom Sheet: Seleccionar fuente de foto */}
+      <Modal visible={sheetVisible} transparent animationType="slide" onRequestClose={() => setSheetVisible(false)}>
+        <Pressable style={styles.sheetBackdrop} onPress={() => setSheetVisible(false)}>
+          <Pressable style={styles.sheetContent} onPress={e => e.stopPropagation()}>
+            {/* Handle bar */}
+            <View style={styles.sheetHandle} />
+
+            <View style={styles.sheetHeader}>
+              <Text style={styles.sheetTitle}>Nuevo Avistamiento</Text>
+              <TouchableOpacity onPress={() => setSheetVisible(false)} style={styles.sheetClose}>
+                <X size={18} color="#7a6e5b" />
+              </TouchableOpacity>
+            </View>
+            <Text style={styles.sheetSubtitle}>Elige cómo agregar tu evidencia fotográfica</Text>
+
+            <View style={styles.sheetOptions}>
+              <TouchableOpacity style={styles.sheetOption} onPress={handleOpenCamera}>
+                <View style={[styles.optionIcon, { backgroundColor: '#ecfdf5' }]}>
+                  <Camera size={26} color="#4d7c0f" />
+                </View>
+                <View style={styles.optionText}>
+                  <Text style={styles.optionTitle}>Tomar Fotografía</Text>
+                  <Text style={styles.optionDesc}>Usa la cámara (incluye modo ráfaga)</Text>
+                </View>
+              </TouchableOpacity>
+
+              <TouchableOpacity style={[styles.sheetOption, { borderBottomWidth: 0 }]} onPress={handleOpenGallery}>
+                <View style={[styles.optionIcon, { backgroundColor: '#eff6ff' }]}>
+                  <ImageIcon size={26} color="#1d4ed8" />
+                </View>
+                <View style={styles.optionText}>
+                  <Text style={styles.optionTitle}>Subir desde Galería</Text>
+                  <Text style={styles.optionDesc}>Selecciona fotos guardadas en tu dispositivo</Text>
+                </View>
+              </TouchableOpacity>
+            </View>
+          </Pressable>
+        </Pressable>
+      </Modal>
+
     </LinearGradientSvg>
   );
 }
@@ -338,5 +421,91 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: '500',
     color: '#4b5563',
+  },
+  // ─── Bottom Sheet ───────────────────────────────────────────────
+  sheetBackdrop: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    justifyContent: 'flex-end',
+  },
+  sheetContent: {
+    backgroundColor: '#fffdf8',
+    borderTopLeftRadius: 30,
+    borderTopRightRadius: 30,
+    paddingHorizontal: 24,
+    paddingTop: 12,
+    paddingBottom: Platform.OS === 'ios' ? 44 : 28,
+    shadowColor: '#000',
+    shadowOpacity: 0.2,
+    shadowOffset: { width: 0, height: -4 },
+    shadowRadius: 16,
+    elevation: 12,
+  },
+  sheetHandle: {
+    width: 36,
+    height: 4,
+    borderRadius: 2,
+    backgroundColor: '#d4c9b0',
+    alignSelf: 'center',
+    marginBottom: 18,
+  },
+  sheetHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 6,
+  },
+  sheetTitle: {
+    fontSize: 20,
+    fontWeight: '800',
+    color: '#2d2418',
+  },
+  sheetClose: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: '#f2ead9',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  sheetSubtitle: {
+    fontSize: 13,
+    color: '#8a7a5d',
+    marginBottom: 20,
+  },
+  sheetOptions: {
+    backgroundColor: '#fff',
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: '#f0e3c4',
+    overflow: 'hidden',
+  },
+  sheetOption: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: '#f0e3c4',
+  },
+  optionIcon: {
+    width: 52,
+    height: 52,
+    borderRadius: 26,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 16,
+  },
+  optionText: {
+    flex: 1,
+  },
+  optionTitle: {
+    fontSize: 15,
+    fontWeight: '800',
+    color: '#271f13',
+    marginBottom: 3,
+  },
+  optionDesc: {
+    fontSize: 12,
+    color: '#8a7a5d',
   },
 });

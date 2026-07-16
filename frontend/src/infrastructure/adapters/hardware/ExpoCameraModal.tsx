@@ -227,11 +227,15 @@ export const MediaPickerProvider: React.FC<{ children: React.ReactNode }> = ({ c
                 <X size={20} color="#fff" />
               </TouchableOpacity>
 
-              <View style={styles.modeIndicator}>
+              <TouchableOpacity 
+                style={styles.modeIndicator}
+                onPress={() => setMode(prev => prev === 'photo' ? 'burst' : 'photo')}
+                disabled={capturing}
+              >
                 <Text style={styles.modeText}>
-                  {mode === 'photo' ? 'FOTO ÚNICA' : `RÁFAGA (${burstProgress}/${burstCount})`}
+                  {mode === 'photo' ? 'FOTO ÚNICA' : `RÁFAGA 5x ${burstProgress > 0 ? `(${burstProgress}/5)` : ''}`}
                 </Text>
-              </View>
+              </TouchableOpacity>
 
               <View style={styles.topRightControls}>
                 <TouchableOpacity style={styles.topButton} onPress={toggleFlash}>
