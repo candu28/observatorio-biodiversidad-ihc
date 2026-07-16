@@ -31,39 +31,49 @@ export default function HomePage() {
   const [sheetVisible, setSheetVisible] = useState(false);
 
   const handleOpenCamera = async () => {
-    setSheetVisible(false);
-    const { status } = await ImagePicker.requestCameraPermissionsAsync();
-    if (status !== 'granted') {
-      Alert.alert('Permiso Denegado', 'Necesitamos acceso a tu cámara para registrar avistamientos.');
-      return;
-    }
-    const result = await ImagePicker.launchCameraAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      quality: 0.9,
-      allowsEditing: false,
-    });
-    if (!result.canceled && result.assets.length > 0) {
-      const uris = result.assets.map(a => a.uri);
-      router.push({ pathname: '/avistamiento', params: { photos: JSON.stringify(uris) } });
+    try {
+      const { status } = await ImagePicker.requestCameraPermissionsAsync();
+      if (status !== 'granted') {
+        Alert.alert('Permiso Denegado', 'Necesitamos acceso a tu cámara para registrar avistamientos.');
+        return;
+      }
+      const result = await ImagePicker.launchCameraAsync({
+        mediaTypes: ['images'],
+        quality: 0.9,
+        allowsEditing: false,
+      });
+      if (!result.canceled && result.assets.length > 0) {
+        const uris = result.assets.map(a => a.uri);
+        router.push({ pathname: '/avistamiento', params: { photos: JSON.stringify(uris) } });
+      }
+    } catch (error) {
+      console.log('Error abriendo cámara', error);
+    } finally {
+      setSheetVisible(false);
     }
   };
 
   const handleOpenGallery = async () => {
-    setSheetVisible(false);
-    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
-    if (status !== 'granted') {
-      Alert.alert('Permiso Denegado', 'Necesitamos acceso a tu galería para registrar avistamientos.');
-      return;
-    }
-    const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      quality: 0.9,
-      allowsMultipleSelection: true,
-      selectionLimit: 10,
-    });
-    if (!result.canceled && result.assets.length > 0) {
-      const uris = result.assets.map(a => a.uri);
-      router.push({ pathname: '/avistamiento', params: { photos: JSON.stringify(uris) } });
+    try {
+      const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+      if (status !== 'granted') {
+        Alert.alert('Permiso Denegado', 'Necesitamos acceso a tu galería para registrar avistamientos.');
+        return;
+      }
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ['images'],
+        quality: 0.9,
+        allowsMultipleSelection: true,
+        selectionLimit: 10,
+      });
+      if (!result.canceled && result.assets.length > 0) {
+        const uris = result.assets.map(a => a.uri);
+        router.push({ pathname: '/avistamiento', params: { photos: JSON.stringify(uris) } });
+      }
+    } catch (error) {
+      console.log('Error abriendo galería', error);
+    } finally {
+      setSheetVisible(false);
     }
   };
 

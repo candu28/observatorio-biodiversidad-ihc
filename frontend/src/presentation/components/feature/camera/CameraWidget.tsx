@@ -23,7 +23,6 @@ export default function CameraWidget({ photos, onPhotosChange }: CameraWidgetPro
   const [sheetVisible, setSheetVisible] = useState(false);
 
   const handleAction = async (type: 'photo' | 'gallery') => {
-    setSheetVisible(false);
     try {
       const adapter = new ExpoCameraAdapter();
       const useCase = new CapturarMultimediaAvistamiento(adapter);
@@ -50,6 +49,8 @@ export default function CameraWidget({ photos, onPhotosChange }: CameraWidgetPro
       }
     } catch (error: any) {
       Alert.alert('Error', error.message || 'Ocurrió un error al capturar multimedia.');
+    } finally {
+      setSheetVisible(false);
     }
   };
 
