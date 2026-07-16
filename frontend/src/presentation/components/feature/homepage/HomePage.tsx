@@ -1,18 +1,21 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { 
-  View, 
-  Text, 
-  StyleSheet, 
-  ScrollView, 
-  Image, 
-  TouchableOpacity, 
-  Platform, 
-  useWindowDimensions, 
-  ActivityIndicator 
+import {
+  View,
+  Text,
+  StyleSheet,
+  ScrollView,
+  Image,
+  TouchableOpacity,
+  Platform,
+  useWindowDimensions,
+  ActivityIndicator,
+  Modal,
+  Pressable,
+  Alert,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
-import { Leaf, Search, MessageCircle, Heart, Home, Plus, Map, CheckCircle2 } from 'lucide-react-native';
+import { Leaf, Search, MessageCircle, Heart, CheckCircle2 } from 'lucide-react-native';
 import { LinearGradientSvg } from '../../ui/LinearGradientSvg';
 import { BottomNav } from '../../ui/BottomNav';
 import { ObtenerHomePageUseCase } from '../../../../application/useCases/ObtenerHomePageUseCase';
@@ -92,8 +95,8 @@ export default function HomePage() {
   );
 
   return (
-    <LinearGradientSvg 
-      colors={['#fdf7e3', '#fdf3d1', '#e8f3d6', '#e0ecd1']} 
+    <LinearGradientSvg
+      colors={['#fdf7e3', '#fdf3d1', '#e8f3d6', '#e0ecd1']}
       style={styles.container}
     >
       <SafeAreaView style={styles.safeArea}>
@@ -156,7 +159,9 @@ export default function HomePage() {
         )}
 
         {/* Bottom Navigation */}
+
         <BottomNav />
+
 
       </SafeAreaView>
     </LinearGradientSvg>
@@ -244,7 +249,7 @@ const styles = StyleSheet.create({
   gridContainer: {
     flexDirection: 'row',
     paddingHorizontal: 15,
-    paddingBottom: 100, 
+    paddingBottom: 100,
   },
   masonryColumn: {
     flex: 1,
@@ -256,8 +261,8 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     overflow: 'hidden',
     backgroundColor: '#fff',
-    elevation: 3, 
-    shadowColor: '#000', 
+    elevation: 3,
+    shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 8,
