@@ -28,6 +28,8 @@ export default function Layout() {
         <Stack.Screen name="perfil" options={{ headerShown: false }} />
         <Stack.Screen name="avistamiento" options={{ headerShown: false }} />
         <Stack.Screen name="detalle/[id]" options={{ headerShown: false }} />
+        <Stack.Screen name="crear-proyecto" options={{ headerShown: false }} />
+        <Stack.Screen name="proyecto/[id]" options={{ headerShown: false }} />
       </Stack>
     </MediaPickerProvider>
   );
