@@ -15,6 +15,7 @@ export default class Usuario extends Model implements IUsuario {
   set interes(val: string[]) { this._interes = JSON.stringify(val); }
 
   @field('total_avistamientos') totalAvistamientos!: number;
+  @field('total_aciertos_especies') totalAciertosEspecies?: number;
 
   @date('created_at') _createdAt!: number;
   get createdAt(): string { return new Date(this._createdAt).toISOString(); }

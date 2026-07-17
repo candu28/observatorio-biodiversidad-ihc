@@ -1,0 +1,336 @@
+{
+  "usuarios": [
+    {
+      "id": "e44d32cb-5e60-496f-a89c-9db8a72ec222",
+      "nombre": "Ana García",
+      "ubicacion": "Caracas, Venezuela",
+      "bio": "Amante de las orquídeas y la fotografía.",
+      "foto_perfil_url": "https://i.pravatar.cc/150?u=ana",
+      "interes": "[\"Botánica\", \"Fotografía\"]",
+      "total_avistamientos": 15,
+      "total_aciertos_especies": 5,
+      "created_at": "2026-01-10T10:00:00Z",
+      "updated_at": "2026-01-10T10:00:00Z"
+    },
+    {
+      "id": "d0d62590-7dfd-453b-8ea9-7de4772ab16d",
+      "nombre": "Luis Silva",
+      "ubicacion": "Puerto Ordaz, Venezuela",
+      "bio": "Investigador aficionado de ranas.",
+      "foto_perfil_url": "https://i.pravatar.cc/150?u=luis",
+      "interes": "[\"Herpetología\"]",
+      "total_avistamientos": 42,
+      "total_aciertos_especies": 12,
+      "created_at": "2026-02-15T10:00:00Z",
+      "updated_at": "2026-02-15T10:00:00Z"
+    },
+    {
+      "id": "a1b2c3d4-e5f6-4a5b-8c7d-9e0f1a2b3c4d",
+      "nombre": "María Antonieta",
+      "ubicacion": "Mérida, Venezuela",
+      "bio": "Observadora de aves andinas.",
+      "foto_perfil_url": "https://i.pravatar.cc/150?u=maria",
+      "interes": "[\"Ornitología\"]",
+      "total_avistamientos": 8,
+      "total_aciertos_especies": 2,
+      "created_at": "2026-03-20T10:00:00Z",
+      "updated_at": "2026-03-20T10:00:00Z"
+    }
+  ],
+  "biomas": [
+    {
+      "id": "2e6b0a8f-2877-4b77-a8bf-1234567890ab",
+      "nombre": "Selva Tropical",
+      "descripcion": "Bosque denso, húmedo y con alta biodiversidad.",
+      "created_at": "2026-01-01T10:00:00Z",
+      "updated_at": "2026-01-01T10:00:00Z"
+    },
+    {
+      "id": "c1f8a846-fc3e-43b6-9bb2-402a5cf38b1f",
+      "nombre": "Sabana",
+      "descripcion": "Llanuras abiertas con vegetación herbácea.",
+      "created_at": "2026-01-01T10:00:00Z",
+      "updated_at": "2026-01-01T10:00:00Z"
+    },
+    {
+      "id": "99999999-9999-9999-9999-999999999999",
+      "nombre": "Páramo",
+      "descripcion": "Ecosistema de alta montaña, frío y húmedo.",
+      "created_at": "2026-01-01T10:00:00Z",
+      "updated_at": "2026-01-01T10:00:00Z"
+    }
+  ],
+  "categorias_taxonomicas": [
+    {
+      "id": "11111111-1111-1111-1111-111111111111",
+      "nombre": "Anfibios",
+      "created_at": "2026-01-01T10:00:00Z",
+      "updated_at": "2026-01-01T10:00:00Z"
+    },
+    {
+      "id": "22222222-2222-2222-2222-222222222222",
+      "nombre": "Plantas",
+      "created_at": "2026-01-01T10:00:00Z",
+      "updated_at": "2026-01-01T10:00:00Z"
+    },
+    {
+      "id": "33333333-3333-3333-3333-333333333333",
+      "nombre": "Aves",
+      "created_at": "2026-01-01T10:00:00Z",
+      "updated_at": "2026-01-01T10:00:00Z"
+    }
+  ],
+  "especies": [
+    {
+      "id": "aaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+      "nombre_comun": "Sapo Minero",
+      "nombre_cientifico": "Dendrobates leucomelas",
+      "categoria_id": "11111111-1111-1111-1111-111111111111",
+      "total_observaciones": 12,
+      "created_at": "2026-01-01T10:00:00Z",
+      "updated_at": "2026-01-01T10:00:00Z"
+    },
+    {
+      "id": "bbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb",
+      "nombre_comun": "Orquídea Nacional",
+      "nombre_cientifico": "Cattleya mossiae",
+      "categoria_id": "22222222-2222-2222-2222-222222222222",
+      "total_observaciones": 5,
+      "created_at": "2026-01-01T10:00:00Z",
+      "updated_at": "2026-01-01T10:00:00Z"
+    },
+    {
+      "id": "ccccc-cccc-cccc-cccc-cccccccccccc",
+      "nombre_comun": "Turpial",
+      "nombre_cientifico": "Icterus icterus",
+      "categoria_id": "33333333-3333-3333-3333-333333333333",
+      "total_observaciones": 30,
+      "created_at": "2026-01-01T10:00:00Z",
+      "updated_at": "2026-01-01T10:00:00Z"
+    }
+  ],
+  "avistamientos": [
+    {
+      "id": "33333333-3333-3333-3333-333333333333",
+      "numero_publicacion": 1,
+      "autor_id": "d0d62590-7dfd-453b-8ea9-7de4772ab16d",
+      "foto_url": "https://i.pravatar.cc/300?img=sapo",
+      "descripcion_experiencia": "Encontrado cerca de una piedra húmeda.",
+      "latitud": 8.3,
+      "longitud": -62.6,
+      "ubicacion_texto": "Parque Cachamay",
+      "bioma_id": "2e6b0a8f-2877-4b77-a8bf-1234567890ab",
+      "categoria_id": "11111111-1111-1111-1111-111111111111",
+      "estado": "Verificado",
+      "especie_verificada_id": "aaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+      "especie_verif_nombre": "Sapo Minero",
+      "especie_verif_nombre_cientifico": "Dendrobates leucomelas",
+      "created_at": "2026-05-10T10:00:00Z",
+      "updated_at": "2026-05-10T10:00:00Z"
+    },
+    {
+      "id": "44444444-3333-3333-3333-333333333333",
+      "numero_publicacion": 2,
+      "autor_id": "e44d32cb-5e60-496f-a89c-9db8a72ec222",
+      "foto_url": "https://i.pravatar.cc/300?img=orquidea",
+      "descripcion_experiencia": "Orquídea floreciendo en un árbol alto.",
+      "latitud": 10.5,
+      "longitud": -66.9,
+      "ubicacion_texto": "Cerro El Ávila",
+      "bioma_id": "2e6b0a8f-2877-4b77-a8bf-1234567890ab",
+      "categoria_id": "22222222-2222-2222-2222-222222222222",
+      "estado": "Pendiente",
+      "especie_verificada_id": null,
+      "especie_verif_nombre": null,
+      "especie_verif_nombre_cientifico": null,
+      "created_at": "2026-06-15T10:00:00Z",
+      "updated_at": "2026-06-15T10:00:00Z"
+    },
+    {
+      "id": "55555555-3333-3333-3333-333333333333",
+      "numero_publicacion": 3,
+      "autor_id": "a1b2c3d4-e5f6-4a5b-8c7d-9e0f1a2b3c4d",
+      "foto_url": "https://i.pravatar.cc/300?img=turpial",
+      "descripcion_experiencia": "Pájaro amarillo cantando por la mañana.",
+      "latitud": 8.6,
+      "longitud": -70.2,
+      "ubicacion_texto": "Llanos de Barinas",
+      "bioma_id": "c1f8a846-fc3e-43b6-9bb2-402a5cf38b1f",
+      "categoria_id": "33333333-3333-3333-3333-333333333333",
+      "estado": "Verificado",
+      "especie_verificada_id": "ccccc-cccc-cccc-cccc-cccccccccccc",
+      "especie_verif_nombre": "Turpial",
+      "especie_verif_nombre_cientifico": "Icterus icterus",
+      "created_at": "2026-07-01T08:00:00Z",
+      "updated_at": "2026-07-01T08:00:00Z"
+    }
+  ],
+  "multimedia_avistamientos": [
+    {
+      "id": "44444444-4444-4444-4444-444444444444",
+      "avistamiento_id": "33333333-3333-3333-3333-333333333333",
+      "archivo_url": "https://i.pravatar.cc/300?img=sapo2",
+      "tipo_multimedia": "Foto",
+      "created_at": "2026-05-10T10:00:00Z",
+      "updated_at": "2026-05-10T10:00:00Z"
+    },
+    {
+      "id": "55555555-4444-4444-4444-444444444444",
+      "avistamiento_id": "44444444-3333-3333-3333-333333333333",
+      "archivo_url": "https://i.pravatar.cc/300?img=orquidea2",
+      "tipo_multimedia": "Foto",
+      "created_at": "2026-06-15T10:05:00Z",
+      "updated_at": "2026-06-15T10:05:00Z"
+    },
+    {
+      "id": "66666666-4444-4444-4444-444444444444",
+      "avistamiento_id": "55555555-3333-3333-3333-333333333333",
+      "archivo_url": "https://i.pravatar.cc/300?img=turpial2",
+      "tipo_multimedia": "Video",
+      "created_at": "2026-07-01T08:05:00Z",
+      "updated_at": "2026-07-01T08:05:00Z"
+    }
+  ],
+  "comentarios_avistamiento": [
+    {
+      "comentario_id": "55555555-5555-5555-5555-555555555555",
+      "avistamiento_id": "33333333-3333-3333-3333-333333333333",
+      "autor_id": "e44d32cb-5e60-496f-a89c-9db8a72ec222",
+      "contenido": "¡Excelente hallazgo!",
+      "created_at": "2026-05-11T10:00:00Z",
+      "updated_at": "2026-05-11T10:00:00Z"
+    },
+    {
+      "comentario_id": "66666666-5555-5555-5555-555555555555",
+      "avistamiento_id": "44444444-3333-3333-3333-333333333333",
+      "autor_id": "d0d62590-7dfd-453b-8ea9-7de4772ab16d",
+      "contenido": "Qué colores tan vivos.",
+      "created_at": "2026-06-16T10:00:00Z",
+      "updated_at": "2026-06-16T10:00:00Z"
+    },
+    {
+      "comentario_id": "77777777-5555-5555-5555-555555555555",
+      "avistamiento_id": "55555555-3333-3333-3333-333333333333",
+      "autor_id": "e44d32cb-5e60-496f-a89c-9db8a72ec222",
+      "contenido": "Me encanta el canto del turpial.",
+      "created_at": "2026-07-02T10:00:00Z",
+      "updated_at": "2026-07-02T10:00:00Z"
+    }
+  ],
+  "sugerencias_especie": [
+    {
+      "avistamiento_id": "33333333-3333-3333-3333-333333333333",
+      "usuario_id": "d0d62590-7dfd-453b-8ea9-7de4772ab16d",
+      "nombre_propuesto": "Sapo Minero",
+      "votos_a_favor": 2,
+      "votos_en_contra": 0,
+      "usuarios_interaccion_ids": "[]",
+      "created_at": "2026-05-10T10:00:00Z",
+      "updated_at": "2026-05-10T10:00:00Z"
+    },
+    {
+      "avistamiento_id": "44444444-3333-3333-3333-333333333333",
+      "usuario_id": "a1b2c3d4-e5f6-4a5b-8c7d-9e0f1a2b3c4d",
+      "nombre_propuesto": "Orquídea Nacional",
+      "votos_a_favor": 1,
+      "votos_en_contra": 0,
+      "usuarios_interaccion_ids": "[]",
+      "created_at": "2026-06-15T12:00:00Z",
+      "updated_at": "2026-06-15T12:00:00Z"
+    }
+  ],
+  "proyectos": [
+    {
+      "id": "66666666-6666-6666-6666-666666666666",
+      "creador_id": "e44d32cb-5e60-496f-a89c-9db8a72ec222",
+      "titulo": "Rescate de Orquídeas",
+      "descripcion": "Proyecto comunitario para identificar orquídeas raras.",
+      "bioma": "Selva Tropical",
+      "ubicacion_geografica": "Guayana",
+      "cantidad_participantes": 2,
+      "created_at": "2026-06-01T10:00:00Z",
+      "updated_at": "2026-06-01T10:00:00Z"
+    },
+    {
+      "id": "77777777-6666-6666-6666-666666666666",
+      "creador_id": "d0d62590-7dfd-453b-8ea9-7de4772ab16d",
+      "titulo": "Censo de Aves Llaneras",
+      "descripcion": "Registro de todas las aves en la región de Barinas.",
+      "bioma": "Sabana",
+      "ubicacion_geografica": "Los Llanos",
+      "cantidad_participantes": 3,
+      "created_at": "2026-07-01T10:00:00Z",
+      "updated_at": "2026-07-01T10:00:00Z"
+    }
+  ],
+  "tareas_proyecto": [
+    {
+      "tarea_id": "77777777-7777-7777-7777-777777777777",
+      "proyecto_id": "66666666-6666-6666-6666-666666666666",
+      "titulo_tarea": "Mapear zona norte",
+      "descripcion_instrucciones": "Tomar fotos de toda flor en la zona norte del parque.",
+      "created_at": "2026-06-02T10:00:00Z",
+      "updated_at": "2026-06-02T10:00:00Z"
+    },
+    {
+      "tarea_id": "88888888-7777-7777-7777-777777777777",
+      "proyecto_id": "77777777-6666-6666-6666-666666666666",
+      "titulo_tarea": "Buscar nidos",
+      "descripcion_instrucciones": "Fotografiar nidos de aves sin perturbarlos.",
+      "created_at": "2026-07-02T10:00:00Z",
+      "updated_at": "2026-07-02T10:00:00Z"
+    }
+  ],
+  "aportes_tarea": [
+    {
+      "aporte_id": "88888888-8888-8888-8888-888888888888",
+      "proyecto_id": "66666666-6666-6666-6666-666666666666",
+      "tarea_id": "77777777-7777-7777-7777-777777777777",
+      "usuario_id": "d0d62590-7dfd-453b-8ea9-7de4772ab16d",
+      "tipo_multimedia": "Foto",
+      "archivo_url": "https://i.pravatar.cc/300?img=flor",
+      "comentario_descriptivo": "Aquí hay una Cattleya",
+      "created_at": "2026-06-03T10:00:00Z",
+      "updated_at": "2026-06-03T10:00:00Z"
+    },
+    {
+      "aporte_id": "99999999-8888-8888-8888-888888888888",
+      "proyecto_id": "77777777-6666-6666-6666-666666666666",
+      "tarea_id": "88888888-7777-7777-7777-777777777777",
+      "usuario_id": "a1b2c3d4-e5f6-4a5b-8c7d-9e0f1a2b3c4d",
+      "tipo_multimedia": "Foto",
+      "archivo_url": "https://i.pravatar.cc/300?img=nido",
+      "comentario_descriptivo": "Encontré un nido de Turpial",
+      "created_at": "2026-07-03T10:00:00Z",
+      "updated_at": "2026-07-03T10:00:00Z"
+    }
+  ],
+  "proyectos_avistamientos": [
+    {
+      "proyecto_id": "66666666-6666-6666-6666-666666666666",
+      "avistamiento_id": "33333333-3333-3333-3333-333333333333",
+      "created_at": "2026-06-03T10:00:00Z",
+      "updated_at": "2026-06-03T10:00:00Z"
+    },
+    {
+      "proyecto_id": "77777777-6666-6666-6666-666666666666",
+      "avistamiento_id": "55555555-3333-3333-3333-333333333333",
+      "created_at": "2026-07-03T10:00:00Z",
+      "updated_at": "2026-07-03T10:00:00Z"
+    }
+  ],
+  "participantes_proyecto": [
+    {
+      "proyecto_id": "66666666-6666-6666-6666-666666666666",
+      "usuario_id": "d0d62590-7dfd-453b-8ea9-7de4772ab16d",
+      "created_at": "2026-06-02T10:00:00Z",
+      "updated_at": "2026-06-02T10:00:00Z"
+    },
+    {
+      "proyecto_id": "77777777-6666-6666-6666-666666666666",
+      "usuario_id": "a1b2c3d4-e5f6-4a5b-8c7d-9e0f1a2b3c4d",
+      "created_at": "2026-07-02T10:00:00Z",
+      "updated_at": "2026-07-02T10:00:00Z"
+    }
+  ]
+}
