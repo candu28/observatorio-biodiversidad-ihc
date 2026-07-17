@@ -1,0 +1,182 @@
+{
+  "usuarios": [
+    {
+      "id": "e44d32cb-5e60-496f-a89c-9db8a72ec222",
+      "nombre": "Ana García",
+      "ubicacion": "Caracas, Venezuela",
+      "bio": "Amante de las orquídeas y la fotografía.",
+      "foto_perfil_url": "https://i.pravatar.cc/150?u=ana",
+      "interes": "[\"Botánica\", \"Fotografía\"]",
+      "total_avistamientos": 15,
+      "total_aciertos_especies": 5,
+      "created_at": "2026-01-10T10:00:00Z",
+      "updated_at": "2026-01-10T10:00:00Z"
+    },
+    {
+      "id": "d0d62590-7dfd-453b-8ea9-7de4772ab16d",
+      "nombre": "Luis Silva",
+      "ubicacion": "Puerto Ordaz, Venezuela",
+      "bio": "Investigador aficionado de ranas.",
+      "foto_perfil_url": "https://i.pravatar.cc/150?u=luis",
+      "interes": "[\"Herpetología\"]",
+      "total_avistamientos": 42,
+      "total_aciertos_especies": 12,
+      "created_at": "2026-02-15T10:00:00Z",
+      "updated_at": "2026-02-15T10:00:00Z"
+    }
+  ],
+  "biomas": [
+    {
+      "id": "2e6b0a8f-2877-4b77-a8bf-1234567890ab",
+      "nombre": "Selva Tropical",
+      "descripcion": "Bosque denso, húmedo y con alta biodiversidad.",
+      "created_at": "2026-01-01T10:00:00Z",
+      "updated_at": "2026-01-01T10:00:00Z"
+    },
+    {
+      "id": "c1f8a846-fc3e-43b6-9bb2-402a5cf38b1f",
+      "nombre": "Sabana",
+      "descripcion": "Llanuras abiertas con vegetación herbácea.",
+      "created_at": "2026-01-01T10:00:00Z",
+      "updated_at": "2026-01-01T10:00:00Z"
+    }
+  ],
+  "categorias_taxonomicas": [
+    {
+      "id": "11111111-1111-1111-1111-111111111111",
+      "nombre": "Anfibios",
+      "created_at": "2026-01-01T10:00:00Z",
+      "updated_at": "2026-01-01T10:00:00Z"
+    },
+    {
+      "id": "22222222-2222-2222-2222-222222222222",
+      "nombre": "Plantas",
+      "created_at": "2026-01-01T10:00:00Z",
+      "updated_at": "2026-01-01T10:00:00Z"
+    }
+  ],
+  "especies": [
+    {
+      "id": "aaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+      "nombre_comun": "Sapo Minero",
+      "nombre_cientifico": "Dendrobates leucomelas",
+      "categoria_id": "11111111-1111-1111-1111-111111111111",
+      "total_observaciones": 12,
+      "created_at": "2026-01-01T10:00:00Z",
+      "updated_at": "2026-01-01T10:00:00Z"
+    },
+    {
+      "id": "bbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb",
+      "nombre_comun": "Orquídea Nacional",
+      "nombre_cientifico": "Cattleya mossiae",
+      "categoria_id": "22222222-2222-2222-2222-222222222222",
+      "total_observaciones": 5,
+      "created_at": "2026-01-01T10:00:00Z",
+      "updated_at": "2026-01-01T10:00:00Z"
+    }
+  ],
+  "avistamientos": [
+    {
+      "id": "33333333-3333-3333-3333-333333333333",
+      "numero_publicacion": 1,
+      "autor_id": "d0d62590-7dfd-453b-8ea9-7de4772ab16d",
+      "foto_url": "https://i.pravatar.cc/300?img=sapo",
+      "descripcion_experiencia": "Encontrado cerca de una piedra húmeda.",
+      "latitud": 8.3,
+      "longitud": -62.6,
+      "ubicacion_texto": "Parque Cachamay",
+      "bioma_id": "2e6b0a8f-2877-4b77-a8bf-1234567890ab",
+      "categoria_id": "11111111-1111-1111-1111-111111111111",
+      "estado": "Verificado",
+      "especie_verificada_id": "aaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+      "especie_verif_nombre": "Sapo Minero",
+      "especie_verif_nombre_cientifico": "Dendrobates leucomelas",
+      "created_at": "2026-05-10T10:00:00Z",
+      "updated_at": "2026-05-10T10:00:00Z"
+    }
+  ],
+  "multimedia_avistamientos": [
+    {
+      "id": "44444444-4444-4444-4444-444444444444",
+      "avistamiento_id": "33333333-3333-3333-3333-333333333333",
+      "archivo_url": "https://i.pravatar.cc/300?img=sapo2",
+      "tipo_multimedia": "Foto",
+      "created_at": "2026-05-10T10:00:00Z",
+      "updated_at": "2026-05-10T10:00:00Z"
+    }
+  ],
+  "comentarios_avistamiento": [
+    {
+      "comentario_id": "55555555-5555-5555-5555-555555555555",
+      "avistamiento_id": "33333333-3333-3333-3333-333333333333",
+      "autor_id": "e44d32cb-5e60-496f-a89c-9db8a72ec222",
+      "contenido": "¡Excelente hallazgo!",
+      "created_at": "2026-05-11T10:00:00Z",
+      "updated_at": "2026-05-11T10:00:00Z"
+    }
+  ],
+  "sugerencias_especie": [
+    {
+      "avistamiento_id": "33333333-3333-3333-3333-333333333333",
+      "usuario_id": "d0d62590-7dfd-453b-8ea9-7de4772ab16d",
+      "nombre_propuesto": "Sapo Minero",
+      "votos_a_favor": 2,
+      "votos_en_contra": 0,
+      "usuarios_interaccion_ids": "[]",
+      "created_at": "2026-05-10T10:00:00Z",
+      "updated_at": "2026-05-10T10:00:00Z"
+    }
+  ],
+  "proyectos": [
+    {
+      "id": "66666666-6666-6666-6666-666666666666",
+      "creador_id": "e44d32cb-5e60-496f-a89c-9db8a72ec222",
+      "titulo": "Rescate de Orquídeas",
+      "descripcion": "Proyecto comunitario para identificar orquídeas raras.",
+      "bioma": "Selva Tropical",
+      "ubicacion_geografica": "Guayana",
+      "cantidad_participantes": 1,
+      "created_at": "2026-06-01T10:00:00Z",
+      "updated_at": "2026-06-01T10:00:00Z"
+    }
+  ],
+  "tareas_proyecto": [
+    {
+      "tarea_id": "77777777-7777-7777-7777-777777777777",
+      "proyecto_id": "66666666-6666-6666-6666-666666666666",
+      "titulo_tarea": "Mapear zona norte",
+      "descripcion_instrucciones": "Tomar fotos de toda flor en la zona norte del parque.",
+      "created_at": "2026-06-02T10:00:00Z",
+      "updated_at": "2026-06-02T10:00:00Z"
+    }
+  ],
+  "aportes_tarea": [
+    {
+      "aporte_id": "88888888-8888-8888-8888-888888888888",
+      "proyecto_id": "66666666-6666-6666-6666-666666666666",
+      "tarea_id": "77777777-7777-7777-7777-777777777777",
+      "usuario_id": "d0d62590-7dfd-453b-8ea9-7de4772ab16d",
+      "tipo_multimedia": "Foto",
+      "archivo_url": "https://i.pravatar.cc/300?img=flor",
+      "comentario_descriptivo": "Aquí hay una Cattleya",
+      "created_at": "2026-06-03T10:00:00Z",
+      "updated_at": "2026-06-03T10:00:00Z"
+    }
+  ],
+  "proyectos_avistamientos": [
+    {
+      "proyecto_id": "66666666-6666-6666-6666-666666666666",
+      "avistamiento_id": "33333333-3333-3333-3333-333333333333",
+      "created_at": "2026-06-03T10:00:00Z",
+      "updated_at": "2026-06-03T10:00:00Z"
+    }
+  ],
+  "participantes_proyecto": [
+    {
+      "proyecto_id": "66666666-6666-6666-6666-666666666666",
+      "usuario_id": "d0d62590-7dfd-453b-8ea9-7de4772ab16d",
+      "created_at": "2026-06-02T10:00:00Z",
+      "updated_at": "2026-06-02T10:00:00Z"
+    }
+  ]
+}

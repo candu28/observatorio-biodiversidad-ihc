@@ -15,6 +15,7 @@ import TareaProyecto from './models/TareaProyecto';
 import AporteTarea from './models/AporteTarea';
 import ParticipanteProyecto from './models/ParticipanteProyecto';
 import ProyectoAvistamiento from './models/ProyectoAvistamiento';
+import MultimediaAvistamiento from './models/MultimediaAvistamiento';
 
 // Configuramos el adaptador local de SQLite
 const adapter = new SQLiteAdapter({
@@ -43,5 +44,6 @@ export const database = new Database({
     AporteTarea,
     ParticipanteProyecto,
     ProyectoAvistamiento,
+    MultimediaAvistamiento,
   ],
 });
