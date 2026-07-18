@@ -1,12 +1,17 @@
 import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Modal, Pressable, Alert } from 'react-native';
 import { Home, Plus, Map, Camera, Image as ImageIcon, X } from 'lucide-react-native';
-import { router } from 'expo-router';
+import { router, usePathname } from 'expo-router';
 import { CapturarMultimediaAvistamiento } from '../../../application/useCases/CapturarMultimediaAvistamiento';
 import { ExpoCameraAdapter } from '../../../infrastructure/adapters/hardware/ExpoCameraAdapter';
 
 export function BottomNav() {
   const [sheetVisible, setSheetVisible] = useState(false);
+  const pathname = usePathname();
+
+  // Determinar pestaña activa
+  const isInicioActive = pathname === '/' || pathname === '/index';
+  const isMapaActive = pathname === '/mapa';
 
   const handleAction = async (type: 'photo' | 'gallery') => {
     try {
@@ -37,17 +42,23 @@ export function BottomNav() {
     <>
       <View style={styles.bottomNavWrapper}>
         <View style={styles.bottomNav}>
-          <TouchableOpacity style={styles.navItem} onPress={() => router.navigate('/')}>
-            <Home size={24} color="#4b5563" />
-            <Text style={styles.navText}>Inicio</Text>
+          <TouchableOpacity 
+            style={[styles.navItem, isInicioActive && styles.navItemActive]} 
+            onPress={() => router.navigate('/')}
+          >
+            <Home size={24} color={isInicioActive ? '#84623f' : '#4b5563'} />
+            <Text style={[styles.navText, isInicioActive && styles.navTextActive]}>Inicio</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.navItem} onPress={() => setSheetVisible(true)}>
             <Plus size={24} color="#4b5563" />
             <Text style={styles.navText}>Avistamiento</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.navItem}>
-            <Map size={24} color="#4b5563" />
-            <Text style={styles.navText}>Mapa</Text>
+          <TouchableOpacity 
+            style={[styles.navItem, isMapaActive && styles.navItemActive]} 
+            onPress={() => router.push('/mapa')}
+          >
+            <Map size={24} color={isMapaActive ? '#84623f' : '#4b5563'} />
+            <Text style={[styles.navText, isMapaActive && styles.navTextActive]}>Mapa</Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -119,10 +130,21 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     gap: 4,
   },
+  navItemActive: {
+    backgroundColor: '#efe5d3',
+    borderRadius: 20,
+    paddingHorizontal: 16,
+    paddingVertical: 6,
+    marginHorizontal: -8,
+  },
   navText: {
     fontSize: 12,
     fontWeight: '500',
     color: '#4b5563',
+  },
+  navTextActive: {
+    color: '#84623f',
+    fontWeight: '700',
   },
   // Modal Styles
   sheetBackdrop: {
