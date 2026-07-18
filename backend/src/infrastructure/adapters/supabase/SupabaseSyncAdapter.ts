@@ -1,6 +1,26 @@
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
 import type { ISyncPort, SyncChanges } from '../../../application/ports/ISyncPort';
 
+// Mapeo de tablas locales (WatermelonDB) a tablas remotas (Supabase)
+const tableMap: Record<string, string> = {
+  usuarios: 'usuarios',
+  biomas: 'biomas',
+  categorias_taxonomicas: 'categorias_taxonomicas',
+  especies: 'especies',
+  avistamientos: 'avistamientos',
+  multimedia_avistamientos: 'multimedia_avistamiento', // singular en Supabase
+  comentarios_avistamiento: 'comentarios_avistamiento',
+  sugerencias_especie: 'sugerencias_especie',
+  proyectos: 'proyectos',
+  tareas_proyecto: 'tareas_proyecto',
+  aportes_tarea: 'aportes_tarea',
+  proyectos_avistamientos: 'proyectos_avistamientos',
+  participantes_proyecto: 'participantes_proyecto',
+};
+
+// Todas las tablas que vamos a sincronizar
+const tablesToSync = Object.keys(tableMap);
+
 export class SupabaseSyncAdapter implements ISyncPort {
   private supabase: SupabaseClient;
 
@@ -19,30 +39,31 @@ export class SupabaseSyncAdapter implements ISyncPort {
 
   async pullChanges(lastPulledAt: number, userId: string): Promise<{ changes: SyncChanges; timestamp: number }> {
     const changes: SyncChanges = {};
-    const tablesToSync = ['usuarios', 'proyectos', 'avistamientos'];
     const currentTimestamp = Date.now();
     const lastPulledDate = new Date(lastPulledAt).toISOString();
 
-    for (const table of tablesToSync) {
+    for (const localTable of tablesToSync) {
+      const remoteTable = tableMap[localTable] as string;
+
       // Obtener creados o actualizados
       const { data: createdOrUpdated, error: fetchError } = await this.supabase
-        .from(table)
+        .from(remoteTable)
         .select('*')
         .gt('updated_at', lastPulledDate)
         .is('deleted_at', null);
 
       if (fetchError) {
-        throw new Error(`Error fetching ${table}: ${fetchError.message}`);
+        throw new Error(`Error fetching ${remoteTable}: ${fetchError.message}`);
       }
 
       // Obtener borrados lógicamente
       const { data: deleted, error: deletedError } = await this.supabase
-        .from(table)
+        .from(remoteTable)
         .select('id')
         .gt('deleted_at', lastPulledDate);
 
       if (deletedError) {
-        throw new Error(`Error fetching deleted ${table}: ${deletedError.message}`);
+        throw new Error(`Error fetching deleted ${remoteTable}: ${deletedError.message}`);
       }
 
       // Filtrar created vs updated basado en created_at
@@ -57,7 +78,7 @@ export class SupabaseSyncAdapter implements ISyncPort {
         }
       }
 
-      changes[table] = {
+      changes[localTable] = {
         created,
         updated,
         deleted: (deleted || []).map((r) => r.id),
@@ -68,19 +89,18 @@ export class SupabaseSyncAdapter implements ISyncPort {
   }
 
   async pushChanges(changes: SyncChanges, userId: string): Promise<void> {
-    const tablesToSync = ['usuarios', 'proyectos', 'avistamientos'];
-
-    for (const table of tablesToSync) {
-      const tableChanges = changes[table];
+    for (const localTable of tablesToSync) {
+      const tableChanges = changes[localTable];
       if (!tableChanges) continue;
 
+      const remoteTable = tableMap[localTable] as string;
       const { created, updated, deleted } = tableChanges;
 
       // 1. Manejar Creados
       if (created.length > 0) {
-        const { error } = await this.supabase.from(table).insert(created);
+        const { error } = await this.supabase.from(remoteTable).insert(created);
         if (error) {
-          throw new Error(`Error inserting created into ${table}: ${error.message}`);
+          throw new Error(`Error inserting created into ${remoteTable}: ${error.message}`);
         }
       }
 
@@ -88,13 +108,13 @@ export class SupabaseSyncAdapter implements ISyncPort {
       for (const record of updated) {
         // Obtener la versión actual en la base de datos
         const { data: currentDbRecord, error: fetchError } = await this.supabase
-          .from(table)
+          .from(remoteTable)
           .select('updated_at')
           .eq('id', record.id)
           .single();
 
         if (fetchError && fetchError.code !== 'PGRST116') { // PGRST116 es not found
-          throw new Error(`Error checking existing record in ${table}: ${fetchError.message}`);
+          throw new Error(`Error checking existing record in ${remoteTable}: ${fetchError.message}`);
         }
 
         if (currentDbRecord) {
@@ -104,12 +124,12 @@ export class SupabaseSyncAdapter implements ISyncPort {
           // Last Write Wins
           if (clientUpdatedAt > dbUpdatedAt) {
             const { error: updateError } = await this.supabase
-              .from(table)
+              .from(remoteTable)
               .update(record)
               .eq('id', record.id);
 
             if (updateError) {
-              throw new Error(`Error updating record in ${table}: ${updateError.message}`);
+              throw new Error(`Error updating record in ${remoteTable}: ${updateError.message}`);
             }
           }
         }
@@ -119,14 +139,15 @@ export class SupabaseSyncAdapter implements ISyncPort {
       if (deleted.length > 0) {
         const deletedAt = new Date().toISOString();
         const { error } = await this.supabase
-          .from(table)
+          .from(remoteTable)
           .update({ deleted_at: deletedAt })
           .in('id', deleted);
 
         if (error) {
-          throw new Error(`Error soft-deleting in ${table}: ${error.message}`);
+          throw new Error(`Error soft-deleting in ${remoteTable}: ${error.message}`);
         }
       }
     }
   }
 }
+

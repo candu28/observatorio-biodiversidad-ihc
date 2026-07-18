@@ -29,7 +29,7 @@ const initialProyectos: IProyecto[] = dbMockData.proyectos.map(p => ({
   creadorId: p.creador_id,
   titulo: p.titulo,
   descripcion: p.descripcion,
-  bioma: p.bioma as any,
+  bioma: p.bioma_id as any,
   categoriasTaxonomicas: [], // Se podría inferir de proyectos_avistamientos o dejar vacío si el JSON no lo tiene directo
   ubicacionGeografica: p.ubicacion_geografica,
   fechaInicio: p.created_at,
