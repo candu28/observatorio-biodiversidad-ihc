@@ -19,13 +19,18 @@ import { Leaf, Search, MessageCircle, Heart, CheckCircle2 } from 'lucide-react-n
 import { LinearGradientSvg } from '../../ui/LinearGradientSvg';
 import { BottomNav } from '../../ui/BottomNav';
 import { ObtenerHomePageUseCase } from '../../../../application/useCases/ObtenerHomePageUseCase';
+import { ObtenerProyectosUseCase } from '../../../../application/useCases/ObtenerProyectosUseCase';
 import { MockHomePageRepository } from '../../../../infrastructure/adapters/mock/homepage/MockHomePageRepository';
+import { MockProyectoRepository } from '../../../../infrastructure/adapters/mock/proyecto/MockProyectoRepository';
 import { HomePageCard } from '../../../../application/ports/IHomePagePort';
+import { IProyecto } from '../../../../../../contracts/types/IProyecto';
+import { ProjectCard } from '../projects/ProjectCard';
 
 export default function HomePage() {
   const { width } = useWindowDimensions();
   const [activeFilter, setActiveFilter] = useState('Todo');
   const [data, setData] = useState<HomePageCard[]>([]);
+  const [proyectos, setProyectos] = useState<IProyecto[]>([]);
   const [filters, setFilters] = useState<string[]>(['Todo']);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -38,6 +43,11 @@ export default function HomePage() {
 
         setData(result.avistamientos);
         setFilters(result.filters);
+
+        // Cargar proyectos también
+        const proyectosUseCase = new ObtenerProyectosUseCase(new MockProyectoRepository());
+        const projectsData = await proyectosUseCase.execute();
+        setProyectos(projectsData);
       } catch (error) {
         console.error('Failed to fetch data', error);
       } finally {
@@ -145,6 +155,22 @@ export default function HomePage() {
           <View style={styles.loaderContainer}>
             <ActivityIndicator size="large" color="#4d7c0f" />
           </View>
+        ) : activeFilter === 'Proyectos' ? (
+          <ScrollView
+            showsVerticalScrollIndicator={false}
+            contentContainerStyle={styles.gridContainer}
+          >
+            <View style={styles.masonryColumn}>
+              {proyectos.filter((_, i) => i % 2 === 0).map(p => (
+                <ProjectCard key={p.id} proyecto={p} />
+              ))}
+            </View>
+            <View style={styles.masonryColumn}>
+              {proyectos.filter((_, i) => i % 2 !== 0).map(p => (
+                <ProjectCard key={p.id} proyecto={p} />
+              ))}
+            </View>
+          </ScrollView>
         ) : (
           <ScrollView
             showsVerticalScrollIndicator={false}
@@ -253,6 +279,10 @@ const styles = StyleSheet.create({
   },
   masonryColumn: {
     flex: 1,
+    paddingHorizontal: 5,
+  },
+  projectsList: {
+    width: '100%',
     paddingHorizontal: 5,
   },
   card: {

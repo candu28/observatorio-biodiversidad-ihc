@@ -10,7 +10,7 @@ import {
   Platform,
 } from 'react-native';
 import { useLocalSearchParams, router } from 'expo-router';
-import { ChevronLeft, CheckCircle2, Mail, ThumbsUp, ThumbsDown, Binoculars, Award, Compass } from 'lucide-react-native';
+import { ChevronLeft, CheckCircle2, Mail, ThumbsUp, ThumbsDown, Binoculars, Award, Compass, PlusCircle } from 'lucide-react-native';
 import { LinearGradientSvg } from '../../src/presentation/components/ui/LinearGradientSvg';
 import { BottomNav } from '../../src/presentation/components/ui/BottomNav';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -100,12 +100,30 @@ export default function SightingDetailScreen() {
             <Text style={styles.commonNameText}>{data.nombreComun}</Text>
             <Text style={styles.scientificNameText}>{data.nombreCientifico}</Text>
           </View>
-          {data.verificada && (
-            <View style={styles.verifiedBadge}>
-              <CheckCircle2 size={12} color="#15803d" />
-              <Text style={styles.verifiedText}>Verificada</Text>
-            </View>
-          )}
+          <View style={styles.headerActionsContainer}>
+            {data.verificada && (
+              <View style={styles.verifiedBadge}>
+                <CheckCircle2 size={12} color="#15803d" />
+                <Text style={styles.verifiedText}>Verificada</Text>
+              </View>
+            )}
+            {data.verificada && (
+              <TouchableOpacity
+                style={styles.createProjectButton}
+                onPress={() => router.push({
+                  pathname: '/crear-proyecto',
+                  params: {
+                    especieNombre: data.nombreComun,
+                    especieCientifico: data.nombreCientifico,
+                    especieFoto: data.fotoUrl
+                  }
+                })}
+              >
+                <PlusCircle size={14} color="#ffffff" />
+                <Text style={styles.createProjectText}>Crear Proyecto</Text>
+              </TouchableOpacity>
+            )}
+          </View>
         </View>
 
         <ScrollView 
@@ -250,6 +268,11 @@ const styles = StyleSheet.create({
   },
   headerTitleContainer: {
     flex: 1,
+    paddingRight: 10,
+  },
+  headerActionsContainer: {
+    alignItems: 'flex-end',
+    gap: 8,
   },
   categoryText: {
     fontSize: 10,
@@ -273,18 +296,36 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: '#ecfdf5',
-    paddingHorizontal: 10,
-    paddingVertical: 5,
-    borderRadius: 12,
+    paddingHorizontal: 18,
+    paddingVertical: 6,
+    borderRadius: 20,
     borderWidth: 1,
     borderColor: '#a7f3d0',
-    gap: 4,
-    marginTop: 5,
+    gap: 6,
   },
   verifiedText: {
-    fontSize: 10,
+    fontSize: 11,
     fontWeight: '700',
     color: '#15803d',
+  },
+  createProjectButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#4d7c0f',
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: 12,
+    gap: 4,
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOpacity: 0.1,
+    shadowOffset: { width: 0, height: 2 },
+    shadowRadius: 4,
+  },
+  createProjectText: {
+    fontSize: 10,
+    fontWeight: '800',
+    color: '#ffffff',
   },
   scrollContent: {
     paddingHorizontal: 15,
