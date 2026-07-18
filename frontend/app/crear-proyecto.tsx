@@ -50,7 +50,7 @@ export default function CreateProjectScreen() {
           titulo,
           descripcion: `Proyecto sobre ${params.especieNombre}`,
           bioma: 'Selva Tropical', // Default
-          categoriasTaxonomicas: [params.especieNombre as string],
+          categoriasTaxonomicas: [params.especieNombre as any],
           ubicacionGeografica: ubicacion,
           fechaInicio: new Date().toISOString(),
           cantidadParticipantes: 1
