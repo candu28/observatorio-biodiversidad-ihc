@@ -34,4 +34,5 @@ export default class Avistamiento extends Model implements IAvistamiento {
   @children('comentarios_avistamiento') comentarios!: any;
   @children('sugerencias_especie') sugerencias!: any;
   @children('proyectos_avistamientos') proyectos!: any;
+  @children('multimedia_avistamientos') fotosExtra!: any;
 }

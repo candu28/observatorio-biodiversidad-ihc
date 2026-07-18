@@ -1,28 +1,36 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { 
-  View, 
-  Text, 
-  StyleSheet, 
-  ScrollView, 
-  Image, 
-  TouchableOpacity, 
-  Platform, 
-  useWindowDimensions, 
-  ActivityIndicator 
+import {
+  View,
+  Text,
+  StyleSheet,
+  ScrollView,
+  Image,
+  TouchableOpacity,
+  Platform,
+  useWindowDimensions,
+  ActivityIndicator,
+  Modal,
+  Pressable,
+  Alert,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
-import { Leaf, Search, MessageCircle, Heart, Home, Plus, Map, CheckCircle2 } from 'lucide-react-native';
+import { Leaf, Search, MessageCircle, Heart, CheckCircle2 } from 'lucide-react-native';
 import { LinearGradientSvg } from '../../ui/LinearGradientSvg';
 import { BottomNav } from '../../ui/BottomNav';
 import { ObtenerHomePageUseCase } from '../../../../application/useCases/ObtenerHomePageUseCase';
+import { ObtenerProyectosUseCase } from '../../../../application/useCases/ObtenerProyectosUseCase';
 import { MockHomePageRepository } from '../../../../infrastructure/adapters/mock/homepage/MockHomePageRepository';
+import { MockProyectoRepository } from '../../../../infrastructure/adapters/mock/proyecto/MockProyectoRepository';
 import { HomePageCard } from '../../../../application/ports/IHomePagePort';
+import { IProyecto } from '../../../../../../contracts/types/IProyecto';
+import { ProjectCard } from '../projects/ProjectCard';
 
 export default function HomePage() {
   const { width } = useWindowDimensions();
   const [activeFilter, setActiveFilter] = useState('Todo');
   const [data, setData] = useState<HomePageCard[]>([]);
+  const [proyectos, setProyectos] = useState<IProyecto[]>([]);
   const [filters, setFilters] = useState<string[]>(['Todo']);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -35,6 +43,11 @@ export default function HomePage() {
 
         setData(result.avistamientos);
         setFilters(result.filters);
+
+        // Cargar proyectos también
+        const proyectosUseCase = new ObtenerProyectosUseCase(new MockProyectoRepository());
+        const projectsData = await proyectosUseCase.execute();
+        setProyectos(projectsData);
       } catch (error) {
         console.error('Failed to fetch data', error);
       } finally {
@@ -92,8 +105,8 @@ export default function HomePage() {
   );
 
   return (
-    <LinearGradientSvg 
-      colors={['#fdf7e3', '#fdf3d1', '#e8f3d6', '#e0ecd1']} 
+    <LinearGradientSvg
+      colors={['#fdf7e3', '#fdf3d1', '#e8f3d6', '#e0ecd1']}
       style={styles.container}
     >
       <SafeAreaView style={styles.safeArea}>
@@ -142,6 +155,22 @@ export default function HomePage() {
           <View style={styles.loaderContainer}>
             <ActivityIndicator size="large" color="#4d7c0f" />
           </View>
+        ) : activeFilter === 'Proyectos' ? (
+          <ScrollView
+            showsVerticalScrollIndicator={false}
+            contentContainerStyle={styles.gridContainer}
+          >
+            <View style={styles.masonryColumn}>
+              {proyectos.filter((_, i) => i % 2 === 0).map(p => (
+                <ProjectCard key={p.id} proyecto={p} />
+              ))}
+            </View>
+            <View style={styles.masonryColumn}>
+              {proyectos.filter((_, i) => i % 2 !== 0).map(p => (
+                <ProjectCard key={p.id} proyecto={p} />
+              ))}
+            </View>
+          </ScrollView>
         ) : (
           <ScrollView
             showsVerticalScrollIndicator={false}
@@ -156,7 +185,9 @@ export default function HomePage() {
         )}
 
         {/* Bottom Navigation */}
+
         <BottomNav />
+
 
       </SafeAreaView>
     </LinearGradientSvg>
@@ -244,10 +275,14 @@ const styles = StyleSheet.create({
   gridContainer: {
     flexDirection: 'row',
     paddingHorizontal: 15,
-    paddingBottom: 100, 
+    paddingBottom: 100,
   },
   masonryColumn: {
     flex: 1,
+    paddingHorizontal: 5,
+  },
+  projectsList: {
+    width: '100%',
     paddingHorizontal: 5,
   },
   card: {
@@ -256,8 +291,8 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     overflow: 'hidden',
     backgroundColor: '#fff',
-    elevation: 3, 
-    shadowColor: '#000', 
+    elevation: 3,
+    shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 8,

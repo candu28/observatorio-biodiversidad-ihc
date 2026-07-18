@@ -1,10 +1,11 @@
+
 // @ts-ignore
 const dbMockData = require('../../../../../../contracts/mocks/dbMockData.json');
-
 import { IUsuario } from '../../../../../../contracts/types/IUsuario';
 import { IAvistamiento } from '../../../../../../contracts/types/IAvistamiento';
 import { IProyecto } from '../../../../../../contracts/types/IProyecto';
 import { IPerfilPort } from '../../../../application/ports/IPerfilPort';
+import { avistamientosEnMemoria, proyectosEnMemoria } from '../mockState';
 
 export class MockPerfilRepository implements IPerfilPort {
   async getUsuarioActual(): Promise<IUsuario | null> {

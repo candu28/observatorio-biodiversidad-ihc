@@ -1,3 +1,5 @@
+import type { IMultimediaAvistamiento } from './IMultimediaAvistamiento';
+
 export type EstadoCertificacion = 'Pendiente' | 'Verificado';
 
 export interface IAvistamiento {
@@ -6,7 +8,8 @@ export interface IAvistamiento {
     autorId: string; // Relación con el Usuario
 
     // Multimedia y Experiencia
-    fotoUrl: string; // Para el 'associatedMedia' de Darwin Core
+    fotoUrl: string; // Para el 'associatedMedia' de Darwin Core (Foto principal)
+    fotosExtra?: IMultimediaAvistamiento[]; // Fotos o videos secundarios
     descripcionExperiencia: string;
 
     // Datos Geográficos (SIG / Mapa de Calor / Darwin Core)

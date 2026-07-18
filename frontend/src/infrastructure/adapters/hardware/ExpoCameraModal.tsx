@@ -210,14 +210,17 @@ export const MediaPickerProvider: React.FC<{ children: React.ReactNode }> = ({ c
         onRequestClose={handleClose}
       >
         <View style={styles.container}>
-          {/* Cámara Viewport */}
-          <CameraView
-            style={styles.camera}
-            facing={facing}
-            flash={flash}
-            zoom={zoom}
-            ref={cameraRef}
-          >
+          {/* Contenedor principal de la cámara */}
+          <View style={styles.camera}>
+            {/* Cámara Viewport por detrás */}
+            <CameraView
+              style={StyleSheet.absoluteFillObject}
+              facing={facing}
+              flash={flash}
+              zoom={zoom}
+              ref={cameraRef}
+            />
+
             {/* Blink de captura */}
             {screenBlink && <View style={styles.blinkOverlay} />}
 
@@ -227,11 +230,15 @@ export const MediaPickerProvider: React.FC<{ children: React.ReactNode }> = ({ c
                 <X size={20} color="#fff" />
               </TouchableOpacity>
 
-              <View style={styles.modeIndicator}>
+              <TouchableOpacity 
+                style={styles.modeIndicator}
+                onPress={() => setMode(prev => prev === 'photo' ? 'burst' : 'photo')}
+                disabled={capturing}
+              >
                 <Text style={styles.modeText}>
-                  {mode === 'photo' ? 'FOTO ÚNICA' : `RÁFAGA (${burstProgress}/${burstCount})`}
+                  {mode === 'photo' ? 'FOTO ÚNICA' : `RÁFAGA 5x ${burstProgress > 0 ? `(${burstProgress}/5)` : ''}`}
                 </Text>
-              </View>
+              </TouchableOpacity>
 
               <View style={styles.topRightControls}>
                 <TouchableOpacity style={styles.topButton} onPress={toggleFlash}>
@@ -291,7 +298,7 @@ export const MediaPickerProvider: React.FC<{ children: React.ReactNode }> = ({ c
                 >
                   {capturedPhotos.map((uri, idx) => (
                     <View key={idx} style={styles.thumbnailWrapper}>
-                      <Image source={{ uri }} style={styles.thumbnail} />
+                       <Image source={{ uri }} style={styles.thumbnail} />
                       <TouchableOpacity
                         style={styles.deleteThumbnail}
                         onPress={() => removePhoto(idx)}
@@ -306,7 +313,7 @@ export const MediaPickerProvider: React.FC<{ children: React.ReactNode }> = ({ c
                 </ScrollView>
               )}
             </View>
-          </CameraView>
+          </View>
 
           {/* Panel inferior de disparador y galería */}
           <View style={styles.bottomPanel}>

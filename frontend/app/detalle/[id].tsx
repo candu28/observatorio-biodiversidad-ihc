@@ -11,7 +11,7 @@ import {
   TextInput,
 } from 'react-native';
 import { useLocalSearchParams, router } from 'expo-router';
-import { ChevronLeft, CheckCircle2, Mail, ThumbsUp, ThumbsDown, Binoculars, Award, Compass, BookOpen, Users, ChevronRight, Plus, Grid } from 'lucide-react-native';
+import { ChevronLeft, CheckCircle2, Mail, ThumbsUp, ThumbsDown, Binoculars, Award, Compass, BookOpen, Users, ChevronRight, Plus, Grid, PlusCircle } from 'lucide-react-native';
 // Require JSON with ts-ignore to avoid missing module/type declaration errors
 // @ts-ignore
 const dbMockData = require('../../../contracts/mocks/dbMockData.json');
@@ -28,7 +28,7 @@ export default function SightingDetailScreen() {
     if (!rawItem) {
       rawItem = dbMockData.avistamientos[0];
     }
-    
+
     if (!rawItem._identificacionesUiMock) {
       rawItem._identificacionesUiMock = [
         {
@@ -167,7 +167,7 @@ export default function SightingDetailScreen() {
   return (
     <LinearGradientSvg colors={['#fdf7e3', '#fdf3d1', '#e8f3d6']} style={styles.container}>
       <SafeAreaView style={styles.safeArea} edges={['top', 'left', 'right']}>
-        
+
         {/* Header */}
         <View style={styles.header}>
           <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
@@ -178,16 +178,34 @@ export default function SightingDetailScreen() {
             <Text style={styles.commonNameText}>{data.nombreComun}</Text>
             <Text style={styles.scientificNameText}>{data.nombreCientifico}</Text>
           </View>
-          {data.verificada && (
-            <View style={styles.verifiedBadge}>
-              <CheckCircle2 size={12} color="#15803d" />
-              <Text style={styles.verifiedText}>Verificada</Text>
-            </View>
-          )}
+          <View style={styles.headerActionsContainer}>
+            {data.verificada && (
+              <View style={styles.verifiedBadge}>
+                <CheckCircle2 size={12} color="#15803d" />
+                <Text style={styles.verifiedText}>Verificada</Text>
+              </View>
+            )}
+            {data.verificada && (
+              <TouchableOpacity
+                style={styles.createProjectButton}
+                onPress={() => router.push({
+                  pathname: '/crear-proyecto',
+                  params: {
+                    especieNombre: data.nombreComun,
+                    especieCientifico: data.nombreCientifico,
+                    especieFoto: data.fotoUrl
+                  }
+                })}
+              >
+                <PlusCircle size={14} color="#ffffff" />
+                <Text style={styles.createProjectText}>Crear Proyecto</Text>
+              </TouchableOpacity>
+            )}
+          </View>
         </View>
 
-        <ScrollView 
-          showsVerticalScrollIndicator={false} 
+        <ScrollView
+          showsVerticalScrollIndicator={false}
           contentContainerStyle={styles.scrollContent}
         >
           {/* Main Photo */}
@@ -241,9 +259,9 @@ export default function SightingDetailScreen() {
             </View>
 
             {/* Comments List */}
-            {data.identificaciones.map((item, index) => (
+            {data.identificaciones.map((item: any, index: number) => (
               <View key={item.id} style={[styles.commentItem, index > 0 && styles.commentBorder]}>
-                
+
                 <View style={styles.commentHeader}>
                   <View style={styles.userInfoRow}>
                     <View style={[styles.avatar, { backgroundColor: item.color }]}>
@@ -259,9 +277,9 @@ export default function SightingDetailScreen() {
                     </View>
                   )}
                 </View>
-                
+
                 <Text style={styles.commentText}>{item.comentario}</Text>
-                
+
                 <View style={styles.votesRow}>
                   <TouchableOpacity style={styles.voteButtonUp} onPress={() => handleVote(item.id, 'up')}>
                     <ThumbsUp size={14} color="#15803d" />
@@ -272,42 +290,42 @@ export default function SightingDetailScreen() {
                     <Text style={styles.voteTextDown}>{item.votosDown}</Text>
                   </TouchableOpacity>
                 </View>
-                  {/* Comments toggle + list + input */}
-                  <View style={{ marginTop: 10 }}>
-                    <TouchableOpacity style={styles.commentsToggle} onPress={() => toggleComments(item.id)}>
-                      <Text style={styles.commentsToggleText}>Comentarios ({(item.comments || []).length})</Text>
-                      <ChevronRight size={14} color="#9ca3af" />
-                    </TouchableOpacity>
+                {/* Comments toggle + list + input */}
+                <View style={{ marginTop: 10 }}>
+                  <TouchableOpacity style={styles.commentsToggle} onPress={() => toggleComments(item.id)}>
+                    <Text style={styles.commentsToggleText}>Comentarios ({(item.comments || []).length})</Text>
+                    <ChevronRight size={14} color="#9ca3af" />
+                  </TouchableOpacity>
 
-                    {item.showComments && (
-                      <View style={styles.commentsContainer}>
-                        {(item.comments || []).map((c: any) => (
-                          <View key={c.id} style={styles.commentListItem}>
-                            <View style={[styles.avatar, { width: 26, height: 26, borderRadius: 13, backgroundColor: '#c4c4c8' }]}>
-                              <Text style={[styles.avatarText, { fontSize: 10 }]}>{(c.usuario || 'U').split(' ').map((s:any)=>s[0]).slice(0,2).join('')}</Text>
-                            </View>
-                            <View style={{ marginLeft: 8, flex: 1 }}>
-                              <Text style={styles.commentAuthor}>{c.usuario}</Text>
-                              <Text style={styles.commentTextSmall}>{c.texto}</Text>
-                            </View>
-                            <Text style={styles.timeText}>{c.tiempo}</Text>
+                  {item.showComments && (
+                    <View style={styles.commentsContainer}>
+                      {(item.comments || []).map((c: any) => (
+                        <View key={c.id} style={styles.commentListItem}>
+                          <View style={[styles.avatar, { width: 26, height: 26, borderRadius: 13, backgroundColor: '#c4c4c8' }]}>
+                            <Text style={[styles.avatarText, { fontSize: 10 }]}>{(c.usuario || 'U').split(' ').map((s: any) => s[0]).slice(0, 2).join('')}</Text>
                           </View>
-                        ))}
-
-                        <View style={styles.addCommentRow}>
-                          <TextInput
-                            style={styles.commentInput}
-                            placeholder="Añadir un comentario..."
-                            value={commentDrafts[item.id] || ''}
-                            onChangeText={(t) => setDraft(item.id, t)}
-                          />
-                          <TouchableOpacity style={styles.addCommentButton} onPress={() => addComment(item.id)}>
-                            <Text style={styles.addCommentButtonText}>Enviar</Text>
-                          </TouchableOpacity>
+                          <View style={{ marginLeft: 8, flex: 1 }}>
+                            <Text style={styles.commentAuthor}>{c.usuario}</Text>
+                            <Text style={styles.commentTextSmall}>{c.texto}</Text>
+                          </View>
+                          <Text style={styles.timeText}>{c.tiempo}</Text>
                         </View>
+                      ))}
+
+                      <View style={styles.addCommentRow}>
+                        <TextInput
+                          style={styles.commentInput}
+                          placeholder="Añadir un comentario..."
+                          value={commentDrafts[item.id] || ''}
+                          onChangeText={(t) => setDraft(item.id, t)}
+                        />
+                        <TouchableOpacity style={styles.addCommentButton} onPress={() => addComment(item.id)}>
+                          <Text style={styles.addCommentButtonText}>Enviar</Text>
+                        </TouchableOpacity>
                       </View>
-                    )}
-                  </View>
+                    </View>
+                  )}
+                </View>
               </View>
             ))}
           </View>
@@ -315,7 +333,7 @@ export default function SightingDetailScreen() {
           {/* Ubicación Section */}
           <Text style={[styles.sectionTitle, { marginTop: 24, marginBottom: 12 }]}>Ubicación del avistamiento</Text>
           <View style={styles.mapContainer}>
-            <Image source={{uri: 'https://images.unsplash.com/photo-1524661135-423995f22d0b?q=80&w=600&auto=format&fit=crop'}} style={styles.mapImage} />
+            <Image source={{ uri: 'https://images.unsplash.com/photo-1524661135-423995f22d0b?q=80&w=600&auto=format&fit=crop' }} style={styles.mapImage} />
             <View style={styles.mapOverlay}>
               <Text style={styles.mapOverlayTextLeft}>Bolívar, VE</Text>
               <Text style={styles.mapOverlayTextRight}>Satélite</Text>
@@ -427,6 +445,11 @@ const styles = StyleSheet.create({
   },
   headerTitleContainer: {
     flex: 1,
+    paddingRight: 10,
+  },
+  headerActionsContainer: {
+    alignItems: 'flex-end',
+    gap: 8,
   },
   categoryText: {
     fontSize: 10,
@@ -450,18 +473,36 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: '#ecfdf5',
-    paddingHorizontal: 10,
-    paddingVertical: 5,
-    borderRadius: 12,
+    paddingHorizontal: 18,
+    paddingVertical: 6,
+    borderRadius: 20,
     borderWidth: 1,
     borderColor: '#a7f3d0',
-    gap: 4,
-    marginTop: 5,
+    gap: 6,
   },
   verifiedText: {
-    fontSize: 10,
+    fontSize: 11,
     fontWeight: '700',
     color: '#15803d',
+  },
+  createProjectButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#4d7c0f',
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: 12,
+    gap: 4,
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOpacity: 0.1,
+    shadowOffset: { width: 0, height: 2 },
+    shadowRadius: 4,
+  },
+  createProjectText: {
+    fontSize: 10,
+    fontWeight: '800',
+    color: '#ffffff',
   },
   scrollContent: {
     paddingHorizontal: 15,
