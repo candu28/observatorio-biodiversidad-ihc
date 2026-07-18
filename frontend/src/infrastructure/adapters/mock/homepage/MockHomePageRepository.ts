@@ -1,6 +1,7 @@
 // @ts-ignore
 const dbMockData = require('../../../../../../contracts/mocks/dbMockData.json');
 
+import { IEspecie } from '../../../../../../contracts/types/IEspecie';
 import { HomePageCard, IHomePagePort } from '../../../../application/ports/IHomePagePort';
 
 export class MockHomePageRepository implements IHomePagePort {
@@ -28,6 +29,19 @@ export class MockHomePageRepository implements IHomePagePort {
 
     console.log('[MockHomePageRepository] returning cards:', cards.length);
     return cards;
+  }
+
+  async getEspecies(): Promise<IEspecie[]> {
+    const raw = (dbMockData as any);
+    const especiesRaw = raw.especies || [];
+
+    return especiesRaw.map((e: any) => ({
+      id: e.id,
+      nombreComun: e.nombre_comun,
+      nombreCientifico: e.nombre_cientifico,
+      categoriaId: e.categoria_id,
+      totalObservaciones: e.total_observaciones,
+    }));
   }
 }
 
