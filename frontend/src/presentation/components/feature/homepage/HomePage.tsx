@@ -164,7 +164,7 @@ export default function HomePage() {
                   index * pageWidth, 
                   (index + 1) * pageWidth
                 ],
-                outputRange: ['#4b5563', '#4d7c0f', '#4b5563'], // [Inactive, Active, Inactive]
+                outputRange: ['#ffffff', '#4d7c0f', '#fff'], // [Inactive, Active, Inactive]
                 extrapolate: 'clamp',
               });
 
@@ -325,15 +325,13 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     gap: 10,
   },
-  tabPill: {
-    paddingHorizontal: 18,
-    paddingVertical: 8,
-    borderRadius: 20,
-    backgroundColor: 'rgba(255, 255, 255, 0.7)',
-  },
   tabText: {
+    paddingHorizontal: 20,
+    paddingVertical: 5,
     fontSize: 14,
     fontWeight: '600',
+    backgroundColor: '#4d7c0f',
+    borderRadius: '15px'
   },
   tabTextActive: {
     color: '#4d7c0f',
@@ -350,7 +348,7 @@ const styles = StyleSheet.create({
   },
   indicator: {
     height: 3,
-    backgroundColor: '#4d7c0f',
+    backgroundColor: 'transparent',
     borderRadius: 2,
     position: 'absolute',
     bottom: 0,
