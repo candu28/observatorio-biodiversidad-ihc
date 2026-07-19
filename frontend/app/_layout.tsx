@@ -9,6 +9,7 @@ export default function Layout() {
         <Stack.Screen name="perfil" options={{ headerShown: false }} />
         <Stack.Screen name="avistamiento" options={{ headerShown: false }} />
         <Stack.Screen name="detalle/[id]" options={{ headerShown: false }} />
+        <Stack.Screen name="observaciones/[especieId]" options={{ headerShown: false }} />
       </Stack>
     </MediaPickerProvider>
   );
