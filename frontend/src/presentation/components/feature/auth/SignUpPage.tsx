@@ -8,7 +8,8 @@ import {
   KeyboardAvoidingView, 
   Platform,
   ActivityIndicator,
-  ScrollView
+  ScrollView,
+  ImageBackground
 } from 'react-native';
 import { useSignUpViewModel } from '../../../viewModels/auth/useSignUpViewModel';
 import { Leaf, Mail, Lock, Eye, EyeOff } from 'lucide-react-native';
@@ -39,12 +40,19 @@ export default function SignUpPage({ onNavigateToLogin }: SignUpPageProps) {
         keyboardShouldPersistTaps="handled"
       >
         
-        <View style={styles.header}>
+        {/* <View style={styles.header}>
             <View style={styles.logoContainer}>
             <Leaf size={28} color="#4d7c0f" strokeWidth={2.5} />
             <Text style={styles.logoText}>guaya</Text>
           </View>
-        </View>
+        </View> */}
+        <View style={styles.headerContainer}>
+                  <ImageBackground 
+                    source={require('../../../../../assets/login.png')} 
+                    style={styles.liquidHeader}
+                    resizeMode="cover"
+                  />
+                </View>
         <View style={styles.formContent}>
           <View style={styles.titleContainer}>
             <Text style={styles.title}>Sign up</Text>
@@ -169,10 +177,20 @@ const styles = StyleSheet.create({
     color: '#1f2937',
     letterSpacing: -0.5,
   },
+  headerContainer: {
+    height: 300,
+    width: '100%',
+    overflow: 'hidden',
+  },
+  liquidHeader: {
+    width: '100%',
+    height: '100%',
+  },
   formContent: {
     flex: 1,
     paddingHorizontal: 40,
     paddingBottom: 30,
+    marginTop: -20,
   },
   titleContainer: {
     marginBottom: 25,
