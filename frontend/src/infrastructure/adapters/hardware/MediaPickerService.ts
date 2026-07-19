@@ -1,9 +1,12 @@
+import { CapturedMedia } from '../../../application/ports/CapturedMedia';
+
 export type CameraOptions = {
   mode: 'photo' | 'burst';
   burstCount?: number;
+  maxAllowed?: number;
 };
 
-export type CameraUIHandler = (options: CameraOptions) => Promise<string[]>;
+export type CameraUIHandler = (options: CameraOptions) => Promise<CapturedMedia[]>;
 
 export class MediaPickerService {
   private static handler: CameraUIHandler | null = null;
@@ -25,7 +28,7 @@ export class MediaPickerService {
   /**
    * Dispara e inicializa la UI de la cámara para tomar fotos individuales o ráfagas.
    */
-  public static async launchCamera(options: CameraOptions): Promise<string[]> {
+  public static async launchCamera(options: CameraOptions): Promise<CapturedMedia[]> {
     if (!this.handler) {
       throw new Error(
         'El manejador de la UI de la cámara no está registrado. Asegúrese de que MediaPickerProvider esté montado en la raíz.'
@@ -34,3 +37,4 @@ export class MediaPickerService {
     return this.handler(options);
   }
 }
+

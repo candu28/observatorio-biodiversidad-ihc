@@ -5,6 +5,8 @@ import { router } from 'expo-router';
 import { CapturarMultimediaAvistamiento } from '../../../application/useCases/CapturarMultimediaAvistamiento';
 import { ExpoCameraAdapter } from '../../../infrastructure/adapters/hardware/ExpoCameraAdapter';
 
+import { CapturedMedia } from '../../../application/ports/CapturedMedia';
+
 export function BottomNav() {
   const [sheetVisible, setSheetVisible] = useState(false);
 
@@ -13,7 +15,7 @@ export function BottomNav() {
       const adapter = new ExpoCameraAdapter();
       const useCase = new CapturarMultimediaAvistamiento(adapter);
 
-      let result: string[] = [];
+      let result: CapturedMedia[] = [];
       if (type === 'photo') {
         result = await useCase.execute({ type: 'photo' });
       } else if (type === 'gallery') {
@@ -22,9 +24,31 @@ export function BottomNav() {
 
       if (result.length > 0) {
         setSheetVisible(false);
+
+        const photosUris = result.map((item) => item.uri);
+        const itemWithCoords = result.find(
+          (item) => item.latitude !== undefined && item.longitude !== undefined
+        );
+
+        let params: Record<string, string> = {
+          photos: JSON.stringify(photosUris),
+        };
+
+        if (itemWithCoords && itemWithCoords.latitude !== undefined && itemWithCoords.longitude !== undefined) {
+          const hasExifGPS =
+            !!itemWithCoords.exif &&
+            (itemWithCoords.exif.GPSLatitude !== undefined ||
+              itemWithCoords.exif.latitude !== undefined);
+          const source = (type === 'gallery' || hasExifGPS) ? 'Datos EXIF' : 'GPS del Dispositivo';
+
+          params.latitude = String(itemWithCoords.latitude);
+          params.longitude = String(itemWithCoords.longitude);
+          params.locationSource = source;
+        }
+
         router.navigate({
           pathname: '/avistamiento',
-          params: { photos: JSON.stringify(result) }
+          params,
         });
       }
     } catch (error: any) {

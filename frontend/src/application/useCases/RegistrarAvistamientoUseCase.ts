@@ -8,6 +8,8 @@ export type CrearAvistamientoInput = {
   ubicacion: string;
   fotoUrl: string; // La foto principal
   fotosExtra?: string[];
+  latitud?: number;
+  longitud?: number;
 };
 
 export class RegistrarAvistamientoUseCase {
@@ -32,12 +34,13 @@ export class RegistrarAvistamientoUseCase {
       especieVerifNombre: input.especieVerifNombre,
       fotoUrl: input.fotoUrl,
       descripcionExperiencia: input.notas,
-      latitud: 0,
-      longitud: 0,
+      latitud: input.latitud ?? 0,
+      longitud: input.longitud ?? 0,
       ubicacionTexto: input.ubicacion,
       biomaId: '',
       categoriaId: '',
     };
+
 
     await this.avistamientoRepo.createAvistamiento(nuevoAvistamiento);
   }
