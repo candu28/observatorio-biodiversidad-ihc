@@ -12,6 +12,7 @@ import {
   ScrollView
 } from 'react-native';
 import { useLoginViewModel } from '../../../viewModels/auth/useLoginViewModel';
+import { Leaf, Mail, Lock, Eye, EyeOff } from 'lucide-react-native';
 
 interface LoginPageProps {
   onSkip: () => void;
@@ -74,7 +75,7 @@ export default function LoginPage({
               styles.inputWrapper, 
               validationErrors?.email ? styles.inputWrapperError : styles.inputWrapperFocused
             ]}>
-              <Text style={styles.icon}>✉</Text>
+              <Mail size={18} color="#999" style={styles.icon} />
               <TextInput 
                 style={styles.input}
                 placeholder="demo@email.com"
@@ -99,7 +100,7 @@ export default function LoginPage({
               styles.inputWrapper,
               validationErrors?.password ? styles.inputWrapperError : null
             ]}>
-              <Text style={styles.icon}>🔒</Text>
+              <Lock size={18} color="#999" style={styles.icon} />
               <TextInput 
                 style={styles.input}
                 placeholder="enter your password"
@@ -114,7 +115,11 @@ export default function LoginPage({
                 onPress={() => setIsPasswordVisible(!isPasswordVisible)}
                 hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
               >
-                <Text style={styles.icon}>{isPasswordVisible ? '👁️' : '🙈'}</Text>
+                <Text style={styles.icon}>{isPasswordVisible ? (
+                                  <Eye size={18} color="#999" style={styles.iconRight} />
+                                ) : (
+                                  <EyeOff size={18} color="#999" style={styles.iconRight} />
+                                )}</Text>
               </TouchableOpacity>
             </View>
             {validationErrors?.password ? (
@@ -192,10 +197,8 @@ const styles = StyleSheet.create({
     backgroundColor: '#fcfcfc',
   },
   headerContainer: {
-    height: 240,
+    height: 300,
     width: '100%',
-    borderBottomLeftRadius: 100,
-    borderBottomRightRadius: 100,
     overflow: 'hidden',
   },
   liquidHeader: {
@@ -250,6 +253,9 @@ const styles = StyleSheet.create({
     color: '#999',
     marginRight: 10,
   },
+  iconRight: {
+    marginLeft: 10,
+  },
   input: {
     flex: 1,
     fontSize: 14,
@@ -266,8 +272,6 @@ const styles = StyleSheet.create({
     padding: 12,
     borderRadius: 8,
     marginBottom: 20,
-    borderWidth: 1,
-    borderColor: '#fca5a5',
   },
   errorBannerText: {
     color: '#991b1b',
