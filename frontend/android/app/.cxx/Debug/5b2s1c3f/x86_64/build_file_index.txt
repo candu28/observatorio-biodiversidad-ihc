@@ -1,0 +1,4 @@
+C:\Proyectos\ObservatorioGuayanaIHC\observatorio-biodiversidad-ihc\frontend\node_modules\react-native-safe-area-context\android\src\main\jni\CMakeLists.txt
+C:\Proyectos\ObservatorioGuayanaIHC\observatorio-biodiversidad-ihc\frontend\node_modules\react-native-screens\android\src\main\jni\CMakeLists.txt
+C:\Proyectos\ObservatorioGuayanaIHC\observatorio-biodiversidad-ihc\frontend\node_modules\react-native-svg\android\src\main\jni\CMakeLists.txt
+X:\frontend\node_modules\react-native\ReactAndroid\cmake-utils\default-app-setup\CMakeLists.txt

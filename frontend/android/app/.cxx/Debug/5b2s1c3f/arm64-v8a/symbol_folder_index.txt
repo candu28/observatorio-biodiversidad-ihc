@@ -1,0 +1,1 @@
+X:\frontend\android\app\build\intermediates\cxx\Debug\5b2s1c3f\obj\arm64-v8a
