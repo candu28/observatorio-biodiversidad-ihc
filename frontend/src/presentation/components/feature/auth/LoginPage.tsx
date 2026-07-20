@@ -70,7 +70,7 @@ export default function LoginPage({
 
           {/* Email Input Group */}
           <View style={styles.inputGroup}>
-            <Text style={styles.label}>Email</Text>
+            <Text style={styles.label}>Correo</Text>
             <View style={[
               styles.inputWrapper, 
               validationErrors?.email ? styles.inputWrapperError : styles.inputWrapperFocused
@@ -78,7 +78,7 @@ export default function LoginPage({
               <Mail size={18} color="#999" style={styles.icon} />
               <TextInput 
                 style={styles.input}
-                placeholder="demo@email.com"
+                placeholder="email@example.com"
                 placeholderTextColor="#bbb"
                 value={email}
                 onChangeText={setEmail}
@@ -95,7 +95,7 @@ export default function LoginPage({
 
           {/* Password Input Group */}
           <View style={styles.inputGroup}>
-            <Text style={styles.label}>Password</Text>
+            <Text style={styles.label}>Contraseña</Text>
             <View style={[
               styles.inputWrapper,
               validationErrors?.password ? styles.inputWrapperError : null
@@ -103,7 +103,7 @@ export default function LoginPage({
               <Lock size={18} color="#999" style={styles.icon} />
               <TextInput 
                 style={styles.input}
-                placeholder="enter your password"
+                placeholder="Ingresar contraseña"
                 placeholderTextColor="#bbb"
                 value={password}
                 onChangeText={setPassword}
@@ -128,26 +128,6 @@ export default function LoginPage({
           </View>
 
           {/* Options Row */}
-          <View style={styles.optionsRow}>
-            <TouchableOpacity 
-              style={styles.rememberMe} 
-              onPress={() => setRememberMe?.(!rememberMe)}
-              disabled={isLoading}
-              activeOpacity={0.7}
-            >
-               <View style={[styles.checkbox, rememberMe && styles.checkboxActive]}>
-                 {rememberMe && <Text style={styles.checkmark}>✓</Text>}
-               </View>
-               <Text style={styles.optionsText}>Remember Me</Text>
-            </TouchableOpacity>
-            
-            <TouchableOpacity 
-              onPress={onNavigateToForgotPassword}
-              disabled={isLoading}
-            >
-              <Text style={styles.forgotPassword}>Forgot Password?</Text>
-            </TouchableOpacity>
-          </View>
 
           {/* Action Buttons */}
           <TouchableOpacity 
@@ -159,7 +139,7 @@ export default function LoginPage({
             {isLoading ? (
               <ActivityIndicator color="#ffffff" size="small" />
             ) : (
-              <Text style={styles.btnLoginText}>Login</Text>
+              <Text style={styles.btnLoginText}>Iniciar sesión</Text>
             )}
           </TouchableOpacity>
 
@@ -168,17 +148,17 @@ export default function LoginPage({
             onPress={handleSkip}
             disabled={isLoading}
           >
-            <Text style={styles.btnSkipText}>Skip & Continue as Guest</Text>
+            <Text style={styles.btnSkipText}>Continuar como Invitado</Text>
           </TouchableOpacity>
 
           {/* Sign Up Link */}
           <Text style={styles.signupText}>
-            Don't have an Account ?{' '}
+            No tienes cuenta?{' '}
             <Text 
               style={styles.signupLink} 
               onPress={onNavigateToSignUp}
             >
-              Sign up
+              Registrate
             </Text>
           </Text>
         </View>

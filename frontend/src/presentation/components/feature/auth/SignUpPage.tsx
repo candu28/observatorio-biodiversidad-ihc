@@ -73,12 +73,12 @@ export default function SignUpPage({ onNavigateToLogin }: SignUpPageProps) {
 
           {/* Email */}
           <View style={styles.inputGroup}>
-            <Text style={styles.label}>Email</Text>
+            <Text style={styles.label}>Correo</Text>
             <View style={[styles.inputWrapper, validationErrors?.email ? styles.inputWrapperError : styles.inputWrapperFocused]}>
               <Mail size={18} color="#999" style={styles.icon} />
               <TextInput 
                 style={styles.input}
-                placeholder="demo@email.com"
+                placeholder="email@example.com"
                 placeholderTextColor="#bbb"
                 value={email}
                 onChangeText={setEmail}
@@ -92,12 +92,12 @@ export default function SignUpPage({ onNavigateToLogin }: SignUpPageProps) {
 
           {/* Password */}
           <View style={styles.inputGroup}>
-            <Text style={styles.label}>Password</Text>
+            <Text style={styles.label}>Contraseña</Text>
             <View style={[styles.inputWrapper, validationErrors?.password ? styles.inputWrapperError : null]}>
               <Lock size={18} color="#999" style={styles.icon} />
               <TextInput 
                 style={styles.input}
-                placeholder="Enter password"
+                placeholder="Ingresar contraseña"
                 placeholderTextColor="#bbb"
                 value={password}
                 onChangeText={setPassword}
@@ -117,12 +117,12 @@ export default function SignUpPage({ onNavigateToLogin }: SignUpPageProps) {
 
           {/* Confirm Password */}
           <View style={styles.inputGroup}>
-            <Text style={styles.label}>Confirm Password</Text>
+            <Text style={styles.label}>Confirmar contraseña</Text>
             <View style={[styles.inputWrapper, validationErrors?.confirmPassword ? styles.inputWrapperError : null]}>
               <Lock size={18} color="#999" style={styles.icon} />
               <TextInput 
                 style={styles.input}
-                placeholder="Repeat password"
+                placeholder="Repetir contraseña"
                 placeholderTextColor="#bbb"
                 value={confirmPassword}
                 onChangeText={setConfirmPassword}
@@ -139,11 +139,11 @@ export default function SignUpPage({ onNavigateToLogin }: SignUpPageProps) {
             onPress={handleSignUp}
             disabled={isLoading}
           >
-            {isLoading ? <ActivityIndicator color="#fff" /> : <Text style={styles.btnLoginText}>Sign Up</Text>}
+            {isLoading ? <ActivityIndicator color="#fff" /> : <Text style={styles.btnLoginText}>Crear cuenta</Text>}
           </TouchableOpacity>
 
           <Text style={styles.signupText}>
-            Already have an Account? <Text style={styles.signupLink} onPress={onNavigateToLogin}>Sign in</Text>
+            Ya tienes cuenta? <Text style={styles.signupLink} onPress={onNavigateToLogin}>Inicia sesion</Text>
           </Text>
         </View>
       </ScrollView>
