@@ -17,7 +17,7 @@ import { LinearGradientSvg } from '../src/presentation/components/ui/LinearGradi
 import { BottomNav } from '../src/presentation/components/ui/BottomNav';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { CrearProyectoUseCase } from '../src/application/useCases/CrearProyectoUseCase';
-import { MockProyectoRepository } from '../src/infrastructure/adapters/mock/proyecto/MockProyectoRepository';
+import { WatermelonProyectoRepository } from '../src/infrastructure/adapters/watermelon/proyecto/WatermelonProyectoRepository';
 
 export default function CreateProjectScreen() {
   const params = useLocalSearchParams();
@@ -57,7 +57,7 @@ export default function CreateProjectScreen() {
     }
 
     try {
-      const useCase = new CrearProyectoUseCase(new MockProyectoRepository());
+      const useCase = new CrearProyectoUseCase(new WatermelonProyectoRepository());
       const proyectoId = `proj-${Date.now()}`;
 
       await useCase.execute({

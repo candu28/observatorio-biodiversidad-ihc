@@ -16,7 +16,7 @@ import { ChevronLeft, Plus, X, Camera, Image as ImageIcon, MessageSquare, Calend
 import { LinearGradientSvg } from '../../../src/presentation/components/ui/LinearGradientSvg';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { MockProyectoRepository } from '../../../src/infrastructure/adapters/mock/proyecto/MockProyectoRepository';
+import { WatermelonProyectoRepository } from '../../../src/infrastructure/adapters/watermelon/proyecto/WatermelonProyectoRepository';
 import { CapturarMultimediaAvistamiento } from '../../../src/application/useCases/CapturarMultimediaAvistamiento';
 import { ExpoCameraAdapter } from '../../../src/infrastructure/adapters/hardware/ExpoCameraAdapter';
 import { AgregarAporteTareaUseCase, AgregarAporteTareaInput } from '../../../src/application/useCases/AgregarAporteTareaUseCase';
@@ -32,7 +32,7 @@ export default function TaskDetailScreen() {
   const [sheetVisible, setSheetVisible] = useState(false);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
 
-  const repository = new MockProyectoRepository();
+  const repository = new WatermelonProyectoRepository();
 
   const loadTaskDetail = async () => {
     try {

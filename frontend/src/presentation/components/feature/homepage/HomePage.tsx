@@ -20,8 +20,9 @@ import { LinearGradientSvg } from '../../ui/LinearGradientSvg';
 import { BottomNav } from '../../ui/BottomNav';
 import { ObtenerHomePageUseCase } from '../../../../application/useCases/ObtenerHomePageUseCase';
 import { ObtenerProyectosUseCase } from '../../../../application/useCases/ObtenerProyectosUseCase';
-import { MockHomePageRepository } from '../../../../infrastructure/adapters/mock/homepage/MockHomePageRepository';
-import { MockProyectoRepository } from '../../../../infrastructure/adapters/mock/proyecto/MockProyectoRepository';
+import { WatermelonHomePageRepository } from '../../../../infrastructure/adapters/watermelon/homepage/WatermelonHomePageRepository';
+import { WatermelonProyectoRepository } from '../../../../infrastructure/adapters/watermelon/proyecto/WatermelonProyectoRepository';
+import { WatermelonPerfilRepository } from '../../../../infrastructure/adapters/watermelon/perfil/WatermelonPerfilRepository';
 import { HomePageCard } from '../../../../application/ports/IHomePagePort';
 import { IProyecto } from '../../../../../../contracts/types/IProyecto';
 import { IEspecie } from '../../../../../../contracts/types/IEspecie';
@@ -91,26 +92,32 @@ export default function HomePage() {
   const scrollX = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
-    const loadData = async () => {
-      setIsLoading(true);
-      try {
-        const useCase = new ObtenerHomePageUseCase(new MockHomePageRepository());
-        const result = await useCase.execute();
+    let subAvistamientos: any;
+    let subEspecies: any;
+    let subProyectos: any;
 
-        setData(result.avistamientos);
-        setEspecies(result.especies);
-
-        const proyectosUseCase = new ObtenerProyectosUseCase(new MockProyectoRepository());
-        const projectsData = await proyectosUseCase.execute();
-        setProyectos(projectsData);
-      } catch (error) {
-        console.error('Failed to fetch data', error);
-      } finally {
+    const init = async () => {
+      const homeRepo = new WatermelonHomePageRepository();
+      const perfilRepo = new WatermelonPerfilRepository();
+      const usuario = await perfilRepo.getUsuarioActual();
+      
+      subAvistamientos = homeRepo.observeAvistamientos(usuario?.id).subscribe(setData);
+      subEspecies = homeRepo.observeEspecies().subscribe(e => {
+        setEspecies(e);
         setIsLoading(false);
-      }
+      });
+
+      const proyectoRepo = new WatermelonProyectoRepository();
+      subProyectos = proyectoRepo.observeProyectos().subscribe(setProyectos);
     };
 
-    void loadData();
+    init();
+
+    return () => {
+      if (subAvistamientos) subAvistamientos.unsubscribe();
+      if (subEspecies) subEspecies.unsubscribe();
+      if (subProyectos) subProyectos.unsubscribe();
+    };
   }, []);
 
   const numColumns = Math.max(2, Math.min(15, Math.floor(width / 300)));
@@ -204,8 +211,8 @@ export default function HomePage() {
       setLiked(!liked);
       try {
         const { RegistrarInteresUseCase } = require('../../../../application/useCases/RegistrarInteresUseCase');
-        const { MockPerfilRepository } = require('../../../../infrastructure/adapters/mock/perfil/MockPerfilRepository');
-        const useCase = new RegistrarInteresUseCase(new MockPerfilRepository());
+        const { WatermelonPerfilRepository } = require('../../../../infrastructure/adapters/watermelon/perfil/WatermelonPerfilRepository');
+        const useCase = new RegistrarInteresUseCase(new WatermelonPerfilRepository());
         await useCase.execute(itemId);
       } catch (err) {
         console.error(err);

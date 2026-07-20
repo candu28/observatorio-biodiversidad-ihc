@@ -4,6 +4,7 @@
     "slug": "guaya",
     "scheme": "guaya",
     "plugins": [
+      "@morrowdigital/watermelondb-expo-plugin",
       "expo-router",
       "expo-sqlite",
       [
@@ -19,6 +20,13 @@
           "photosPermission": "Permite a Guaya acceder a tu galería para seleccionar fotos de avistamientos."
         }
       ]
-    ]
+    ],
+    "android": {
+      "permissions": [
+        "android.permission.CAMERA",
+        "android.permission.RECORD_AUDIO"
+      ],
+      "package": "com.anonymous.guaya"
+    }
   }
 }

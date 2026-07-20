@@ -18,7 +18,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Modal, Pressable } from 'react-native';
 
 import { ObtenerDetalleProyectoUseCase, ProyectoDetalleViewModel } from '../../src/application/useCases/ObtenerDetalleProyectoUseCase';
-import { MockProyectoRepository } from '../../src/infrastructure/adapters/mock/proyecto/MockProyectoRepository';
+import { WatermelonProyectoRepository } from '../../src/infrastructure/adapters/watermelon/proyecto/WatermelonProyectoRepository';
 import { CapturarMultimediaAvistamiento } from '../../src/application/useCases/CapturarMultimediaAvistamiento';
 import { ExpoCameraAdapter } from '../../src/infrastructure/adapters/hardware/ExpoCameraAdapter';
 import { AgregarAporteTareaUseCase } from '../../src/application/useCases/AgregarAporteTareaUseCase';
@@ -31,7 +31,7 @@ export default function ProjectDetailScreen() {
 
   const loadDetail = useCallback(async () => {
     try {
-      const useCase = new ObtenerDetalleProyectoUseCase(new MockProyectoRepository());
+      const useCase = new ObtenerDetalleProyectoUseCase(new WatermelonProyectoRepository());
       const result = await useCase.execute(id as string);
       setData(result);
     } catch (error) {

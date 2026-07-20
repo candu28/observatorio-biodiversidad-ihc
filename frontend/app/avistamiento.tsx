@@ -15,8 +15,8 @@ import { ChevronLeft, Save, MapPin, Leaf } from 'lucide-react-native';
 import * as Location from 'expo-location';
 import CameraWidget from '../src/presentation/components/feature/camera/CameraWidget';
 import { RegistrarAvistamientoUseCase } from '../src/application/useCases/RegistrarAvistamientoUseCase';
-import { MockAvistamientoRepository } from '../src/infrastructure/adapters/mock/avistamiento/MockAvistamientoRepository';
-import { MockPerfilRepository } from '../src/infrastructure/adapters/mock/perfil/MockPerfilRepository';
+import { WatermelonAvistamientoRepository } from '../src/infrastructure/adapters/watermelon/avistamiento/WatermelonAvistamientoRepository';
+import { WatermelonPerfilRepository } from '../src/infrastructure/adapters/watermelon/perfil/WatermelonPerfilRepository';
 
 export default function RegistrarAvistamientoScreen() {
   const params = useLocalSearchParams<{ 
@@ -65,8 +65,8 @@ export default function RegistrarAvistamientoScreen() {
 
     setSaving(true);
     try {
-      const avistamientoRepo = new MockAvistamientoRepository();
-      const perfilRepo = new MockPerfilRepository();
+      const avistamientoRepo = new WatermelonAvistamientoRepository();
+      const perfilRepo = new WatermelonPerfilRepository();
       const useCase = new RegistrarAvistamientoUseCase(avistamientoRepo, perfilRepo);
 
       await useCase.execute({

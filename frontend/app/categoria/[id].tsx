@@ -6,7 +6,7 @@ import { ChevronLeft, Search, Leaf, Heart, CheckCircle2 } from 'lucide-react-nat
 import { LinearGradientSvg } from '../../src/presentation/components/ui/LinearGradientSvg';
 import { BottomNav } from '../../src/presentation/components/ui/BottomNav';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { MockHomePageRepository } from '../../src/infrastructure/adapters/mock/homepage/MockHomePageRepository';
+import { WatermelonHomePageRepository } from '../../src/infrastructure/adapters/watermelon/homepage/WatermelonHomePageRepository';
 import { HomePageCard } from '../../src/application/ports/IHomePagePort';
 
 // @ts-ignore
@@ -29,14 +29,14 @@ export default function CategoriaScreen() {
   const { width } = useWindowDimensions();
 
   React.useEffect(() => {
-    async function load() {
-      const repo = new MockHomePageRepository();
-      const allCards = await repo.getAvistamientos();
-      
+    const repo = new WatermelonHomePageRepository();
+    const categoriaId = id || '';
+    const subscription = repo.observeAvistamientosPorCategoria(categoriaId).subscribe(allCards => {
       setCards(allCards);
       setIsLoading(false);
-    }
-    load();
+    });
+
+    return () => subscription.unsubscribe();
   }, [id]);
 
   const numColumns = Math.max(2, Math.min(15, Math.floor(width / 300)));
@@ -71,8 +71,8 @@ export default function CategoriaScreen() {
       setLiked(!liked);
       try {
         const { RegistrarInteresUseCase } = require('../../src/application/useCases/RegistrarInteresUseCase');
-        const { MockPerfilRepository } = require('../../src/infrastructure/adapters/mock/perfil/MockPerfilRepository');
-        const useCase = new RegistrarInteresUseCase(new MockPerfilRepository());
+        const { WatermelonPerfilRepository } = require('../../src/infrastructure/adapters/watermelon/perfil/WatermelonPerfilRepository');
+        const useCase = new RegistrarInteresUseCase(new WatermelonPerfilRepository());
         await useCase.execute(itemId);
       } catch (err) {
         console.error(err);

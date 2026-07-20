@@ -31,6 +31,10 @@ export class LocalProyectoRepository implements ILocalProyectoRepository {
     return await database.get<ProyectoModel>('proyectos').query().fetch();
   }
 
+  observeProyectos(): any {
+    return null;
+  }
+
   async addTarea(tarea: ITareaProyecto): Promise<void> {
     await database.write(async () => {
       await database.get<TareaModel>('tareas_proyecto').create(record => {

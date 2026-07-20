@@ -8,7 +8,11 @@ export type HomePageCard = {
   title?: string;
 };
 
+import { Observable } from 'rxjs';
+
 export interface IHomePagePort {
-  getAvistamientos(): Promise<HomePageCard[]>;
+  getAvistamientos(usuarioId?: string): Promise<HomePageCard[]>;
   getEspecies(): Promise<IEspecie[]>;
+  observeAvistamientos(usuarioId?: string): Observable<HomePageCard[]>;
+  observeEspecies(): Observable<IEspecie[]>;
 }

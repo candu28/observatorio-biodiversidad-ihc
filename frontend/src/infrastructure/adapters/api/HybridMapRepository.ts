@@ -1,7 +1,5 @@
 import { IMapPort } from '../../../application/ports/IMapPort';
 import { IAvistamiento } from '../../../../../contracts/types/IAvistamiento';
-import { avistamientosEnMemoria } from '../mock/mockState';
-
 // Mapeos estáticos de categorías a sus IDs UUID locales correspondientes
 const CATEGORY_ID_MAP: Record<string, string> = {
   'Anfibios': '11111111-1111-1111-1111-111111111111',
@@ -63,17 +61,45 @@ export class HybridMapRepository implements IMapPort {
     }
   }
 
-  private fetchFromLocal(categoryName: string): IAvistamiento[] {
-    let data = avistamientosEnMemoria;
-
-    if (categoryName && categoryName !== 'Todo') {
-      const categoryId = CATEGORY_ID_MAP[categoryName];
-      if (categoryId) {
-        data = data.filter((a) => a.categoriaId === categoryId);
+  private async fetchFromLocal(categoryName: string): Promise<IAvistamiento[]> {
+    try {
+      const { database } = require('../watermelon/database');
+      let queryArgs: any[] = [];
+      
+      if (categoryName && categoryName !== 'Todo') {
+        const categoryId = CATEGORY_ID_MAP[categoryName];
+        if (categoryId) {
+          const { Q } = require('@nozbe/watermelondb');
+          queryArgs.push(Q.where('categoria_id', categoryId));
+        }
       }
-    }
 
-    return data;
+      const { Q } = require('@nozbe/watermelondb');
+      queryArgs.push(Q.where('estado', 'Verificado'));
+
+      const avistamientos = await database.get('avistamientos').query(...queryArgs).fetch();
+      
+      return avistamientos.map((a: any) => ({
+        id: a.id,
+        numeroPublicacion: a.numeroPublicacion,
+        autorId: a.autorId,
+        fotoUrl: a.fotoUrl,
+        descripcionExperiencia: a.descripcionExperiencia,
+        latitud: a.latitud,
+        longitud: a.longitud,
+        ubicacionTexto: a.ubicacionTexto,
+        fechaCreacion: a.fechaCreacion,
+        biomaId: a.biomaId,
+        categoriaId: a.categoriaId,
+        estado: a.estado,
+        especieVerificadaId: a.especieVerificadaId,
+        especieVerifNombre: a.especieVerifNombre,
+        especieVerifNombreCientifico: a.especieVerifNombreCientifico,
+      }));
+    } catch (e) {
+      console.warn('Error fetching from WatermelonDB in map', e);
+      return [];
+    }
   }
 
   private async fetchFromINaturalist(categoryName: string): Promise<IAvistamiento[]> {
@@ -84,6 +110,7 @@ export class HybridMapRepository implements IMapPort {
       nelat: '10.0',
       nelng: '-60.0',
       per_page: '80', // Límite razonable para rendimiento
+      quality_grade: 'research', // Solo traer verificados (Grado de investigación)
       // Solicitamos campos específicos en iNaturalist v2
       fields: 'id,observed_on,quality_grade,description,place_guess,location,geojson,user,photos,taxon',
     };

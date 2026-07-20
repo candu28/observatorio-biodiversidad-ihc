@@ -10,9 +10,9 @@ export type HomePageViewModel = {
 export class ObtenerHomePageUseCase {
   constructor(private readonly homePagePort: IHomePagePort) {}
 
-  async execute(): Promise<HomePageViewModel> {
+  async execute(usuarioId?: string): Promise<HomePageViewModel> {
     const [avistamientos, especies] = await Promise.all([
-      this.homePagePort.getAvistamientos(),
+      this.homePagePort.getAvistamientos(usuarioId),
       this.homePagePort.getEspecies()
     ]);
 

@@ -36,6 +36,14 @@ export class LocalAvistamientoRepository implements ILocalAvistamientoRepository
     return await database.get<AvistamientoModel>('avistamientos').query().fetch();
   }
 
+  async getAvistamientoById(id: string): Promise<IAvistamiento | null> {
+    return null;
+  }
+
+  observeAvistamientoById(id: string): any {
+    return null;
+  }
+
   async addComentario(comentario: IComentarioAvistamiento): Promise<void> {
     await database.write(async () => {
       await database.get<ComentarioModel>('comentarios_avistamiento').create(record => {

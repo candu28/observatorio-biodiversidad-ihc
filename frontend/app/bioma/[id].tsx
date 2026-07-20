@@ -6,7 +6,7 @@ import { ChevronLeft, Search, Leaf, Heart, CheckCircle2 } from 'lucide-react-nat
 import { LinearGradientSvg } from '../../src/presentation/components/ui/LinearGradientSvg';
 import { BottomNav } from '../../src/presentation/components/ui/BottomNav';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { MockHomePageRepository } from '../../src/infrastructure/adapters/mock/homepage/MockHomePageRepository';
+import { WatermelonHomePageRepository } from '../../src/infrastructure/adapters/watermelon/homepage/WatermelonHomePageRepository';
 import { HomePageCard } from '../../src/application/ports/IHomePagePort';
 
 // @ts-ignore
@@ -25,14 +25,15 @@ export default function BiomaScreen() {
   const { width } = useWindowDimensions();
 
   React.useEffect(() => {
-    async function load() {
-      const repo = new MockHomePageRepository();
-      const allCards = await repo.getAvistamientos();
-      
+    const repo = new WatermelonHomePageRepository();
+    // Assuming `id` is the name of the bioma, e.g. "Sabana"
+    const biomaId = id || '';
+    const subscription = repo.observeAvistamientosPorBioma(biomaId).subscribe(allCards => {
       setCards(allCards);
       setIsLoading(false);
-    }
-    load();
+    });
+
+    return () => subscription.unsubscribe();
   }, [id]);
 
   const numColumns = Math.max(2, Math.min(15, Math.floor(width / 300)));
@@ -67,8 +68,8 @@ export default function BiomaScreen() {
       setLiked(!liked);
       try {
         const { RegistrarInteresUseCase } = require('../../src/application/useCases/RegistrarInteresUseCase');
-        const { MockPerfilRepository } = require('../../src/infrastructure/adapters/mock/perfil/MockPerfilRepository');
-        const useCase = new RegistrarInteresUseCase(new MockPerfilRepository());
+        const { WatermelonPerfilRepository } = require('../../src/infrastructure/adapters/watermelon/perfil/WatermelonPerfilRepository');
+        const useCase = new RegistrarInteresUseCase(new WatermelonPerfilRepository());
         await useCase.execute(itemId);
       } catch (err) {
         console.error(err);

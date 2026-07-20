@@ -12,12 +12,15 @@ import {
 } from 'react-native';
 import { useLocalSearchParams, router, Stack } from 'expo-router';
 import { ChevronLeft, CheckCircle2, ThumbsUp, ThumbsDown, Binoculars, Award, Compass, BookOpen, Users, ChevronRight, Plus, Grid, Leaf } from 'lucide-react-native';
-// Require JSON with ts-ignore to avoid missing module/type declaration errors
-// @ts-ignore
-const dbMockData = require('../../../contracts/mocks/dbMockData.json');
 import { LinearGradientSvg } from '../../src/presentation/components/ui/LinearGradientSvg';
 import { BottomNav } from '../../src/presentation/components/ui/BottomNav';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { WatermelonAvistamientoRepository } from '../../src/infrastructure/adapters/watermelon/avistamiento/WatermelonAvistamientoRepository';
+import { WatermelonPerfilRepository } from '../../src/infrastructure/adapters/watermelon/perfil/WatermelonPerfilRepository';
+import { ObtenerDetalleAvistamientoUseCase } from '../../src/application/useCases/ObtenerDetalleAvistamientoUseCase';
+import { AgregarSugerenciaUseCase } from '../../src/application/useCases/AgregarSugerenciaUseCase';
+import { AgregarComentarioUseCase } from '../../src/application/useCases/AgregarComentarioUseCase';
+import { VotarSugerenciaUseCase } from '../../src/application/useCases/VotarSugerenciaUseCase';
 
 export default function SightingDetailScreen() {
   const { id } = useLocalSearchParams();
@@ -25,149 +28,72 @@ export default function SightingDetailScreen() {
   const [newSightingText, setNewSightingText] = useState('');
   const [newCommentText, setNewCommentText] = useState('');
 
-  const [data, setData] = useState<any>(() => {
-    let rawItem = (dbMockData.avistamientos as any[]).find(a => a.id === id);
-    if (!rawItem) {
-      rawItem = dbMockData.avistamientos[0];
+  const [data, setData] = useState<any>(null);
+
+  const fetchDetalles = async () => {
+    setIsLoading(true);
+    try {
+      const avistamientoRepo = new WatermelonAvistamientoRepository();
+      const perfilRepo = new WatermelonPerfilRepository();
+      const useCase = new ObtenerDetalleAvistamientoUseCase(avistamientoRepo, perfilRepo);
+      
+      const detalle = await useCase.execute(id as string);
+      setData(detalle);
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setIsLoading(false);
     }
-
-
-    if (!rawItem._identificacionesUiMock) {
-      rawItem._identificacionesUiMock = [
-        {
-          id: '1', usuario: 'Luis Ferrer', iniciales: 'LF', color: '#6366f1', tiempo: 'hace 30min', isTop: true,
-          comentario: 'Confirmado. Es el Dendrobates leucomelas, inconfundible por su patrón amarillo-negro. Especie endémica de la Guayana venezolana.', votosUp: 100, votosDown: 3, userVote: null,
-        },
-        {
-          id: '2', usuario: 'Cambur', iniciales: 'CA', color: '#b45309', tiempo: 'hace 12h', isTop: false,
-          comentario: 'Podría ser una especie hermana. El patrón de las bandas negras parece ligeramente diferente al leucomelas típico.', votosUp: 8, votosDown: 45, userVote: null,
-        },
-        {
-          id: '3', usuario: 'DrHerpeto', iniciales: 'DH', color: '#15803d', tiempo: 'hace 2d', isTop: true,
-          comentario: 'El patrón es definitivamente D. leucomelas. He analizado 318 registros de esta especie en la región del Caura.', votosUp: 234, votosDown: 1, userVote: null,
-        },
-      ];
-    }
-
-    const autor = (dbMockData.usuarios as any[]).find(u => u.id === rawItem.autor_id) || { nombre: 'Desconocido' };
-    const categoriaObj = (dbMockData.categorias_taxonomicas as any[]).find(c => c.id === rawItem.categoria_id);
-    const comentarios = Array.isArray(rawItem.comentarios)
-      ? rawItem.comentarios.map((comment: any, index: number) => ({
-        id: comment.id || `comment-${index + 1}`,
-        usuario: comment.usuario || 'Usuario',
-        texto: comment.texto || comment.contenido || '',
-        tiempo: comment.tiempo || 'recientemente',
-      }))
-      : [];
-
-    return {
-      _rawItem: rawItem,
-      id: rawItem.id,
-      categoria: categoriaObj ? categoriaObj.nombre.toUpperCase() : 'ANFIBIOS',
-      nombreComun: rawItem.especie_verif_nombre || 'Desconocido',
-      nombreCientifico: rawItem.especie_verif_nombre_cientifico || 'Desconocido',
-      verificada: rawItem.estado === 'Verificado',
-      fotoUrl: rawItem.foto_url || 'https://images.unsplash.com/photo-1550977186-b484af8a264a?q=80&w=800',
-      ubicacionTexto: rawItem.ubicacion_texto || 'Desconocida',
-      observadorOriginal: {
-        nombre: autor.nombre,
-      },
-      expertoTop: 'DrHerpeto',
-      totalObservaciones: '1847',
-      especieId: rawItem.especie_verificada_id || '',
-      identificaciones: rawItem._identificacionesUiMock,
-      comentarios,
-    };
-  });
-
-  const handleVote = (commentId: string, type: 'up' | 'down') => {
-    // Simulate per-user single vote behavior (toggle and switch)
-    const currentUserId = (dbMockData.usuarios as any[])[0]?.id || 'local-user';
-    setData((prev: any) => {
-      const updatedIdentificaciones = prev.identificaciones.map((item: any) => {
-        if (item.id !== commentId) return item;
-
-        const prevVote = item.userVote || null; // 'up' | 'down' | null
-        let votosUp = item.votosUp ?? 0;
-        let votosDown = item.votosDown ?? 0;
-        let newVote = prevVote;
-
-        if (prevVote === type) {
-          // toggle off
-          if (type === 'up') votosUp = Math.max(0, votosUp - 1);
-          else votosDown = Math.max(0, votosDown - 1);
-          newVote = null;
-        } else {
-          // switch or add
-          if (prevVote === 'up') votosUp = Math.max(0, votosUp - 1);
-          if (prevVote === 'down') votosDown = Math.max(0, votosDown - 1);
-          if (type === 'up') votosUp += 1;
-          if (type === 'down') votosDown += 1;
-          newVote = type;
-        }
-
-        const updatedItem = { ...item, votosUp, votosDown, userVote: newVote };
-        return updatedItem;
-      });
-
-      if (prev._rawItem) {
-        prev._rawItem._identificacionesUiMock = updatedIdentificaciones;
-      }
-
-      return { ...prev, identificaciones: updatedIdentificaciones };
-    });
-  };
-
-  const handleAddSighting = () => {
-    const trimmed = newSightingText.trim();
-    if (!trimmed) return;
-
-    const newItem = {
-      id: `new-sighting-${Date.now()}`,
-      usuario: 'Tú',
-      iniciales: 'TU',
-      color: '#2563eb',
-      tiempo: 'ahora',
-      isTop: false,
-      comentario: trimmed,
-      votosUp: 0,
-      votosDown: 0,
-      userVote: null,
-    };
-
-    setData((prev: any) => {
-      const updatedIdentificaciones = [...prev.identificaciones, newItem];
-      const updatedRaw = prev._rawItem ? { ...prev._rawItem, _identificacionesUiMock: updatedIdentificaciones } : prev._rawItem;
-      return { ...prev, identificaciones: updatedIdentificaciones, _rawItem: updatedRaw };
-    });
-    setNewSightingText('');
-  };
-
-  const handleAddComment = () => {
-    const trimmed = newCommentText.trim();
-    if (!trimmed) return;
-
-    const newComment = {
-      id: `new-comment-${Date.now()}`,
-      usuario: 'Tú',
-      texto: trimmed,
-      tiempo: 'ahora',
-    };
-
-    setData((prev: any) => {
-      const updatedComments = [...prev.comentarios, newComment];
-      return { ...prev, comentarios: updatedComments };
-    });
-    setNewCommentText('');
   };
 
   useEffect(() => {
-    // Simulate API fetch delay
-    const timer = setTimeout(() => {
-      setIsLoading(false);
-    }, 600);
-    return () => clearTimeout(timer);
+    fetchDetalles();
   }, [id]);
+
+  const handleVote = async (commentId: string, type: 'up' | 'down') => {
+    try {
+      const avistamientoRepo = new WatermelonAvistamientoRepository();
+      const perfilRepo = new WatermelonPerfilRepository();
+      const useCase = new VotarSugerenciaUseCase(avistamientoRepo, perfilRepo);
+      await useCase.execute(id as string, commentId, type === 'up');
+      fetchDetalles();
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  const handleAddSighting = async () => {
+    const trimmed = newSightingText.trim();
+    if (!trimmed) return;
+
+    try {
+      const avistamientoRepo = new WatermelonAvistamientoRepository();
+      const perfilRepo = new WatermelonPerfilRepository();
+      const useCase = new AgregarSugerenciaUseCase(avistamientoRepo, perfilRepo);
+      await useCase.execute(id as string, trimmed);
+      setNewSightingText('');
+      fetchDetalles();
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  const handleAddComment = async () => {
+    const trimmed = newCommentText.trim();
+    if (!trimmed) return;
+
+    try {
+      const avistamientoRepo = new WatermelonAvistamientoRepository();
+      const perfilRepo = new WatermelonPerfilRepository();
+      const useCase = new AgregarComentarioUseCase(avistamientoRepo, perfilRepo);
+      await useCase.execute(id as string, trimmed);
+      setNewCommentText('');
+      fetchDetalles();
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
 
   if (isLoading) {
     return (

@@ -6,6 +6,8 @@ export interface ILocalAvistamientoRepository {
   // Avistamientos
   createAvistamiento(avistamiento: IAvistamiento): Promise<void>;
   getAvistamientos(): Promise<IAvistamiento[]>;
+  getAvistamientoById(id: string): Promise<IAvistamiento | null>;
+  observeAvistamientoById(id: string): any;
   
   // Comentarios (Parte del agregado de Avistamiento)
   addComentario(comentario: IComentarioAvistamiento): Promise<void>;

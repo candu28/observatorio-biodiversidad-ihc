@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
-import { Image, Modal, Pressable, ScrollView, StyleSheet, Text, TouchableOpacity, View, Alert } from 'react-native';
+import { Image, Modal, Pressable, ScrollView, StyleSheet, Text, TouchableOpacity, View, Alert, TextInput } from 'react-native';
 
-import { ChevronLeft, ChevronRight, Home, Map, Plus, Sparkles, Star, X, Download } from 'lucide-react-native';
+import { ChevronLeft, ChevronRight, Home, Map, Plus, Sparkles, Star, X, Download, Edit2, Camera } from 'lucide-react-native';
 import { router } from 'expo-router';
+import * as ImagePicker from 'expo-image-picker';
 
 const colorOptions = [
   { id: 'guaya', label: 'Guaya', color: '#7d7a2a' },
@@ -14,7 +15,9 @@ const colorOptions = [
 ];
 
 import { ObtenerPerfilUseCase } from '../../../../application/useCases/ObtenerPerfilUseCase';
-import { MockPerfilRepository } from '../../../../infrastructure/adapters/mock/perfil/MockPerfilRepository';
+import { ExportarDarwinCoreUseCase } from '../../../../application/useCases/ExportarDarwinCoreUseCase';
+import { WatermelonPerfilRepository } from '../../../../infrastructure/adapters/watermelon/perfil/WatermelonPerfilRepository';
+import { ActualizarPerfilUseCase } from '../../../../application/useCases/ActualizarPerfilUseCase';
 import { LinearGradientSvg } from '../../ui/LinearGradientSvg';
 import { BottomNav } from '../../ui/BottomNav';
 
@@ -65,30 +68,69 @@ type ProfileScreenProps = {
   profile: any;
 };
 
-export default function ProfileScreen({ profile }: ProfileScreenProps) {
+export default function ProfileScreen({ profile: initialProfile }: ProfileScreenProps) {
   const [personalizeVisible, setPersonalizeVisible] = useState(false);
+  const [editVisible, setEditVisible] = useState(false);
+  const [profile, setProfile] = useState(initialProfile);
 
-  const handleExportDataset = () => {
-    // Generate CSV (Darwin Core Format)
-    const headers = ['occurrenceID', 'scientificName', 'eventDate', 'decimalLatitude', 'decimalLongitude', 'associatedMedia'];
-    const rows = profile.avistamientos.map((av: any) => {
-      // Mocking Darwin Core data from available avistamiento summary
-      return `"${av.id}","${av.titulo}","${new Date().toISOString()}","8.2934","-62.7233","${av.imagenUrl}"`;
+  const [nombre, setNombre] = useState(initialProfile?.usuario?.nombre || '');
+  const [bio, setBio] = useState(initialProfile?.usuario?.bio || '');
+  const [foto, setFoto] = useState(initialProfile?.usuario?.fotoPerfilUrl || '');
+
+  const [themeColors, setThemeColors] = useState(['#f7f0df', '#f4ecd7', '#f7f0df']);
+
+  const handlePickImage = async () => {
+    let result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      aspect: [1, 1],
+      quality: 0.5,
     });
-    
-    const csvContent = [headers.join(','), ...rows].join('\n');
-    
-    // In a real app we'd use expo-file-system and expo-sharing to save and share the file.
-    // For this mock, we alert the user
-    console.log("Exporting Darwin Core Dataset:\n", csvContent);
-    Alert.alert(
-      "Dataset Exportado", 
-      `Se ha exportado el archivo Excel (Darwin Core) con ${profile.avistamientos.length} avistamientos.\n\nAtributos incluidos: foto, especie, latitud, longitud, etc.`
-    );
+
+    if (!result.canceled) {
+      setFoto(result.assets[0].uri);
+    }
+  };
+
+  const handleSaveProfile = async () => {
+    try {
+      const useCase = new ActualizarPerfilUseCase(new WatermelonPerfilRepository());
+      await useCase.execute(profile.usuario.id, nombre, bio, foto);
+      
+      setProfile((prev: any) => ({
+        ...prev,
+        usuario: {
+          ...prev.usuario,
+          nombre,
+          bio,
+          fotoPerfilUrl: foto,
+        }
+      }));
+      setEditVisible(false);
+    } catch (e) {
+      Alert.alert('Error', 'No se pudo actualizar el perfil');
+    }
+  };
+
+  const handleSetTheme = (colorHex: string) => {
+    setThemeColors([colorHex + '20', colorHex + '10', colorHex + '20']);
+    setPersonalizeVisible(false);
+  };
+
+
+  const handleExportDataset = async () => {
+    try {
+      const useCase = new ExportarDarwinCoreUseCase();
+      await useCase.execute(profile.avistamientos);
+      Alert.alert('Éxito', 'Exportación a DarwinCore Excel completada con éxito.');
+    } catch (error) {
+      console.error(error);
+      Alert.alert('Error', 'Hubo un error al exportar el dataset.');
+    }
   };
 
   return (
-    <LinearGradientSvg colors={['#f7f0df', '#f4ecd7', '#f7f0df']} style={styles.container}>
+    <LinearGradientSvg colors={themeColors} style={styles.container}>
       <View style={styles.safeArea}>
         <View style={styles.topBar}>
           <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
@@ -96,14 +138,17 @@ export default function ProfileScreen({ profile }: ProfileScreenProps) {
           </TouchableOpacity>
 
           <View style={{ flexDirection: 'row', gap: 8 }}>
+            <TouchableOpacity style={styles.personalizeButton} onPress={() => setEditVisible(true)}>
+              <Edit2 size={14} color="#7b5c26" />
+              <Text style={styles.personalizeText}>Editar</Text>
+            </TouchableOpacity>
+
             <TouchableOpacity style={styles.personalizeButton} onPress={handleExportDataset}>
               <Download size={14} color="#7b5c26" />
-              <Text style={styles.personalizeText}>Exportar dataset</Text>
             </TouchableOpacity>
 
             <TouchableOpacity style={styles.personalizeButton} onPress={() => setPersonalizeVisible(true)}>
               <Sparkles size={14} color="#7b5c26" />
-              <Text style={styles.personalizeText}>Personalizar</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -170,7 +215,7 @@ export default function ProfileScreen({ profile }: ProfileScreenProps) {
 
             <View style={styles.colorGrid}>
               {colorOptions.map(option => (
-                <Pressable key={option.id} style={styles.colorOption} onPress={() => {}}>
+                <Pressable key={option.id} style={styles.colorOption} onPress={() => handleSetTheme(option.color)}>
                   <View style={[styles.colorCircle, { backgroundColor: option.color }]}>
                     <View style={styles.colorInner} />
                   </View>
@@ -181,6 +226,52 @@ export default function ProfileScreen({ profile }: ProfileScreenProps) {
           </Pressable>
         </Pressable>
       </Modal>
+
+      {/* Edit Profile Modal */}
+      <Modal visible={editVisible} transparent animationType="slide" onRequestClose={() => setEditVisible(false)}>
+        <View style={styles.modalBackdrop}>
+          <View style={styles.modalCard}>
+            <View style={styles.modalHeader}>
+              <View>
+                <Text style={styles.modalTitle}>Editar Perfil</Text>
+              </View>
+              <Pressable style={styles.modalCloseButton} onPress={() => setEditVisible(false)}>
+                <X size={16} color="#7c6a4c" />
+              </Pressable>
+            </View>
+
+            <ScrollView contentContainerStyle={{ gap: 16 }}>
+              <View style={{ alignItems: 'center' }}>
+                <TouchableOpacity style={styles.editAvatarWrapper} onPress={handlePickImage}>
+                  <Image source={{ uri: foto || 'https://via.placeholder.com/150' }} style={styles.avatar} />
+                  <View style={styles.cameraIconBadge}>
+                    <Camera size={14} color="#fff" />
+                  </View>
+                </TouchableOpacity>
+              </View>
+
+              <View>
+                <Text style={styles.inputLabel}>Nombre</Text>
+                <View style={styles.textInputWrapper}>
+                  <TextInput style={styles.textInput} value={nombre} onChangeText={setNombre} />
+                </View>
+              </View>
+
+              <View>
+                <Text style={styles.inputLabel}>Biografía</Text>
+                <View style={[styles.textInputWrapper, { height: 80 }]}>
+                  <TextInput style={[styles.textInput, { textAlignVertical: 'top' }]} value={bio} onChangeText={setBio} multiline />
+                </View>
+              </View>
+
+              <TouchableOpacity style={styles.saveButton} onPress={handleSaveProfile}>
+                <Text style={styles.saveButtonText}>Guardar Cambios</Text>
+              </TouchableOpacity>
+            </ScrollView>
+          </View>
+        </View>
+      </Modal>
+
     </LinearGradientSvg>
   );
 }
@@ -513,5 +604,58 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: '700',
     color: '#3c3122',
+  },
+  editAvatarWrapper: {
+    width: 100,
+    height: 100,
+    borderRadius: 50,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 10,
+  },
+  cameraIconBadge: {
+    position: 'absolute',
+    bottom: 0,
+    right: 0,
+    backgroundColor: '#6b5425',
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 3,
+    borderColor: '#fffdf8',
+  },
+  inputLabel: {
+    fontSize: 13,
+    fontWeight: '700',
+    color: '#2d2418',
+    marginBottom: 6,
+  },
+  textInputWrapper: {
+    backgroundColor: '#fff',
+    borderWidth: 1,
+    borderColor: '#e8e0cc',
+    borderRadius: 12,
+    height: 48,
+    paddingHorizontal: 12,
+  },
+  textInput: {
+    flex: 1,
+    fontSize: 14,
+    color: '#3c3122',
+  },
+  saveButton: {
+    backgroundColor: '#6b5425',
+    height: 48,
+    borderRadius: 24,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: 10,
+  },
+  saveButtonText: {
+    color: '#fff',
+    fontSize: 15,
+    fontWeight: '700',
   },
 });

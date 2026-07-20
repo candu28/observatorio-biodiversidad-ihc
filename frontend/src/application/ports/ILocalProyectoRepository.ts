@@ -1,11 +1,13 @@
 import { IProyecto } from '../../../../contracts/types/IProyecto';
 import { ITareaProyecto } from '../../../../contracts/types/ITareaProyecto';
 import { IAporteTarea } from '../../../../contracts/types/IAporteTarea';
+import { Observable } from 'rxjs';
 
 export interface ILocalProyectoRepository {
   // Proyectos
   createProyecto(proyecto: IProyecto): Promise<void>;
   getProyectos(): Promise<IProyecto[]>;
+  observeProyectos(): Observable<IProyecto[]>;
   
   // Tareas (Parte del agregado de Proyecto)
   addTarea(tarea: ITareaProyecto): Promise<void>;
