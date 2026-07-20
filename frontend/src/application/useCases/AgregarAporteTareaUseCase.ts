@@ -7,7 +7,7 @@ export interface AgregarAporteTareaInput {
   usuarioId: string;
   archivoUrl: string;
   comentarioDescriptivo: string;
-  tipoMultimedia: 'imagen' | 'video';
+  tipoMultimedia: 'Foto' | 'Video' | 'Audio';
 }
 
 export class AgregarAporteTareaUseCase {

@@ -125,6 +125,20 @@
       "especie_verificada_id": "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
       "especie_verif_nombre": "Sapo Minero",
       "especie_verif_nombre_cientifico": "Dendrobates leucomelas",
+      "comentarios": [
+        {
+          "id": "cm-1",
+          "usuario": "Ana García",
+          "texto": "Excelente hallazgo, la foto muestra muy bien la textura del cuerpo.",
+          "tiempo": "hace 10min"
+        },
+        {
+          "id": "cm-2",
+          "usuario": "Luis Silva",
+          "texto": "Gracias por compartir, este registro ayuda mucho al monitoreo.",
+          "tiempo": "hace 1h"
+        }
+      ],
       "created_at": "2026-05-10T10:00:00Z",
       "updated_at": "2026-05-10T10:00:00Z"
     },
@@ -143,6 +157,14 @@
       "especie_verificada_id": null,
       "especie_verif_nombre": null,
       "especie_verif_nombre_cientifico": null,
+      "comentarios": [
+        {
+          "id": "cm-3",
+          "usuario": "María Antonieta",
+          "texto": "Me encanta este tipo de registros para la comunidad.",
+          "tiempo": "hace 4h"
+        }
+      ],
       "created_at": "2026-06-15T10:00:00Z",
       "updated_at": "2026-06-15T10:00:00Z"
     },
@@ -161,6 +183,14 @@
       "especie_verificada_id": "cccccccc-cccc-cccc-cccc-cccccccccccc",
       "especie_verif_nombre": "Turpial",
       "especie_verif_nombre_cientifico": "Icterus icterus",
+      "comentarios": [
+        {
+          "id": "cm-4",
+          "usuario": "Luis Silva",
+          "texto": "Qué canto tan característico, gracias por compartirlo.",
+          "tiempo": "hace 2h"
+        }
+      ],
       "created_at": "2026-07-01T08:00:00Z",
       "updated_at": "2026-07-01T08:00:00Z"
     }

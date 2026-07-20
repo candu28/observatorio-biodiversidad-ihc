@@ -22,6 +22,7 @@ import { ExpoCameraAdapter } from '../../../src/infrastructure/adapters/hardware
 import { AgregarAporteTareaUseCase, AgregarAporteTareaInput } from '../../../src/application/useCases/AgregarAporteTareaUseCase';
 import { IAporteTarea } from '../../../../contracts/types/IAporteTarea';
 import { ITareaProyecto } from '../../../../contracts/types/ITareaProyecto';
+import { CapturedMedia } from '../../../src/application/ports/CapturedMedia';
 
 export default function TaskDetailScreen() {
   const { id, proyectoId } = useLocalSearchParams();
@@ -60,7 +61,7 @@ export default function TaskDetailScreen() {
       const adapter = new ExpoCameraAdapter();
       const captureUseCase = new CapturarMultimediaAvistamiento(adapter);
 
-      let result: string[] = [];
+      let result: CapturedMedia[] = [];
       if (type === 'photo') {
         result = await captureUseCase.execute({ type: 'photo' });
       } else if (type === 'gallery') {
@@ -74,8 +75,8 @@ export default function TaskDetailScreen() {
           proyectoId: proyectoId as string,
           tareaId: tarea.tareaId,
           usuarioId: 'user-123', // Hardcoded for mock purposes (Auth layer would provide this)
-          tipoMultimedia: 'imagen',
-          archivoUrl: result[0],
+          tipoMultimedia: 'Foto',
+          archivoUrl: result[0].uri,
           comentarioDescriptivo: 'Aporte desde la aplicación', // This could come from an input field in the future
         };
 

@@ -27,4 +27,10 @@ export interface IAvistamiento {
     especieVerificadaId?: string;
     especieVerifNombre?: string;     // Ej: "Sapo Minero"
     especieVerifNombreCientifico?: string; // Ej: "Adelphobates minutus"
+    comentarios?: Array<{
+        id: string;
+        usuario: string;
+        texto: string;
+        tiempo: string;
+    }>;
 }
