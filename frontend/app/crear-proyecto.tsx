@@ -9,7 +9,7 @@ import {
   Image,
   Alert,
 } from 'react-native';
-import { useLocalSearchParams, router } from 'expo-router';
+import { useLocalSearchParams, router, Stack } from 'expo-router';
 import { ChevronLeft, Plus, MapPin, BookOpen } from 'lucide-react-native';
 import { LinearGradientSvg } from '../src/presentation/components/ui/LinearGradientSvg';
 import { BottomNav } from '../src/presentation/components/ui/BottomNav';
@@ -73,6 +73,7 @@ export default function CreateProjectScreen() {
 
   return (
     <LinearGradientSvg colors={['#fdf7e3', '#fdf3d1', '#e8f3d6']} style={styles.container}>
+      <Stack.Screen options={{ headerShown: false }} />
       <SafeAreaView style={styles.safeArea} edges={['left', 'right']}>
 
         {/* Header */}
@@ -172,7 +173,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: 20,
-    paddingTop: 40,
+    paddingTop: 60, // Aumentado de 40 a 60
     paddingBottom: 20,
     gap: 15,
   },
