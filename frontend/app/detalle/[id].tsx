@@ -399,14 +399,24 @@ export default function SightingDetailScreen() {
               <ChevronRight size={16} color="#a1a1aa" />
             </TouchableOpacity>
 
-            <TouchableOpacity style={[styles.projectCard, styles.createProjectCard]}>
+            <TouchableOpacity
+              style={[styles.projectCard, styles.createProjectCard]}
+              onPress={() => router.push({
+                pathname: '/crear-proyecto',
+                params: {
+                  especieNombre: data.nombreComun,
+                  especieCientifico: data.nombreCientifico,
+                  especieFoto: data.fotoUrl
+                }
+              })}
+            >
               <View style={[styles.projectIconContainer, styles.createProjectIconContainer]}>
-                <Plus size={16} color="#15803d" />
+                <Plus size={16} color="#065f46" />
               </View>
               <View style={styles.projectTextContainer}>
                 <Text style={[styles.projectTitle, styles.createProjectTitle]}>Crear nuevo proyecto</Text>
               </View>
-              <ChevronRight size={16} color="#15803d" />
+              <ChevronRight size={16} color="#065f46" />
             </TouchableOpacity>
           </View>
 
@@ -863,9 +873,9 @@ const styles = StyleSheet.create({
     padding: 14,
   },
   createProjectCard: {
-    backgroundColor: '#f0fdf4',
-    borderWidth: 1,
-    borderColor: '#86efac',
+    backgroundColor: '#ecfdf5',
+    borderWidth: 1.5,
+    borderColor: '#6ee7b7',
   },
   projectIconContainer: {
     width: 32,
@@ -891,7 +901,8 @@ const styles = StyleSheet.create({
     color: '#1f2937',
   },
   createProjectTitle: {
-    color: '#166534',
+    color: '#065f46',
+    fontWeight: '800',
   },
   projectParticipants: {
     flexDirection: 'row',
