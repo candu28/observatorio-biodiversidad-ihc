@@ -10,77 +10,172 @@ import {
   KeyboardAvoidingView,
   Platform,
 } from 'react-native';
-import { router } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
 import { ChevronLeft, Save, MapPin, Leaf } from 'lucide-react-native';
-import { LinearGradientSvg } from '../src/presentation/components/ui/LinearGradientSvg';
+import * as Location from 'expo-location';
 import CameraWidget from '../src/presentation/components/feature/camera/CameraWidget';
+import { RegistrarAvistamientoUseCase } from '../src/application/useCases/RegistrarAvistamientoUseCase';
+import { MockAvistamientoRepository } from '../src/infrastructure/adapters/mock/avistamiento/MockAvistamientoRepository';
+import { MockPerfilRepository } from '../src/infrastructure/adapters/mock/perfil/MockPerfilRepository';
 
 export default function RegistrarAvistamientoScreen() {
+  const params = useLocalSearchParams<{ 
+    photos?: string;
+    latitude?: string;
+    longitude?: string;
+    locationSource?: string;
+  }>();
   const [titulo, setTitulo] = useState('');
   const [notas, setNotas] = useState('');
-  const [ubicacion, setUbicacion] = useState('Reserva Ecológica Manglares Churute, Ecuador');
-  const [photos, setPhotos] = useState<string[]>([]);
+  const [ubicacion, setUbicacion] = useState('');
+  const [photos, setPhotos] = useState<string[]>(() => {
+    try {
+      return params.photos ? (JSON.parse(params.photos) as string[]) : [];
+    } catch {
+      return [];
+    }
+  });
+  const [latitud, setLatitud] = useState<number | null>(() => {
+    if (params.latitude) {
+      const parsed = parseFloat(params.latitude);
+      return isNaN(parsed) ? null : parsed;
+    }
+    return null;
+  });
+  const [longitud, setLongitud] = useState<number | null>(() => {
+    if (params.longitude) {
+      const parsed = parseFloat(params.longitude);
+      return isNaN(parsed) ? null : parsed;
+    }
+    return null;
+  });
+  const [fuenteUbicacion, setFuenteUbicacion] = useState<string | null>(params.locationSource || null);
   const [saving, setSaving] = useState(false);
+
 
   const handleSave = async () => {
     if (!titulo.trim()) {
       Alert.alert('Campo Requerido', 'Por favor ingresa el nombre de la especie o título del avistamiento.');
       return;
     }
-
     if (photos.length === 0) {
       Alert.alert('Evidencia Requerida', 'Por favor agrega al menos una foto del avistamiento.');
       return;
     }
 
     setSaving(true);
-    // Simular guardado
-    setTimeout(() => {
+    try {
+      const avistamientoRepo = new MockAvistamientoRepository();
+      const perfilRepo = new MockPerfilRepository();
+      const useCase = new RegistrarAvistamientoUseCase(avistamientoRepo, perfilRepo);
+
+      await useCase.execute({
+        especieVerifNombre: titulo.trim(),
+        notas: notas.trim(),
+        ubicacion: ubicacion.trim(),
+        fotoUrl: photos[0],
+        fotosExtra: photos.slice(1),
+        latitud: latitud !== null ? latitud : undefined,
+        longitud: longitud !== null ? longitud : undefined,
+      });
+
+
       setSaving(false);
       Alert.alert(
-        'Avistamiento Guardado',
-        'El avistamiento ha sido registrado localmente de forma exitosa y está listo para sincronizar con la nube.',
-        [
-          {
-            text: 'Excelente',
-            onPress: () => router.replace('/'),
-          },
-        ]
+        '¡Avistamiento Guardado!',
+        'El registro fue guardado correctamente y ya aparece en tu perfil.',
+        [{ text: 'Excelente', onPress: () => router.replace('/') }]
       );
-    }, 1200);
+    } catch (error: any) {
+      setSaving(false);
+      Alert.alert('Error al Guardar', error.message || 'Ocurrió un error inesperado.');
+    }
   };
 
   return (
-    <LinearGradientSvg colors={['#fcf7e3', '#fdf3d1', '#e8f3d6']} style={styles.container}>
+    <View style={styles.container}>
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
         style={styles.keyboardView}
       >
+        {/* Header */}
         <View style={styles.header}>
           <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
             <ChevronLeft size={22} color="#6b5b3e" />
           </TouchableOpacity>
-          <Text style={styles.headerTitle}>Registrar Avistamiento</Text>
-          <View style={{ width: 38 }} /> {/* Spacer */}
+          <Text style={styles.headerTitle}>Nuevo Avistamiento</Text>
+          <View style={{ width: 38 }} />
         </View>
 
-        <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
+        <ScrollView
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={styles.scrollContent}
+        >
+          {/* ── FOTOS AL TOPE ── */}
+          <CameraWidget
+            photos={photos}
+            onPhotosChange={setPhotos}
+            onLocationCaptured={async (lat, lon, src) => {
+              setLatitud(lat);
+              setLongitud(lon);
+              setFuenteUbicacion(src);
+
+              // Autocompletar la dirección si el usuario no ha escrito nada
+              if (!ubicacion.trim()) {
+                try {
+                  const [address] = await Location.reverseGeocodeAsync({ latitude: lat, longitude: lon });
+                  if (address) {
+                    const parts = [];
+                    if (address.name && address.name !== address.street) {
+                      parts.push(address.name);
+                    }
+                    if (address.street) {
+                      parts.push(address.street);
+                    }
+                    if (address.district) {
+                      parts.push(address.district);
+                    }
+                    if (address.city || address.subregion) {
+                      parts.push(address.city || address.subregion);
+                    }
+                    if (address.region) {
+                      parts.push(address.region);
+                    }
+                    if (address.country) {
+                      parts.push(address.country);
+                    }
+                    const readableAddress = parts.filter(Boolean).join(', ');
+                    if (readableAddress) {
+                      setUbicacion(readableAddress);
+                    }
+                  }
+                } catch (e) {
+                  console.error('Error en geocodificación inversa:', e);
+                }
+              }
+            }}
+          />
+
+
+          {/* Separador visual */}
+          <View style={styles.divider} />
+
           {/* Tarjeta de introducción */}
           <View style={styles.introCard}>
             <View style={styles.introIcon}>
               <Leaf size={20} color="#4d7c0f" />
             </View>
             <View style={styles.introTextContainer}>
-              <Text style={styles.introTitle}>Nueva Registro de Campo</Text>
+              <Text style={styles.introTitle}>Datos del Avistamiento</Text>
               <Text style={styles.introDesc}>
-                Completa la información y captura fotos. La inteligencia artificial y la comunidad verificarán tu registro.
+                Completa la información. La comunidad y la IA verificarán tu registro.
               </Text>
             </View>
           </View>
 
-          {/* Formulario */}
+          {/* Especie / Título */}
           <View style={styles.formGroup}>
-            <Text style={styles.label}>Especie o Título del Avistamiento *</Text>
+            <Text style={styles.label}>Especie o Título *</Text>
             <TextInput
               style={styles.input}
               placeholder="Ej. Rana Flecha Dorada, Bromelia Gigante..."
@@ -92,28 +187,25 @@ export default function RegistrarAvistamientoScreen() {
 
           {/* Ubicación */}
           <View style={styles.formGroup}>
-            <Text style={styles.label}>Ubicación / Coordenadas *</Text>
+            <Text style={styles.label}>Ubicación *</Text>
             <View style={styles.inputWithIconContainer}>
-              <MapPin size={18} color="#8c7651" style={styles.inputIcon} />
+              <MapPin size={16} color="#8c7651" style={styles.inputIcon} />
               <TextInput
                 style={styles.inputWithIcon}
-                placeholder="Coordenadas GPS o nombre del sitio"
-                placeholderTextColor="#9a8968"
+                placeholder="Ej. Parque Cachamay, Puerto Ordaz, Bolívar"
+                placeholderTextColor="#b5a98a"
                 value={ubicacion}
                 onChangeText={setUbicacion}
               />
             </View>
           </View>
 
-          {/* Cámara Widget */}
-          <CameraWidget photos={photos} onPhotosChange={setPhotos} />
-
-          {/* Notas de Campo */}
+          {/* Notas */}
           <View style={styles.formGroup}>
-            <Text style={styles.label}>Notas de Campo y Observaciones</Text>
+            <Text style={styles.label}>Notas de Campo</Text>
             <TextInput
               style={[styles.input, styles.textArea]}
-              placeholder="Describe comportamiento, estado físico, clima u otros detalles de interés para la conservación..."
+              placeholder="Comportamiento, estado físico, clima, contexto de conservación..."
               placeholderTextColor="#9a8968"
               value={notas}
               onChangeText={setNotas}
@@ -122,7 +214,7 @@ export default function RegistrarAvistamientoScreen() {
             />
           </View>
 
-          {/* Botón de guardar */}
+          {/* Guardar */}
           <TouchableOpacity
             style={[styles.saveButton, saving && styles.saveButtonDisabled]}
             onPress={handleSave}
@@ -135,13 +227,14 @@ export default function RegistrarAvistamientoScreen() {
           </TouchableOpacity>
         </ScrollView>
       </KeyboardAvoidingView>
-    </LinearGradientSvg>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: '#fdf8ee',
   },
   keyboardView: {
     flex: 1,
@@ -151,8 +244,11 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     paddingHorizontal: 16,
-    paddingTop: Platform.OS === 'android' ? 45 : 20,
-    height: 90,
+    paddingTop: Platform.OS === 'android' ? 48 : 20,
+    paddingBottom: 12,
+    backgroundColor: '#fdf8ee',
+    borderBottomWidth: 1,
+    borderColor: '#f2e8cf',
   },
   backButton: {
     width: 38,
@@ -161,11 +257,11 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff7e9',
     justifyContent: 'center',
     alignItems: 'center',
+    elevation: 2,
     shadowColor: '#000',
     shadowOpacity: 0.08,
     shadowOffset: { width: 0, height: 2 },
     shadowRadius: 6,
-    elevation: 2,
   },
   headerTitle: {
     fontSize: 18,
@@ -174,14 +270,20 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     paddingHorizontal: 20,
-    paddingBottom: 40,
+    paddingTop: 20,
+    paddingBottom: 48,
+    gap: 16,
+  },
+  divider: {
+    height: 1,
+    backgroundColor: '#f0e4ce',
+    marginVertical: 4,
   },
   introCard: {
     flexDirection: 'row',
-    backgroundColor: 'rgba(255, 255, 255, 0.75)',
+    backgroundColor: 'rgba(255,255,255,0.85)',
     borderRadius: 20,
     padding: 14,
-    marginBottom: 20,
     borderWidth: 1,
     borderColor: '#efe2c5',
   },
@@ -209,13 +311,12 @@ const styles = StyleSheet.create({
     marginTop: 2,
   },
   formGroup: {
-    marginBottom: 18,
+    gap: 6,
   },
   label: {
     fontSize: 12,
     fontWeight: '800',
     color: '#6b5425',
-    marginBottom: 6,
     marginLeft: 4,
   },
   input: {
@@ -235,10 +336,10 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#efe2c5',
     borderRadius: 16,
-    paddingHorizontal: 16,
+    paddingHorizontal: 14,
   },
   inputIcon: {
-    marginRight: 10,
+    marginRight: 8,
   },
   inputWithIcon: {
     flex: 1,
@@ -247,22 +348,22 @@ const styles = StyleSheet.create({
     color: '#2d2418',
   },
   textArea: {
-    height: 100,
+    height: 110,
     textAlignVertical: 'top',
   },
   saveButton: {
     flexDirection: 'row',
     backgroundColor: '#4d7c0f',
-    height: 52,
-    borderRadius: 26,
+    height: 54,
+    borderRadius: 27,
     justifyContent: 'center',
     alignItems: 'center',
     shadowColor: '#4d7c0f',
-    shadowOpacity: 0.25,
-    shadowOffset: { width: 0, height: 4 },
-    shadowRadius: 10,
-    elevation: 3,
-    marginTop: 10,
+    shadowOpacity: 0.28,
+    shadowOffset: { width: 0, height: 5 },
+    shadowRadius: 12,
+    elevation: 4,
+    marginTop: 8,
   },
   saveButtonDisabled: {
     backgroundColor: '#9ca3af',
@@ -273,4 +374,37 @@ const styles = StyleSheet.create({
     fontSize: 15,
     fontWeight: '800',
   },
+  coordContainer: {
+    flexDirection: 'row',
+    gap: 12,
+  },
+  coordInputWrapper: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#fff',
+    borderWidth: 1,
+    borderColor: '#efe2c5',
+    borderRadius: 16,
+    paddingHorizontal: 12,
+  },
+  coordPrefix: {
+    fontSize: 11,
+    fontWeight: '800',
+    color: '#8c7651',
+    marginRight: 6,
+  },
+  coordTextInput: {
+    flex: 1,
+    paddingVertical: 12,
+    fontSize: 13,
+    color: '#2d2418',
+  },
+  helperText: {
+    fontSize: 11,
+    color: '#4d7c0f',
+    marginTop: 4,
+    marginLeft: 6,
+  },
 });
+

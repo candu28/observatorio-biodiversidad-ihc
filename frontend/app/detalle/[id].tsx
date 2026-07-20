@@ -28,6 +28,7 @@ export default function SightingDetailScreen() {
       rawItem = dbMockData.avistamientos[0];
     }
 
+
     if (!rawItem._identificacionesUiMock) {
       rawItem._identificacionesUiMock = [
         {
@@ -49,11 +50,11 @@ export default function SightingDetailScreen() {
     const categoriaObj = (dbMockData.categorias_taxonomicas as any[]).find(c => c.id === rawItem.categoria_id);
     const comentarios = Array.isArray(rawItem.comentarios)
       ? rawItem.comentarios.map((comment: any, index: number) => ({
-          id: comment.id || `comment-${index + 1}`,
-          usuario: comment.usuario || 'Usuario',
-          texto: comment.texto || comment.contenido || '',
-          tiempo: comment.tiempo || 'recientemente',
-        }))
+        id: comment.id || `comment-${index + 1}`,
+        usuario: comment.usuario || 'Usuario',
+        texto: comment.texto || comment.contenido || '',
+        tiempo: comment.tiempo || 'recientemente',
+      }))
       : [];
 
     return {
@@ -133,7 +134,7 @@ export default function SightingDetailScreen() {
   return (
     <LinearGradientSvg colors={['#fdf7e3', '#fdf3d1', '#e8f3d6']} style={styles.container}>
       <SafeAreaView style={styles.safeArea} edges={['top', 'left', 'right']}>
-        
+
         {/* Header */}
         <View style={styles.header}>
           <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
@@ -144,16 +145,18 @@ export default function SightingDetailScreen() {
             <Text style={styles.commonNameText}>{data.nombreComun}</Text>
             <Text style={styles.scientificNameText}>{data.nombreCientifico}</Text>
           </View>
-          {data.verificada && (
-            <View style={styles.verifiedBadge}>
-              <CheckCircle2 size={12} color="#15803d" />
-              <Text style={styles.verifiedText}>Verificada</Text>
-            </View>
-          )}
+          <View style={styles.headerActionsContainer}>
+            {data.verificada && (
+              <View style={styles.verifiedBadge}>
+                <CheckCircle2 size={12} color="#15803d" />
+                <Text style={styles.verifiedText}>Verificada</Text>
+              </View>
+            )}
+          </View>
         </View>
 
-        <ScrollView 
-          showsVerticalScrollIndicator={false} 
+        <ScrollView
+          showsVerticalScrollIndicator={false}
           contentContainerStyle={styles.scrollContent}
         >
           {/* Main Photo */}
@@ -203,7 +206,7 @@ export default function SightingDetailScreen() {
             {/* Comments List */}
             {data.identificaciones.map((item: any, index: number) => (
               <View key={item.id} style={[styles.commentItem, index > 0 && styles.commentBorder]}>
-                
+
                 <View style={styles.commentHeader}>
                   <View style={styles.userInfoRow}>
                     <View style={[styles.avatar, { backgroundColor: item.color }]}>
@@ -219,9 +222,9 @@ export default function SightingDetailScreen() {
                     </View>
                   )}
                 </View>
-                
+
                 <Text style={styles.commentText}>{item.comentario}</Text>
-                
+
                 <View style={styles.votesRow}>
                   <TouchableOpacity style={styles.voteButtonUp} onPress={() => handleVote(item.id, 'up')}>
                     <ThumbsUp size={14} color="#15803d" />
@@ -265,7 +268,7 @@ export default function SightingDetailScreen() {
           {/* Ubicación Section */}
           <Text style={[styles.sectionTitle, { marginTop: 24, marginBottom: 12 }]}>Ubicación del avistamiento</Text>
           <View style={styles.mapContainer}>
-            <Image source={{uri: 'https://images.unsplash.com/photo-1524661135-423995f22d0b?q=80&w=600&auto=format&fit=crop'}} style={styles.mapImage} />
+            <Image source={{ uri: 'https://images.unsplash.com/photo-1524661135-423995f22d0b?q=80&w=600&auto=format&fit=crop' }} style={styles.mapImage} />
             <View style={styles.mapOverlay}>
               <Text style={styles.mapOverlayTextLeft}>Bolívar, VE</Text>
               <Text style={styles.mapOverlayTextRight}>Satélite</Text>
@@ -382,6 +385,11 @@ const styles = StyleSheet.create({
   },
   headerTitleContainer: {
     flex: 1,
+    paddingRight: 10,
+  },
+  headerActionsContainer: {
+    alignItems: 'flex-end',
+    gap: 8,
   },
   categoryText: {
     fontSize: 10,
@@ -405,18 +413,36 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: '#ecfdf5',
-    paddingHorizontal: 10,
-    paddingVertical: 5,
-    borderRadius: 12,
+    paddingHorizontal: 18,
+    paddingVertical: 6,
+    borderRadius: 20,
     borderWidth: 1,
     borderColor: '#a7f3d0',
-    gap: 4,
-    marginTop: 5,
+    gap: 6,
   },
   verifiedText: {
-    fontSize: 10,
+    fontSize: 11,
     fontWeight: '700',
     color: '#15803d',
+  },
+  createProjectButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#4d7c0f',
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: 12,
+    gap: 4,
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOpacity: 0.1,
+    shadowOffset: { width: 0, height: 2 },
+    shadowRadius: 4,
+  },
+  createProjectText: {
+    fontSize: 10,
+    fontWeight: '800',
+    color: '#ffffff',
   },
   scrollContent: {
     paddingHorizontal: 15,

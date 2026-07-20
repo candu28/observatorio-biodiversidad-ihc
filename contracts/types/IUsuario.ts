@@ -6,5 +6,6 @@ export interface IUsuario {
     fotoPerfilUrl?: string;
     interes: string[]; // TEXT[]
     totalAvistamientos: number;
+    totalAciertosEspecies?: number; // Puede ser opcional temporalmente para no quebrar otras cosas
     createdAt: string; // TIMESTAMP
 }

@@ -12,6 +12,7 @@ export const mySchema = appSchema({
         { name: 'foto_perfil_url', type: 'string', isOptional: true },
         { name: 'interes', type: 'string' }, // Guardado como JSON stringificado
         { name: 'total_avistamientos', type: 'number' },
+        { name: 'total_aciertos_especies', type: 'number' },
         { name: 'created_at', type: 'number' },
         { name: 'updated_at', type: 'number' },
       ],
@@ -138,6 +139,16 @@ export const mySchema = appSchema({
         { name: 'proyecto_id', type: 'string', isIndexed: true },
         { name: 'usuario_id', type: 'string', isIndexed: true },
         { name: 'created_at', type: 'number' }, // Funciona como fecha_union
+        { name: 'updated_at', type: 'number' },
+      ],
+    }),
+    tableSchema({
+      name: 'multimedia_avistamientos',
+      columns: [
+        { name: 'avistamiento_id', type: 'string', isIndexed: true },
+        { name: 'archivo_url', type: 'string' },
+        { name: 'tipo_multimedia', type: 'string' },
+        { name: 'created_at', type: 'number' },
         { name: 'updated_at', type: 'number' },
       ],
     }),
