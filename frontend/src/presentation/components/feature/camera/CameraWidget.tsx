@@ -13,36 +13,68 @@ import {
 import { Camera, Image as ImageIcon, Trash2, Plus, X } from 'lucide-react-native';
 import { CapturarMultimediaAvistamiento } from '../../../../application/useCases/CapturarMultimediaAvistamiento';
 import { ExpoCameraAdapter } from '../../../../infrastructure/adapters/hardware/ExpoCameraAdapter';
+import { CapturedMedia } from '../../../../application/ports/CapturedMedia';
 
 type CameraWidgetProps = {
   photos: string[];
   onPhotosChange: (photos: string[]) => void;
+  onLocationCaptured?: (latitude: number, longitude: number, source: 'GPS del Dispositivo' | 'Datos EXIF') => void;
 };
 
-export default function CameraWidget({ photos, onPhotosChange }: CameraWidgetProps) {
+export default function CameraWidget({ photos, onPhotosChange, onLocationCaptured }: CameraWidgetProps) {
   const [sheetVisible, setSheetVisible] = useState(false);
 
   const handleAction = async (type: 'photo' | 'gallery') => {
+    if (photos.length >= 3) {
+      Alert.alert(
+        'Límite de Fotos',
+        'Ya has alcanzado el límite máximo de 3 fotos para este avistamiento.'
+      );
+      setSheetVisible(false);
+      return;
+    }
+
     try {
       const adapter = new ExpoCameraAdapter();
       const useCase = new CapturarMultimediaAvistamiento(adapter);
 
-      let result: string[] = [];
+      let result: CapturedMedia[] = [];
       if (type === 'photo') {
-        result = await useCase.execute({ type: 'photo' });
+        result = await useCase.execute({ type: 'photo', existingCount: photos.length });
       } else if (type === 'gallery') {
-        const multiple = photos.length < 10;
-        result = await useCase.execute({ type: 'gallery', multiple });
+        const multiple = photos.length < 2;
+        result = await useCase.execute({ type: 'gallery', multiple, existingCount: photos.length });
       }
 
       if (result.length > 0) {
-        const totalPhotos = [...photos, ...result];
-        if (totalPhotos.length > 10) {
+        const newUris = result.map((item) => item.uri);
+        const totalPhotos = [...photos, ...newUris];
+
+        // Buscar si alguna de las fotos agregadas tiene coordenadas válidas
+        if (onLocationCaptured) {
+          const itemWithCoords = result.find(
+            (item) => item.latitude !== undefined && item.longitude !== undefined
+          );
+          if (
+            itemWithCoords &&
+            itemWithCoords.latitude !== undefined &&
+            itemWithCoords.longitude !== undefined
+          ) {
+            const hasExifGPS =
+              !!itemWithCoords.exif &&
+              (itemWithCoords.exif.GPSLatitude !== undefined ||
+                itemWithCoords.exif.latitude !== undefined);
+            const source = (type === 'gallery' || hasExifGPS) ? 'Datos EXIF' : 'GPS del Dispositivo';
+            onLocationCaptured(itemWithCoords.latitude, itemWithCoords.longitude, source);
+          }
+        }
+
+        if (totalPhotos.length > 3) {
           Alert.alert(
             'Límite Excedido',
-            'Se han filtrado algunas fotos para no superar el límite máximo de 10 fotos.'
+            'Se han filtrado algunas fotos para no superar el límite máximo de 3 fotos por avistamiento.'
           );
-          onPhotosChange(totalPhotos.slice(0, 10));
+          onPhotosChange(totalPhotos.slice(0, 3));
         } else {
           onPhotosChange(totalPhotos);
         }
@@ -61,6 +93,15 @@ export default function CameraWidget({ photos, onPhotosChange }: CameraWidgetPro
 
   return (
     <View style={styles.container}>
+      <View style={styles.headerRow}>
+        <Text style={styles.widgetTitle}>Evidencia Fotográfica *</Text>
+        <Text style={styles.limitText}>
+          {photos.length === 0 
+            ? 'Máximo 3 fotos' 
+            : `${photos.length} de 3 seleccionadas`}
+        </Text>
+      </View>
+
       {photos.length > 0 ? (
         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.photoList}>
           {photos.map((uri, idx) => (
@@ -74,7 +115,7 @@ export default function CameraWidget({ photos, onPhotosChange }: CameraWidgetPro
               </View>
             </View>
           ))}
-          {photos.length < 10 && (
+          {photos.length < 3 && (
             <TouchableOpacity style={styles.addMoreCard} onPress={() => setSheetVisible(true)}>
               <Plus size={24} color="#8c7651" />
               <Text style={styles.addMoreText}>Añadir</Text>
@@ -131,6 +172,23 @@ export default function CameraWidget({ photos, onPhotosChange }: CameraWidgetPro
 const styles = StyleSheet.create({
   container: {
     marginVertical: 4,
+  },
+  headerRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 6,
+    paddingHorizontal: 4,
+  },
+  widgetTitle: {
+    fontSize: 12,
+    fontWeight: '800',
+    color: '#6b5425',
+  },
+  limitText: {
+    fontSize: 11,
+    fontWeight: '600',
+    color: '#8c7651',
   },
   photoList: {
     paddingVertical: 8,

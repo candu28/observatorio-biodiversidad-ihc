@@ -12,13 +12,19 @@ import {
 } from 'react-native';
 import { router, useLocalSearchParams } from 'expo-router';
 import { ChevronLeft, Save, MapPin, Leaf } from 'lucide-react-native';
+import * as Location from 'expo-location';
 import CameraWidget from '../src/presentation/components/feature/camera/CameraWidget';
 import { RegistrarAvistamientoUseCase } from '../src/application/useCases/RegistrarAvistamientoUseCase';
 import { MockAvistamientoRepository } from '../src/infrastructure/adapters/mock/avistamiento/MockAvistamientoRepository';
 import { MockPerfilRepository } from '../src/infrastructure/adapters/mock/perfil/MockPerfilRepository';
 
 export default function RegistrarAvistamientoScreen() {
-  const params = useLocalSearchParams<{ photos?: string }>();
+  const params = useLocalSearchParams<{ 
+    photos?: string;
+    latitude?: string;
+    longitude?: string;
+    locationSource?: string;
+  }>();
   const [titulo, setTitulo] = useState('');
   const [notas, setNotas] = useState('');
   const [ubicacion, setUbicacion] = useState('');
@@ -29,7 +35,23 @@ export default function RegistrarAvistamientoScreen() {
       return [];
     }
   });
+  const [latitud, setLatitud] = useState<number | null>(() => {
+    if (params.latitude) {
+      const parsed = parseFloat(params.latitude);
+      return isNaN(parsed) ? null : parsed;
+    }
+    return null;
+  });
+  const [longitud, setLongitud] = useState<number | null>(() => {
+    if (params.longitude) {
+      const parsed = parseFloat(params.longitude);
+      return isNaN(parsed) ? null : parsed;
+    }
+    return null;
+  });
+  const [fuenteUbicacion, setFuenteUbicacion] = useState<string | null>(params.locationSource || null);
   const [saving, setSaving] = useState(false);
+
 
   const handleSave = async () => {
     if (!titulo.trim()) {
@@ -53,7 +75,10 @@ export default function RegistrarAvistamientoScreen() {
         ubicacion: ubicacion.trim(),
         fotoUrl: photos[0],
         fotosExtra: photos.slice(1),
+        latitud: latitud !== null ? latitud : undefined,
+        longitud: longitud !== null ? longitud : undefined,
       });
+
 
       setSaving(false);
       Alert.alert(
@@ -87,7 +112,50 @@ export default function RegistrarAvistamientoScreen() {
           contentContainerStyle={styles.scrollContent}
         >
           {/* ── FOTOS AL TOPE ── */}
-          <CameraWidget photos={photos} onPhotosChange={setPhotos} />
+          <CameraWidget
+            photos={photos}
+            onPhotosChange={setPhotos}
+            onLocationCaptured={async (lat, lon, src) => {
+              setLatitud(lat);
+              setLongitud(lon);
+              setFuenteUbicacion(src);
+
+              // Autocompletar la dirección si el usuario no ha escrito nada
+              if (!ubicacion.trim()) {
+                try {
+                  const [address] = await Location.reverseGeocodeAsync({ latitude: lat, longitude: lon });
+                  if (address) {
+                    const parts = [];
+                    if (address.name && address.name !== address.street) {
+                      parts.push(address.name);
+                    }
+                    if (address.street) {
+                      parts.push(address.street);
+                    }
+                    if (address.district) {
+                      parts.push(address.district);
+                    }
+                    if (address.city || address.subregion) {
+                      parts.push(address.city || address.subregion);
+                    }
+                    if (address.region) {
+                      parts.push(address.region);
+                    }
+                    if (address.country) {
+                      parts.push(address.country);
+                    }
+                    const readableAddress = parts.filter(Boolean).join(', ');
+                    if (readableAddress) {
+                      setUbicacion(readableAddress);
+                    }
+                  }
+                } catch (e) {
+                  console.error('Error en geocodificación inversa:', e);
+                }
+              }
+            }}
+          />
+
 
           {/* Separador visual */}
           <View style={styles.divider} />
@@ -306,4 +374,37 @@ const styles = StyleSheet.create({
     fontSize: 15,
     fontWeight: '800',
   },
+  coordContainer: {
+    flexDirection: 'row',
+    gap: 12,
+  },
+  coordInputWrapper: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#fff',
+    borderWidth: 1,
+    borderColor: '#efe2c5',
+    borderRadius: 16,
+    paddingHorizontal: 12,
+  },
+  coordPrefix: {
+    fontSize: 11,
+    fontWeight: '800',
+    color: '#8c7651',
+    marginRight: 6,
+  },
+  coordTextInput: {
+    flex: 1,
+    paddingVertical: 12,
+    fontSize: 13,
+    color: '#2d2418',
+  },
+  helperText: {
+    fontSize: 11,
+    color: '#4d7c0f',
+    marginTop: 4,
+    marginLeft: 6,
+  },
 });
+
