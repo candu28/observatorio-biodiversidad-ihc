@@ -4,7 +4,7 @@ import { IAvistamiento } from '../../../../contracts/types/IAvistamiento';
 export class ObtenerMapaUseCase {
   constructor(private readonly mapPort: IMapPort) {}
 
-  async execute(): Promise<IAvistamiento[]> {
-    return await this.mapPort.getAvistamientos();
+  async execute(params?: { categoryName?: string; online?: boolean }): Promise<IAvistamiento[]> {
+    return await this.mapPort.getAvistamientos(params);
   }
 }
