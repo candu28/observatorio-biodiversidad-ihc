@@ -1,23 +1,47 @@
+import { AuthRepository } from '../../application/ports/IAuthRepository';
 import { supabase } from '../supabase/client';
 
-export class SupabaseAuthAdapter {
-  async signInWithEmail(email: string, password: string) {
-    const { data, error } = await supabase.auth.signInWithPassword({
+export class SupabaseAuthAdapter implements AuthRepository {
+  
+  async loginWithPassword(email: string, password: string): Promise<boolean> {
+    const { error } = await supabase.auth.signInWithPassword({ 
       email,
-      password,
+      password
+    });
+    
+    if (error) {
+      // Throwing the error directly allows the ViewModel to catch it 
+      // and display Supabase's native message (e.g., "Invalid login credentials")
+      throw new Error(error.message);
+    }
+    
+    return true;
+  }
+
+  async signUp(email: string, password: string): Promise<boolean> {
+    const { error } = await supabase.auth.signUp({
+      email,
+      password
     });
 
     if (error) {
-      throw error;
+      throw new Error(error.message);
     }
 
-    return data;
+    return true;
   }
 
-  async signOut() {
-    const { error } = await supabase.auth.signOut();
+  async resetPassword(email: string): Promise<boolean> {
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      // Replaces the placeholder scheme; update 'myapp' to match your app.json scheme
+      // This allows Expo deep linking to intercept the user when they click the email link
+      redirectTo: 'myapp://reset-password', 
+    });
+
     if (error) {
-      throw error;
+      throw new Error(error.message);
     }
+
+    return true;
   }
 }
