@@ -15,7 +15,7 @@ export default function Layout() {
   useEffect(() => {
     const syncData = async () => {
       try {
-        const syncAdapter = new ApiSyncAdapter("http://192.168.0.2:3000/api", getSessionToken);
+        const syncAdapter = new ApiSyncAdapter("https://observatorio-biodiversidad-ihc.onrender.com/api", getSessionToken);
         const syncUseCase = new SincronizarNubeUseCase(syncAdapter);
         await syncUseCase.execute();
       } catch (error) {

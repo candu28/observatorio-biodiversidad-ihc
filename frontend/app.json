@@ -27,6 +27,12 @@
         "android.permission.RECORD_AUDIO"
       ],
       "package": "com.anonymous.guaya"
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "29cbd163-57fe-4f7e-9584-4b295f0ca572"
+      }
     }
   }
 }
