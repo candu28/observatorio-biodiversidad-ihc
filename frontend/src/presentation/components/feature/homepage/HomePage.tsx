@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo, useRef } from 'react';
+import React, { useState, useMemo, useRef } from 'react';
 import {
   View,
   Text,
@@ -16,39 +16,14 @@ import { router } from 'expo-router';
 import { Leaf, Heart, CheckCircle2 } from 'lucide-react-native';
 import { LinearGradientSvg } from '../../ui/LinearGradientSvg';
 import { BottomNav } from '../../ui/BottomNav';
-import { ObtenerHomePageUseCase } from '../../../../application/useCases/ObtenerHomePageUseCase';
-import { ObtenerProyectosUseCase } from '../../../../application/useCases/ObtenerProyectosUseCase';
-import { MockHomePageRepository } from '../../../../infrastructure/adapters/mock/homepage/MockHomePageRepository';
-import { MockProyectoRepository } from '../../../../infrastructure/adapters/mock/proyecto/MockProyectoRepository';
 import { HomePageCard } from '../../../../application/ports/IHomePagePort';
-import { IProyecto } from '../../../../../../contracts/types/IProyecto';
-import { IEspecie } from '../../../../../../contracts/types/IEspecie';
 import { ProjectCard } from '../projects/ProjectCard';
 
-const TABS = ['Explorar', 'Especies', 'Proyectos'] as const;
-const CATEGORY_FILTERS = ['Todo', 'Mamíferos', 'Aves', 'Anfibios', 'Reptiles', 'Insectos', 'Plantas', 'Hongos'] as const;
-type HomeTab = (typeof TABS)[number];
+// Import the ViewModel which handles all Use Cases and Adapters
+import { useHomePageViewModel } from '../../../viewModels/useHomePageViewModel';
 
-const getSpeciesCategoryId = (filter: string) => {
-  switch (filter) {
-    case 'Anfibios':
-      return '11111111-1111-1111-1111-111111111111';
-    case 'Plantas':
-      return '22222222-2222-2222-2222-222222222222';
-    case 'Aves':
-      return '33333333-3333-3333-3333-333333333333';
-    case 'Mamíferos':
-      return '44444444-4444-4444-4444-444444444444';
-    case 'Reptiles':
-      return '55555555-5555-5555-5555-555555555555';
-    case 'Insectos':
-      return '66666666-6666-6666-6666-666666666666';
-    case 'Hongos':
-      return '77777777-7777-7777-7777-777777777777';
-    default:
-      return null;
-  }
-};
+const TABS = ['Explorar', 'Especies', 'Proyectos'] as const;
+type HomeTab = (typeof TABS)[number];
 
 const isVerifiedPost = (estado: string) => /verificado|verified/i.test(estado.trim());
 
@@ -56,37 +31,19 @@ export default function HomePage() {
   const { width } = useWindowDimensions();
   const [activeTab, setActiveTab] = useState<HomeTab>('Explorar');
 
-  const [data, setData] = useState<HomePageCard[]>([]);
-  const [proyectos, setProyectos] = useState<IProyecto[]>([]);
-  const [especies, setEspecies] = useState<IEspecie[]>([]);
-  const [activeSpeciesFilter, setActiveSpeciesFilter] = useState('Todo');
-
-  const [isLoading, setIsLoading] = useState(true);
   const pagerRef = useRef<any>(null);
   const scrollX = useRef(new Animated.Value(0)).current;
 
-  useEffect(() => {
-    const loadData = async () => {
-      setIsLoading(true);
-      try {
-        const useCase = new ObtenerHomePageUseCase(new MockHomePageRepository());
-        const result = await useCase.execute();
-
-        setData(result.avistamientos);
-        setEspecies(result.especies);
-
-        const proyectosUseCase = new ObtenerProyectosUseCase(new MockProyectoRepository());
-        const projectsData = await proyectosUseCase.execute();
-        setProyectos(projectsData);
-      } catch (error) {
-        console.error('Failed to fetch data', error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    void loadData();
-  }, []);
+  // Delegate all data state and business logic to the ViewModel
+  const {
+    data,
+    proyectos,
+    categorias,
+    activeCategoryId,
+    setActiveCategoryId,
+    filteredSpecies,
+    isLoading,
+  } = useHomePageViewModel();
 
   const numColumns = Math.max(2, Math.min(15, Math.floor(width / 300)));
   const pageWidth = width;
@@ -129,19 +86,6 @@ export default function HomePage() {
       setActiveTab(nextTab);
     }
   };
-
-  const filteredSpecies = useMemo(() => {
-    if (activeSpeciesFilter === 'Todo') {
-      return especies;
-    }
-
-    const categoryId = getSpeciesCategoryId(activeSpeciesFilter);
-    if (!categoryId) {
-      return especies;
-    }
-
-    return especies.filter((species) => species.categoriaId === categoryId);
-  }, [activeSpeciesFilter, especies]);
 
   const renderCard = (item: HomePageCard) => (
     <TouchableOpacity
@@ -193,7 +137,6 @@ export default function HomePage() {
         <View style={styles.tabsContainer}>
           <View style={styles.tabsRow}>
             {TABS.map((tab, index) => {
-              // Interpolates text color from Gray (inactive) to Green (active)
               const textColor = scrollX.interpolate({
                 inputRange: [
                   (index - 1) * pageWidth, 
@@ -204,7 +147,6 @@ export default function HomePage() {
                 extrapolate: 'clamp',
               });
 
-              // Interpolates background from Transparent (inactive) to White (active)
               const backgroundColor = scrollX.interpolate({
                 inputRange: [
                   (index - 1) * pageWidth, 
@@ -249,6 +191,8 @@ export default function HomePage() {
               )}
               scrollEventThrottle={16}
             >
+              
+              {/* TAB 1: Explorar */}
               <View style={[styles.page, { width: pageWidth }]}>
                 <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.pageContent}>
                   <View style={styles.gridContainer}>
@@ -261,6 +205,7 @@ export default function HomePage() {
                 </ScrollView>
               </View>
 
+              {/* TAB 2: Especies */}
               <View style={[styles.page, { width: pageWidth }]}>
                 <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.pageContent}>
                   <View style={styles.filtersWrapper}>
@@ -269,23 +214,33 @@ export default function HomePage() {
                       showsHorizontalScrollIndicator={false}
                       contentContainerStyle={styles.filtersScroll}
                     >
-                      {CATEGORY_FILTERS.map((filter) => {
-                        const isActive = filter === activeSpeciesFilter;
+                      {/* 'Todo' Default Pill */}
+                      <TouchableOpacity
+                        style={[styles.filterPill, activeCategoryId === null && styles.filterPillActive]}
+                        onPress={() => setActiveCategoryId(null)}
+                        activeOpacity={0.8}
+                      >
+                        <Text style={[styles.filterText, activeCategoryId === null && styles.filterTextActive]}>Todo</Text>
+                      </TouchableOpacity>
 
+                      {/* Dynamic Categories Mapped from Database */}
+                      {categorias.map((cat) => {
+                        const isActive = cat.id === activeCategoryId;
                         return (
                           <TouchableOpacity
-                            key={filter}
+                            key={cat.id}
                             style={[styles.filterPill, isActive && styles.filterPillActive]}
-                            onPress={() => setActiveSpeciesFilter(filter)}
+                            onPress={() => setActiveCategoryId(cat.id)}
                             activeOpacity={0.8}
                           >
-                            <Text style={[styles.filterText, isActive && styles.filterTextActive]}>{filter}</Text>
+                            <Text style={[styles.filterText, isActive && styles.filterTextActive]}>{cat.nombre}</Text>
                           </TouchableOpacity>
                         );
                       })}
                     </ScrollView>
                   </View>
 
+                  {/* Filtered Species Content */}
                   {filteredSpecies.length === 0 ? (
                     <View style={styles.emptyState}> 
                       <Text style={styles.emptyStateText}>No hay especies para este filtro.</Text>
@@ -309,6 +264,7 @@ export default function HomePage() {
                 </ScrollView>
               </View>
 
+              {/* TAB 3: Proyectos */}
               <View style={[styles.page, { width: pageWidth }]}>
                 <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.pageContent}>
                   {proyectos.map((proyecto) => (
