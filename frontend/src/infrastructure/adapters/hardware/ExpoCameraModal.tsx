@@ -12,7 +12,7 @@ import {
   Dimensions,
   Platform,
 } from 'react-native';
-import { CameraView, Camera } from 'expo-camera';
+import { CameraView, useCameraPermissions } from 'expo-camera';
 import * as ImagePicker from 'expo-image-picker';
 import {
   X,
@@ -57,10 +57,8 @@ export const MediaPickerProvider: React.FC<{ children: React.ReactNode }> = ({ c
   const [capturing, setCapturing] = useState(false);
   const [burstProgress, setBurstProgress] = useState(0);
   const [screenBlink, setScreenBlink] = useState(false);
+  const [permission, requestPermission] = useCameraPermissions();
 
-  // Estados para la pantalla de selección final
-  const [showSelectionScreen, setShowSelectionScreen] = useState(false);
-  const [selectedUris, setSelectedUris] = useState<string[]>([]);
   const [compressing, setCompressing] = useState(false);
   const [maxAllowed, setMaxAllowed] = useState(3);
 
@@ -81,14 +79,24 @@ export const MediaPickerProvider: React.FC<{ children: React.ReactNode }> = ({ c
   // Registrar el manejador en el servicio
   useEffect(() => {
     MediaPickerService.registerHandler(async (options) => {
-      setMode(options.mode);
-      if (options.mode === 'burst' && options.burstCount) {
-        setBurstCount(options.burstCount);
+      try {
+        // Solicitar permisos de cámara
+        const permResult = await requestPermission();
+        if (!permResult || !permResult.granted) {
+          Alert.alert('Permiso requerido', 'Se necesita acceso a la cámara para tomar fotografías.');
+          return [];
+        }
+
+        setMode(options.mode);
+        if (options.mode === 'burst' && options.burstCount) {
+          setBurstCount(options.burstCount);
+        }
+        setMaxAllowed(options.maxAllowed ?? 3);
+      } catch (err) {
+        Alert.alert('Error', 'No se pudo solicitar el permiso de la cámara.');
+        return [];
       }
-      setMaxAllowed(options.maxAllowed ?? 3);
       setCapturedPhotos([]);
-      setSelectedUris([]);
-      setShowSelectionScreen(false);
       setZoom(0);
       setVisible(true);
 
@@ -103,34 +111,23 @@ export const MediaPickerProvider: React.FC<{ children: React.ReactNode }> = ({ c
     return () => {
       MediaPickerService.unregisterHandler();
     };
-  }, []);
+  }, [requestPermission]);
 
   const handleClose = () => {
     setVisible(false);
-    setShowSelectionScreen(false);
     if (resolverRef.current) {
       resolverRef.current([]); // Cancelar devuelve un arreglo vacío
       resolverRef.current = null;
     }
   };
 
-  // Abrir la pantalla de selección al pulsar Aceptar en el viewfinder
-  const handleConfirm = () => {
+  // Confirmar y subir las fotos capturadas
+  const handleConfirm = async () => {
     if (capturedPhotos.length === 0) return;
-    
-    // Pre-seleccionar hasta las primeras N fotos para agilizar el proceso
-    const initialSelection = capturedPhotos.slice(0, maxAllowed).map(item => item.uri);
-    setSelectedUris(initialSelection);
-    setShowSelectionScreen(true);
-  };
-
-  // Confirmar y subir las fotos seleccionadas (aplicando compresión)
-  const handleConfirmSelection = async () => {
-    if (selectedUris.length === 0) return;
     setCompressing(true);
 
     try {
-      const selectedMedia = capturedPhotos.filter((item) => selectedUris.includes(item.uri));
+      const selectedMedia = capturedPhotos.slice(0, maxAllowed);
       const compressedMediaList: CapturedMedia[] = [];
 
       for (const item of selectedMedia) {
@@ -142,7 +139,6 @@ export const MediaPickerProvider: React.FC<{ children: React.ReactNode }> = ({ c
       }
 
       setVisible(false);
-      setShowSelectionScreen(false);
 
       if (resolverRef.current) {
         resolverRef.current(compressedMediaList);
@@ -210,7 +206,21 @@ export const MediaPickerProvider: React.FC<{ children: React.ReactNode }> = ({ c
       if (mode === 'photo') {
         const media = await captureSingle();
         if (media) {
-          setCapturedPhotos((prev) => [...prev, media]);
+          setCompressing(true);
+          try {
+            const compressedUri = await ImageCompressionService.compressImage(media.uri);
+            const finalMedia = { ...media, uri: compressedUri };
+            
+            setVisible(false);
+            if (resolverRef.current) {
+              resolverRef.current([finalMedia]);
+              resolverRef.current = null;
+            }
+          } catch(e) {
+            console.error(e);
+          } finally {
+            setCompressing(false);
+          }
         }
       } else {
         // Modo ráfaga
@@ -277,14 +287,24 @@ export const MediaPickerProvider: React.FC<{ children: React.ReactNode }> = ({ c
           };
         });
 
-        // Agregamos a la cola y pasamos de una vez a la pantalla de selección
-        setCapturedPhotos((prev) => {
-          const updated = [...prev, ...newMedia];
-          const initialSelection = updated.slice(0, maxAllowed).map(item => item.uri);
-          setSelectedUris(initialSelection);
-          return updated;
-        });
-        setShowSelectionScreen(true);
+        setCompressing(true);
+        try {
+          const compressedMediaList: CapturedMedia[] = [];
+          for (const item of newMedia) {
+            const compressedUri = await ImageCompressionService.compressImage(item.uri);
+            compressedMediaList.push({ ...item, uri: compressedUri });
+          }
+          
+          setVisible(false);
+          if (resolverRef.current) {
+            resolverRef.current(compressedMediaList);
+            resolverRef.current = null;
+          }
+        } catch (e) {
+          console.error('Error procesando fotos de galería:', e);
+        } finally {
+          setCompressing(false);
+        }
       }
     } catch (error) {
       Alert.alert('Error', 'No se pudo abrir la galería.');
@@ -293,22 +313,6 @@ export const MediaPickerProvider: React.FC<{ children: React.ReactNode }> = ({ c
 
   const removePhoto = (index: number) => {
     setCapturedPhotos((prev) => prev.filter((_, i) => i !== index));
-  };
-
-  const toggleSelection = (uri: string) => {
-    setSelectedUris((prev) => {
-      if (prev.includes(uri)) {
-        return prev.filter((u) => u !== uri);
-      }
-      if (prev.length >= maxAllowed) {
-        Alert.alert(
-          'Límite de Fotos',
-          `Solo puedes seleccionar hasta ${maxAllowed} ${maxAllowed === 1 ? 'foto' : 'fotos'} para este avistamiento.`
-        );
-        return prev;
-      }
-      return [...prev, uri];
-    });
   };
 
   const getZoomLabel = () => {
@@ -327,90 +331,7 @@ export const MediaPickerProvider: React.FC<{ children: React.ReactNode }> = ({ c
         onRequestClose={handleClose}
       >
         <View style={styles.container}>
-          {showSelectionScreen ? (
-            /* ── PANTALLA DE SELECCIÓN DE FOTOS (MAX 3) ── */
-            <View style={styles.selectionContainer}>
-              <View style={styles.selectionHeader}>
-                <Text style={styles.selectionTitle}>Seleccionar Fotos</Text>
-                <Text style={styles.selectionSubtitle}>
-                  Puedes seleccionar hasta {maxAllowed} {maxAllowed === 1 ? 'foto' : 'fotos'} para este avistamiento.
-                </Text>
-              </View>
-
-              <ScrollView contentContainerStyle={styles.gridContent}>
-                <View style={styles.grid}>
-                  {capturedPhotos.map((media, idx) => {
-                    const isSelected = selectedUris.includes(media.uri);
-                    return (
-                      <TouchableOpacity
-                        key={idx}
-                        style={[
-                          styles.gridItem,
-                          isSelected && styles.gridItemSelected
-                        ]}
-                        activeOpacity={0.8}
-                        onPress={() => toggleSelection(media.uri)}
-                      >
-                        <Image source={{ uri: media.uri }} style={styles.gridImage} />
-                        
-                        {/* Indicador de selección */}
-                        <View style={[
-                          styles.checkBadge,
-                          isSelected ? styles.checkBadgeActive : styles.checkBadgeInactive
-                        ]}>
-                          {isSelected && <Check size={12} color="#fff" />}
-                        </View>
-                        
-                        {/* Botón para eliminar de la lista en esta sesión */}
-                        <TouchableOpacity
-                          style={styles.gridDeleteButton}
-                          onPress={() => {
-                            setCapturedPhotos(prev => prev.filter((_, i) => i !== idx));
-                            setSelectedUris(prev => prev.filter(u => u !== media.uri));
-                          }}
-                        >
-                          <Trash2 size={12} color="#fff" />
-                        </TouchableOpacity>
-                      </TouchableOpacity>
-                    );
-                  })}
-                </View>
-              </ScrollView>
-
-              {/* Loader de Compresión */}
-              {compressing && (
-                <View style={styles.compressingOverlay}>
-                  <ActivityIndicator size="large" color="#4d7c0f" />
-                  <Text style={styles.compressingText}>Optimizando imágenes para la subida...</Text>
-                </View>
-              )}
-
-              {/* Panel de Botones inferiores de Selección */}
-              <View style={styles.selectionBottomPanel}>
-                <TouchableOpacity
-                  style={styles.cancelSelectionButton}
-                  onPress={() => setShowSelectionScreen(false)}
-                  disabled={compressing}
-                >
-                  <Text style={styles.cancelSelectionText}>Volver a Cámara</Text>
-                </TouchableOpacity>
-
-                <TouchableOpacity
-                  style={[
-                    styles.confirmSelectionButton,
-                    (selectedUris.length === 0 || compressing) && styles.confirmSelectionButtonDisabled
-                  ]}
-                  onPress={handleConfirmSelection}
-                  disabled={selectedUris.length === 0 || compressing}
-                >
-                  <Text style={styles.confirmSelectionText}>
-                    Subir {selectedUris.length} {selectedUris.length === 1 ? 'Foto' : 'Fotos'}
-                  </Text>
-                </TouchableOpacity>
-              </View>
-            </View>
-          ) : (
-            /* ── VIEWPORT DE LA CÁMARA ── */
+            {/* ── VIEWPORT DE LA CÁMARA ── */}
             <View style={styles.cameraContainer}>
               <View style={styles.camera}>
                 <CameraView
@@ -575,7 +496,6 @@ export const MediaPickerProvider: React.FC<{ children: React.ReactNode }> = ({ c
                 </TouchableOpacity>
               </View>
             </View>
-          )}
         </View>
       </Modal>
     </MediaPickerContext.Provider>

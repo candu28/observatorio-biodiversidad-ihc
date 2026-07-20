@@ -8,9 +8,11 @@ import {
   ScrollView,
   Image,
   Alert,
+  Modal,
+  Pressable,
 } from 'react-native';
 import { useLocalSearchParams, router, Stack } from 'expo-router';
-import { ChevronLeft, Plus, MapPin, BookOpen } from 'lucide-react-native';
+import { ChevronLeft, Plus, MapPin, BookOpen, X } from 'lucide-react-native';
 import { LinearGradientSvg } from '../src/presentation/components/ui/LinearGradientSvg';
 import { BottomNav } from '../src/presentation/components/ui/BottomNav';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -22,6 +24,21 @@ export default function CreateProjectScreen() {
   const [titulo, setTitulo] = useState('');
   const [ubicacion, setUbicacion] = useState('');
   const [tareas, setTareas] = useState(['']);
+
+  const [assignedSpecies, setAssignedSpecies] = useState<any[]>([{
+    id: params.especieId,
+    nombre: params.especieNombre,
+    cientifico: params.especieCientifico,
+    foto: params.especieFoto
+  }]);
+  const [showSpeciesModal, setShowSpeciesModal] = useState(false);
+
+  // Mock list of available species
+  const availableSpecies = [
+    { id: '1', nombre: 'Sapo Minero', cientifico: 'Dendrobates leucomelas', foto: 'https://images.unsplash.com/photo-1579624584285-b1a7d65608c0?q=80&w=200&auto=format&fit=crop' },
+    { id: '2', nombre: 'Rana de Cristal', cientifico: 'Centrolenidae', foto: 'https://images.unsplash.com/photo-1596700813959-1e359a39e830?q=80&w=200&auto=format&fit=crop' },
+    { id: '3', nombre: 'Jaguar', cientifico: 'Panthera onca', foto: 'https://images.unsplash.com/photo-1517409249715-728b76fc7b9c?q=80&w=200&auto=format&fit=crop' },
+  ];
 
   const handleAddTarea = () => {
     setTareas([...tareas, '']);
@@ -72,7 +89,7 @@ export default function CreateProjectScreen() {
   };
 
   return (
-    <LinearGradientSvg colors={['#fdf7e3', '#fdf3d1', '#e8f3d6']} style={styles.container}>
+    <LinearGradientSvg colors={['#f7f0df', '#f4ecd7', '#f7f0df']} style={styles.container}>
       <Stack.Screen options={{ headerShown: false }} />
       <SafeAreaView style={styles.safeArea} edges={['left', 'right']}>
 
@@ -90,14 +107,23 @@ export default function CreateProjectScreen() {
         <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
 
           {/* Species Preview */}
-          <View style={styles.speciesCard}>
-            <Image source={{ uri: params.especieFoto as string }} style={styles.speciesImage} />
-            <View>
-              <Text style={styles.speciesLabel}>ESPECIE ASIGNADA</Text>
-              <Text style={styles.speciesName}>{params.especieNombre}</Text>
-              <Text style={styles.speciesScientific}>{params.especieCientifico}</Text>
-            </View>
+          <View style={styles.speciesHeaderContainer}>
+            <Text style={styles.speciesLabel}>ESPECIE ASIGNADA</Text>
+            <TouchableOpacity style={styles.addButton} onPress={() => setShowSpeciesModal(true)}>
+              <Plus size={14} color="#92400e" />
+              <Text style={styles.addButtonText}>Agregar especie</Text>
+            </TouchableOpacity>
           </View>
+
+          {assignedSpecies.map((s: any, idx: number) => (
+            <View key={idx} style={[styles.speciesCard, { marginBottom: 8 }]}>
+              <Image source={{ uri: s.foto }} style={styles.speciesImage} />
+              <View>
+                <Text style={styles.speciesName}>{s.nombre}</Text>
+                <Text style={styles.speciesScientific}>{s.cientifico}</Text>
+              </View>
+            </View>
+          ))}
 
           {/* Title Input */}
           <View style={styles.inputGroup}>
@@ -157,6 +183,44 @@ export default function CreateProjectScreen() {
 
         </ScrollView>
         <BottomNav />
+
+        {/* Species Selection Modal */}
+        <Modal visible={showSpeciesModal} transparent animationType="fade" onRequestClose={() => setShowSpeciesModal(false)}>
+          <Pressable style={styles.modalBackdrop} onPress={() => setShowSpeciesModal(false)}>
+            <Pressable style={styles.modalCard} onPress={() => {}}>
+              <View style={styles.modalHeader}>
+                <View>
+                  <Text style={styles.modalTitle}>Agregar especie</Text>
+                  <Text style={styles.modalSubtitle}>Selecciona especies para el proyecto</Text>
+                </View>
+                <TouchableOpacity style={styles.modalCloseButton} onPress={() => setShowSpeciesModal(false)}>
+                  <X size={16} color="#7c6a4c" />
+                </TouchableOpacity>
+              </View>
+              <ScrollView style={styles.speciesList}>
+                {availableSpecies.map((s) => (
+                  <TouchableOpacity
+                    key={s.id}
+                    style={styles.speciesListItem}
+                    onPress={() => {
+                      if (!assignedSpecies.find(x => x.id === s.id)) {
+                        setAssignedSpecies([...assignedSpecies, s]);
+                      }
+                      setShowSpeciesModal(false);
+                    }}
+                  >
+                    <Image source={{ uri: s.foto }} style={styles.speciesListImage} />
+                    <View>
+                      <Text style={styles.speciesListTitle}>{s.nombre}</Text>
+                      <Text style={styles.speciesListSubtitle}>{s.cientifico}</Text>
+                    </View>
+                  </TouchableOpacity>
+                ))}
+              </ScrollView>
+            </Pressable>
+          </Pressable>
+        </Modal>
+
       </SafeAreaView>
     </LinearGradientSvg>
   );
@@ -332,5 +396,72 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '800',
     color: '#716040',
+  },
+  modalCard: {
+    backgroundColor: '#fff',
+    borderRadius: 24,
+    padding: 24,
+    maxHeight: '80%',
+    width: '100%',
+  },
+  modalHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+  modalTitle: {
+    fontSize: 20,
+    fontWeight: '900',
+    color: '#1f2937',
+  },
+  modalSubtitle: {
+    fontSize: 14,
+    color: '#6b7280',
+    marginTop: 4,
+  },
+  modalCloseButton: {
+    padding: 4,
+  },
+  speciesList: {
+    gap: 12,
+  },
+  speciesListItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 12,
+    borderRadius: 16,
+    backgroundColor: '#f9fafb',
+    borderWidth: 1,
+    borderColor: '#e5e7eb',
+    gap: 16,
+  },
+  speciesListImage: {
+    width: 48,
+    height: 48,
+    borderRadius: 12,
+  },
+  speciesListTitle: {
+    fontSize: 16,
+    fontWeight: '800',
+    color: '#1f2937',
+  },
+  speciesListSubtitle: {
+    fontSize: 13,
+    color: '#6b7280',
+    fontStyle: 'italic',
+  },
+  speciesHeaderContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 10,
+  },
+  modalBackdrop: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
   },
 });

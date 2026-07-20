@@ -24,6 +24,7 @@ export class MockHomePageRepository implements IHomePagePort {
         fotoUrl,
         estado: a.estado || 'Pendiente',
         height,
+        title: a.especie_verif_nombre || a.especie_verif_nombre_cientifico || 'Avistamiento',
       } as HomePageCard;
     });
 
@@ -35,13 +36,17 @@ export class MockHomePageRepository implements IHomePagePort {
     const raw = (dbMockData as any);
     const especiesRaw = raw.especies || [];
 
-    return especiesRaw.map((e: any) => ({
-      id: e.id,
-      nombreComun: e.nombre_comun,
-      nombreCientifico: e.nombre_cientifico,
-      categoriaId: e.categoria_id,
-      totalObservaciones: e.total_observaciones,
-    }));
+    return especiesRaw.map((e: any, index: number) => {
+      const biomas = ['Selva tropical', 'Sabana', 'Tepuyes'];
+      return {
+        id: e.id,
+        nombreComun: e.nombre_comun,
+        nombreCientifico: e.nombre_cientifico,
+        categoriaId: e.categoria_id,
+        bioma: biomas[index % biomas.length],
+        totalObservaciones: e.total_observaciones,
+      };
+    });
   }
 }
 

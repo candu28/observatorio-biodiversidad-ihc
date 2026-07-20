@@ -10,8 +10,8 @@ import {
   Platform,
   TextInput,
 } from 'react-native';
-import { useLocalSearchParams, router } from 'expo-router';
-import { ChevronLeft, CheckCircle2, ThumbsUp, ThumbsDown, Binoculars, Award, Compass, BookOpen, Users, ChevronRight, Plus, Grid } from 'lucide-react-native';
+import { useLocalSearchParams, router, Stack } from 'expo-router';
+import { ChevronLeft, CheckCircle2, ThumbsUp, ThumbsDown, Binoculars, Award, Compass, BookOpen, Users, ChevronRight, Plus, Grid, Leaf } from 'lucide-react-native';
 // Require JSON with ts-ignore to avoid missing module/type declaration errors
 // @ts-ignore
 const dbMockData = require('../../../contracts/mocks/dbMockData.json');
@@ -171,14 +171,16 @@ export default function SightingDetailScreen() {
 
   if (isLoading) {
     return (
-      <LinearGradientSvg colors={['#fdf7e3', '#fdf3d1', '#e8f3d6']} style={styles.loaderContainer}>
+      <LinearGradientSvg colors={['#f7f0df', '#f4ecd7', '#f7f0df']} style={styles.loaderContainer}>
+        <Stack.Screen options={{ headerShown: false }} />
         <ActivityIndicator size="large" color="#4d7c0f" />
       </LinearGradientSvg>
     );
   }
 
   return (
-    <LinearGradientSvg colors={['#fdf7e3', '#fdf3d1', '#e8f3d6']} style={styles.container}>
+    <LinearGradientSvg colors={['#f7f0df', '#f4ecd7', '#f7f0df']} style={styles.container}>
+      <Stack.Screen options={{ headerShown: false }} />
       <SafeAreaView style={styles.safeArea} edges={['top', 'left', 'right']}>
 
         {/* Header */}
@@ -221,13 +223,13 @@ export default function SightingDetailScreen() {
               <Text style={styles.cardValue}>{data.observadorOriginal.nombre}</Text>
             </View>
 
-            {/* Top Expert Card */}
+            {/* Bioma Card */}
             <View style={styles.infoCard}>
               <View style={styles.cardHeaderRow}>
-                <Award size={14} color="#7fa579" style={styles.cardIcon} />
-                <Text style={styles.cardTitle}>OBSERVADOR TOP</Text>
+                <Leaf size={14} color="#7fa579" style={styles.cardIcon} />
+                <Text style={styles.cardTitle}>BIOMA</Text>
               </View>
-              <Text style={styles.cardValue}>{data.expertoTop}</Text>
+              <Text style={styles.cardValue}>{data.bioma || 'Selva tropical'}</Text>
             </View>
 
             {/* Total Observations Card */}
@@ -346,13 +348,20 @@ export default function SightingDetailScreen() {
 
           {/* Ubicación Section */}
           <Text style={[styles.sectionTitle, { marginTop: 24, marginBottom: 12 }]}>Ubicación del avistamiento</Text>
-          <View style={styles.mapContainer}>
-            <Image source={{ uri: 'https://images.unsplash.com/photo-1524661135-423995f22d0b?q=80&w=600&auto=format&fit=crop' }} style={styles.mapImage} />
-            <View style={styles.mapOverlay}>
-              <Text style={styles.mapOverlayTextLeft}>Bolívar, VE</Text>
-              <Text style={styles.mapOverlayTextRight}>Satélite</Text>
+          <TouchableOpacity 
+            style={styles.mapContainer} 
+            activeOpacity={0.8}
+            onPress={() => router.push({ pathname: '/mapa', params: { filterId: data.id } })}
+          >
+            <Image source={{ uri: data.fotoUrl }} style={styles.mapImage} blurRadius={10} />
+            <View style={[StyleSheet.absoluteFill, { backgroundColor: 'rgba(0,0,0,0.3)', justifyContent: 'center', alignItems: 'center' }]}>
+              <View style={{ width: 14, height: 14, borderRadius: 7, backgroundColor: '#f97316', shadowColor: '#f97316', shadowOpacity: 1, shadowRadius: 10, shadowOffset: {width:0,height:0} }} />
             </View>
-          </View>
+            <View style={styles.mapOverlay}>
+              <Text style={styles.mapOverlayTextLeft}>{data.ubicacionTexto}</Text>
+              <Text style={styles.mapOverlayTextRight}>Toca para ver el mapa de calor</Text>
+            </View>
+          </TouchableOpacity>
 
           {/* Proyectos Section */}
           <Text style={[styles.sectionTitle, { marginTop: 24, marginBottom: 12 }]}>Proyectos relacionados</Text>
@@ -783,7 +792,7 @@ const styles = StyleSheet.create({
     marginRight: 8,
   },
   addCommentButton: {
-    backgroundColor: '#16a34a',
+    backgroundColor: '#4d7c0f',
     paddingHorizontal: 12,
     paddingVertical: 10,
     borderRadius: 10,

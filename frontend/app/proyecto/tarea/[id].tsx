@@ -57,16 +57,20 @@ export default function TaskDetailScreen() {
   const handleAction = async (type: 'photo' | 'gallery') => {
     if (!tarea) return;
 
-    try {
-      const adapter = new ExpoCameraAdapter();
-      const captureUseCase = new CapturarMultimediaAvistamiento(adapter);
+    setSheetVisible(false); // IMPORTANTE: Cerrar este modal primero para evitar conflictos de múltiples modales en Android
 
-      let result: CapturedMedia[] = [];
-      if (type === 'photo') {
-        result = await captureUseCase.execute({ type: 'photo' });
-      } else if (type === 'gallery') {
-        result = await captureUseCase.execute({ type: 'gallery', multiple: false });
-      }
+    // Pequeño delay para que el modal actual se cierre por completo antes de abrir el Modal de la Cámara
+    setTimeout(async () => {
+      try {
+        const adapter = new ExpoCameraAdapter();
+        const captureUseCase = new CapturarMultimediaAvistamiento(adapter);
+
+        let result: CapturedMedia[] = [];
+        if (type === 'photo') {
+          result = await captureUseCase.execute({ type: 'photo' });
+        } else if (type === 'gallery') {
+          result = await captureUseCase.execute({ type: 'gallery', multiple: false });
+        }
 
       if (result.length > 0) {
         const addAporteUseCase = new AgregarAporteTareaUseCase(repository);
@@ -89,14 +93,16 @@ export default function TaskDetailScreen() {
         void loadTaskDetail();
       }
     } catch (error: any) {
-      Alert.alert('Error', error.message || 'Ocurrió un error al procesar el aporte.');
-      setSheetVisible(false);
+      Alert.alert('Error', error.message || 'Ocurrió un error al capturar multimedia.');
     }
+    }, 300); // 300ms de delay para evitar solapamiento de modales
   };
+
 
   if (isLoading) {
     return (
-      <LinearGradientSvg colors={['#fdf7e3', '#fdf3d1', '#e8f3d6']} style={styles.loaderContainer}>
+      <LinearGradientSvg colors={['#f7f0df', '#f4ecd7', '#f7f0df']} style={styles.loaderContainer}>
+        <Stack.Screen options={{ headerShown: false }} />
         <ActivityIndicator size="large" color="#4d7c0f" />
       </LinearGradientSvg>
     );
@@ -105,6 +111,7 @@ export default function TaskDetailScreen() {
   if (!tarea) {
     return (
       <View style={styles.errorContainer}>
+        <Stack.Screen options={{ headerShown: false }} />
         <Text>Tarea no encontrada</Text>
         <TouchableOpacity onPress={() => router.back()}>
           <Text style={styles.backLink}>Volver</Text>
@@ -114,7 +121,7 @@ export default function TaskDetailScreen() {
   }
 
   return (
-    <LinearGradientSvg colors={['#fdf7e3', '#fdf3d1', '#e8f3d6']} style={styles.container}>
+    <LinearGradientSvg colors={['#f7f0df', '#f4ecd7', '#f7f0df']} style={styles.container}>
       <Stack.Screen options={{ headerShown: false }} />
       <SafeAreaView style={styles.safeArea} edges={['left', 'right', 'top']}>
 

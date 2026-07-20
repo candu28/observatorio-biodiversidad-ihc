@@ -34,17 +34,21 @@ export default function CameraWidget({ photos, onPhotosChange, onLocationCapture
       return;
     }
 
-    try {
-      const adapter = new ExpoCameraAdapter();
-      const useCase = new CapturarMultimediaAvistamiento(adapter);
+    setSheetVisible(false); // IMPORTANTE: Cerrar este modal primero para evitar conflictos de múltiples modales en Android
 
-      let result: CapturedMedia[] = [];
-      if (type === 'photo') {
-        result = await useCase.execute({ type: 'photo', existingCount: photos.length });
-      } else if (type === 'gallery') {
-        const multiple = photos.length < 2;
-        result = await useCase.execute({ type: 'gallery', multiple, existingCount: photos.length });
-      }
+    // Pequeño delay para que el modal actual se cierre por completo antes de abrir el Modal de la Cámara
+    setTimeout(async () => {
+      try {
+        const adapter = new ExpoCameraAdapter();
+        const useCase = new CapturarMultimediaAvistamiento(adapter);
+
+        let result: CapturedMedia[] = [];
+        if (type === 'photo') {
+          result = await useCase.execute({ type: 'photo', existingCount: photos.length });
+        } else if (type === 'gallery') {
+          const multiple = photos.length < 2;
+          result = await useCase.execute({ type: 'gallery', multiple, existingCount: photos.length });
+        }
 
       if (result.length > 0) {
         const newUris = result.map((item) => item.uri);
@@ -81,9 +85,8 @@ export default function CameraWidget({ photos, onPhotosChange, onLocationCapture
       }
     } catch (error: any) {
       Alert.alert('Error', error.message || 'Ocurrió un error al capturar multimedia.');
-    } finally {
-      setSheetVisible(false);
     }
+    }, 300); // 300ms de delay
   };
 
   const removePhoto = (index: number) => {

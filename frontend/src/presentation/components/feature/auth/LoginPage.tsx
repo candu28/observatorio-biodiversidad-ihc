@@ -46,18 +46,14 @@ export default function LoginPage({
         bounces={false}
         keyboardShouldPersistTaps="handled"
       >
-        {/* Curved Header Banner */}
-        <View style={styles.headerContainer}>
-          <ImageBackground 
-            source={require('../../../../../assets/login.png')} 
-            style={styles.liquidHeader}
-            resizeMode="cover"
-          />
+        {/* Logo Header */}
+        <View style={styles.logoContainer}>
+          <Text style={styles.logoText}>guaya</Text>
         </View>
 
         <View style={styles.formContent}>
           <View style={styles.titleContainer}>
-            <Text style={styles.title}>Sign in</Text>
+            <Text style={styles.title}>Iniciar Sesión</Text>
             <View style={styles.titleUnderline} />
           </View>
 
@@ -70,7 +66,7 @@ export default function LoginPage({
 
           {/* Email Input Group */}
           <View style={styles.inputGroup}>
-            <Text style={styles.label}>Email</Text>
+            <Text style={styles.label}>Correo Electrónico</Text>
             <View style={[
               styles.inputWrapper, 
               validationErrors?.email ? styles.inputWrapperError : styles.inputWrapperFocused
@@ -78,7 +74,7 @@ export default function LoginPage({
               <Mail size={18} color="#999" style={styles.icon} />
               <TextInput 
                 style={styles.input}
-                placeholder="demo@email.com"
+                placeholder="ejemplo@correo.com"
                 placeholderTextColor="#bbb"
                 value={email}
                 onChangeText={setEmail}
@@ -95,7 +91,7 @@ export default function LoginPage({
 
           {/* Password Input Group */}
           <View style={styles.inputGroup}>
-            <Text style={styles.label}>Password</Text>
+            <Text style={styles.label}>Contraseña</Text>
             <View style={[
               styles.inputWrapper,
               validationErrors?.password ? styles.inputWrapperError : null
@@ -103,7 +99,7 @@ export default function LoginPage({
               <Lock size={18} color="#999" style={styles.icon} />
               <TextInput 
                 style={styles.input}
-                placeholder="enter your password"
+                placeholder="ingresa tu contraseña"
                 placeholderTextColor="#bbb"
                 value={password}
                 onChangeText={setPassword}
@@ -138,14 +134,14 @@ export default function LoginPage({
                <View style={[styles.checkbox, rememberMe && styles.checkboxActive]}>
                  {rememberMe && <Text style={styles.checkmark}>✓</Text>}
                </View>
-               <Text style={styles.optionsText}>Remember Me</Text>
+               <Text style={styles.optionsText}>Recordarme</Text>
             </TouchableOpacity>
             
             <TouchableOpacity 
               onPress={onNavigateToForgotPassword}
               disabled={isLoading}
             >
-              <Text style={styles.forgotPassword}>Forgot Password?</Text>
+              <Text style={styles.forgotPassword}>¿Olvidaste tu contraseña?</Text>
             </TouchableOpacity>
           </View>
 
@@ -159,7 +155,7 @@ export default function LoginPage({
             {isLoading ? (
               <ActivityIndicator color="#ffffff" size="small" />
             ) : (
-              <Text style={styles.btnLoginText}>Login</Text>
+              <Text style={styles.btnLoginText}>Ingresar</Text>
             )}
           </TouchableOpacity>
 
@@ -168,17 +164,17 @@ export default function LoginPage({
             onPress={handleSkip}
             disabled={isLoading}
           >
-            <Text style={styles.btnSkipText}>Skip & Continue as Guest</Text>
+            <Text style={styles.btnSkipText}>Omitir y Continuar como Invitado</Text>
           </TouchableOpacity>
 
           {/* Sign Up Link */}
           <Text style={styles.signupText}>
-            Don't have an Account ?{' '}
+            ¿No tienes una cuenta?{' '}
             <Text 
               style={styles.signupLink} 
               onPress={onNavigateToSignUp}
             >
-              Sign up
+              Regístrate
             </Text>
           </Text>
         </View>
@@ -190,26 +186,30 @@ export default function LoginPage({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fcfcfc',
+    backgroundColor: '#fdf7e3',
   },
   scrollContainer: {
     flexGrow: 1,
-    backgroundColor: '#fcfcfc',
+    backgroundColor: '#fdf7e3',
   },
-  headerContainer: {
-    height: 300,
+  logoContainer: {
+    height: 150,
     width: '100%',
-    overflow: 'hidden',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: 20,
   },
-  liquidHeader: {
-    width: '100%',
-    height: '100%',
+  logoText: {
+    fontSize: 42,
+    fontWeight: '800',
+    color: '#4d7c0f',
+    letterSpacing: -1,
   },
   formContent: {
     flex: 1,
     paddingHorizontal: 40,
     paddingBottom: 30,
-    marginTop: -20,
+    marginTop: 10,
   },
   titleContainer: {
     marginBottom: 25,

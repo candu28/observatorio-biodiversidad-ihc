@@ -5,10 +5,12 @@ import { supabase } from '../src/infrastructure/supabase/client';
 import LoginPage from '../src/presentation/components/feature/auth/LoginPage';
 import HomePage from '../src/presentation/components/feature/homepage/HomePage';
 
+let globalIsGuest = false;
+
 export default function IndexRoute() {
   const [session, setSession] = useState<any>(null);
   const [loading, setLoading] = useState(true);
-  const [isGuest, setIsGuest] = useState(false);
+  const [isGuest, setIsGuest] = useState(globalIsGuest);
   
   // Initialize Expo Router to handle our new navigational pathways
   const router = useRouter();
@@ -44,7 +46,10 @@ export default function IndexRoute() {
   // If not authenticated, show Login and pass the new routing functions
   return (
     <LoginPage 
-      onSkip={() => setIsGuest(true)} 
+      onSkip={() => {
+        globalIsGuest = true;
+        setIsGuest(true);
+      }} 
       onNavigateToSignUp={() => router.push('/sign-up')} 
       onNavigateToForgotPassword={() => router.push('/forgot-password')} 
     />
@@ -56,6 +61,6 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#fcfcfc', // Matches your LoginPage background
+    backgroundColor: '#fdf7e3', // Matches your LoginPage background
   },
 });

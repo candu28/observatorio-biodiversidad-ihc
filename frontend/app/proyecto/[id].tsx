@@ -49,7 +49,8 @@ export default function ProjectDetailScreen() {
 
   if (isLoading) {
     return (
-      <LinearGradientSvg colors={['#fdf7e3', '#fdf3d1', '#e8f3d6']} style={styles.loaderContainer}>
+      <LinearGradientSvg colors={['#f7f0df', '#f4ecd7', '#f7f0df']} style={styles.loaderContainer}>
+        <Stack.Screen options={{ headerShown: false }} />
         <ActivityIndicator size="large" color="#4d7c0f" />
       </LinearGradientSvg>
     );
@@ -58,6 +59,7 @@ export default function ProjectDetailScreen() {
   if (!data) {
     return (
       <View style={styles.errorContainer}>
+        <Stack.Screen options={{ headerShown: false }} />
         <Text>Proyecto no encontrado</Text>
         <TouchableOpacity onPress={() => router.back()}>
           <Text style={styles.backLink}>Volver</Text>
@@ -69,7 +71,7 @@ export default function ProjectDetailScreen() {
   const { proyecto, tareas } = data;
 
   return (
-    <LinearGradientSvg colors={['#fdf7e3', '#fdf3d1', '#e8f3d6']} style={styles.container}>
+    <LinearGradientSvg colors={['#f7f0df', '#f4ecd7', '#f7f0df']} style={styles.container}>
       <Stack.Screen options={{ headerShown: false }} />
       <SafeAreaView style={styles.safeArea} edges={['left', 'right']}>
 

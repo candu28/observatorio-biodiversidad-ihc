@@ -6,4 +6,5 @@ export interface IPerfilPort {
   getUsuarioActual(): Promise<IUsuario | null>;
   getAvistamientosPorUsuario(usuarioId: string): Promise<IAvistamiento[]>;
   getProyectosPorUsuario(usuarioId: string): Promise<IProyecto[]>;
+  registrarInteres(usuarioId: string, avistamientoId: string): Promise<void>;
 }

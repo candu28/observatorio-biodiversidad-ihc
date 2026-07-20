@@ -12,8 +12,18 @@ import { HomePageCard } from '../../src/application/ports/IHomePagePort';
 // @ts-ignore
 const dbMockData = require('../../../contracts/mocks/dbMockData.json');
 
-export default function SpeciesObservationsScreen() {
-  const { especieId } = useLocalSearchParams<{ especieId?: string }>();
+const CATEGORY_IMAGES: Record<string, string> = {
+  'Mamíferos': 'https://images.unsplash.com/photo-1550977186-b484af8a264a?w=800',
+  'Aves': 'https://images.unsplash.com/photo-1552728089-57ce365c5fd6?w=800',
+  'Anfibios': 'https://images.unsplash.com/photo-1579624584285-b1a7d65608c0?w=800',
+  'Reptiles': 'https://images.unsplash.com/photo-1517006841457-3f829f04523d?w=800',
+  'Insectos': 'https://images.unsplash.com/photo-1542171125-9d413346d3ea?w=800',
+  'Plantas': 'https://images.unsplash.com/photo-1518531933037-91b2f5f229cc?w=800',
+  'Hongos': 'https://images.unsplash.com/photo-1601362840469-51e4d8d58785?w=800',
+};
+
+export default function CategoriaScreen() {
+  const { id } = useLocalSearchParams<{ id?: string }>();
   const [isLoading, setIsLoading] = React.useState(true);
   const [cards, setCards] = React.useState<HomePageCard[]>([]);
   const { width } = useWindowDimensions();
@@ -23,19 +33,11 @@ export default function SpeciesObservationsScreen() {
       const repo = new MockHomePageRepository();
       const allCards = await repo.getAvistamientos();
       
-      const filtered = allCards.filter(card => {
-        const rawAvistamiento = (dbMockData.avistamientos as any[]).find(a => a.id === card.id);
-        if (!especieId || especieId === 'all') return true;
-        return rawAvistamiento && rawAvistamiento.especie_verificada_id === especieId;
-      });
-      
-      setCards(filtered);
+      setCards(allCards);
       setIsLoading(false);
     }
     load();
-  }, [especieId]);
-
-  const especie = (dbMockData.especies as any[]).find((item: any) => item.id === especieId);
+  }, [id]);
 
   const numColumns = Math.max(2, Math.min(15, Math.floor(width / 300)));
   const masonryColumns = React.useMemo(() => {
@@ -101,16 +103,23 @@ export default function SpeciesObservationsScreen() {
           <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
             <ChevronLeft size={22} color="#1f2937" />
           </TouchableOpacity>
-          <View style={styles.headerTitleContainer}>
-            <Text style={styles.categoryText}>OBSERVACIONES</Text>
-            <Text style={styles.commonNameText}>{especie?.nombre_comun || 'Todas las especies'}</Text>
-            <Text style={styles.scientificNameText}>{especie?.nombre_cientifico || 'Resultados filtrados'}</Text>
-          </View>
+          <Text style={styles.headerTitle}>{id || 'Categoría'}</Text>
+          <View style={{ width: 40 }} />
         </View>
 
         <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
 
-
+          <View style={styles.heroContainer}>
+            <Image 
+              source={{ uri: CATEGORY_IMAGES[id || ''] || 'https://images.unsplash.com/photo-1550977186-b484af8a264a?w=800' }} 
+              style={styles.heroImage} 
+            />
+            <View style={styles.heroOverlay}>
+              <Text style={styles.heroDescription}>
+                Descubre los avistamientos más recientes de {id?.toLowerCase() || 'esta categoría'} en la región de Guayana.
+              </Text>
+            </View>
+          </View>
           {masonryColumns.length > 0 && masonryColumns[0].length > 0 ? (
             <View style={styles.gridContainer}>
               {masonryColumns.map((columnData, colIndex) => (
@@ -169,8 +178,41 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginRight: 15,
     marginTop: 5,
+    shadowColor: '#000',
+    shadowOpacity: 0.05,
+    shadowOffset: { width: 0, height: 2 },
+    shadowRadius: 4,
+    elevation: 2,
   },
   headerTitleContainer: { flex: 1 },
+  headerTitle: { fontSize: 22, fontWeight: '900', color: '#1f2937', flex: 1, textAlign: 'center', marginTop: 12 },
+  heroContainer: {
+    width: '100%',
+    height: 200,
+    borderRadius: 20,
+    overflow: 'hidden',
+    marginBottom: 20,
+    backgroundColor: '#e5e7eb',
+  },
+  heroImage: {
+    width: '100%',
+    height: '100%',
+  },
+  heroOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    justifyContent: 'flex-end',
+    padding: 16,
+    backgroundColor: 'rgba(0,0,0,0.3)',
+  },
+  heroDescription: {
+    color: '#fff',
+    fontSize: 14,
+    fontWeight: '600',
+    lineHeight: 20,
+    textShadowColor: 'rgba(0,0,0,0.5)',
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 4,
+  },
   categoryText: { fontSize: 10, fontWeight: '800', color: '#9ca3af', letterSpacing: 1, marginBottom: 2 },
   commonNameText: { fontSize: 22, fontWeight: '900', color: '#1f2937', marginBottom: 2 },
   scientificNameText: { fontSize: 12, color: '#8c7a5f', fontStyle: 'italic' },

@@ -24,7 +24,6 @@ export function ProjectCard({ proyecto }: ProjectCardProps) {
         <Text style={styles.title} numberOfLines={1}>{proyecto.titulo}</Text>
 
         <View style={styles.infoRow}>
-          <Tag size={12} color="#9ca3af" />
           <Text style={styles.infoText}>{proyecto.categoriasTaxonomicas[0] || 'Especie'}</Text>
         </View>
 

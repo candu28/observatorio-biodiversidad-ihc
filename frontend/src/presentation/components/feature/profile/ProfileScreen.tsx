@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { Image, Modal, Pressable, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Image, Modal, Pressable, ScrollView, StyleSheet, Text, TouchableOpacity, View, Alert } from 'react-native';
 
-import { ChevronLeft, ChevronRight, Home, Map, Plus, Sparkles, Star, X } from 'lucide-react-native';
+import { ChevronLeft, ChevronRight, Home, Map, Plus, Sparkles, Star, X, Download } from 'lucide-react-native';
 import { router } from 'expo-router';
 
 const colorOptions = [
@@ -13,7 +13,10 @@ const colorOptions = [
   { id: 'rosa', label: 'Rosa', color: '#9a1f64' },
 ];
 
+import { ObtenerPerfilUseCase } from '../../../../application/useCases/ObtenerPerfilUseCase';
+import { MockPerfilRepository } from '../../../../infrastructure/adapters/mock/perfil/MockPerfilRepository';
 import { LinearGradientSvg } from '../../ui/LinearGradientSvg';
+import { BottomNav } from '../../ui/BottomNav';
 
 function SectionHeader({ title }: { title: string }) {
   return (
@@ -33,33 +36,28 @@ function StatCard({ value, label }: { value: string; label: string }) {
   );
 }
 
-function SightCard({ title, subtitle, imageUrl }: { title: string; subtitle: string; imageUrl: string }) {
+function SightCard({ id, title, subtitle, imageUrl }: { id: string; title: string; subtitle: string; imageUrl: string }) {
   return (
-    <View style={styles.sightCard}>
+    <TouchableOpacity style={styles.sightCard} onPress={() => router.push(`/detalle/${id}`)}>
       <Image source={{ uri: imageUrl }} style={styles.sightImage} />
-      <View style={styles.sightOverlay}>
-        <View style={styles.sightBadge}>
-          <Sparkles size={12} color="#4d7c0f" />
-        </View>
-      </View>
       <View style={styles.sightCaption}>
         <Text style={styles.sightTitle} numberOfLines={1}>{title}</Text>
         <Text style={styles.sightSubtitle} numberOfLines={1}>{subtitle}</Text>
       </View>
-    </View>
+    </TouchableOpacity>
   );
 }
 
-function ParticipationRow({ title, date, imageUrl }: { title: string; date: string; imageUrl: string }) {
+function ParticipationRow({ id, title, date, imageUrl }: { id: string; title: string; date: string; imageUrl: string }) {
   return (
-    <View style={styles.participationRow}>
+    <TouchableOpacity style={styles.participationRow} onPress={() => router.push(`/proyecto/${id}`)}>
       <Image source={{ uri: imageUrl }} style={styles.participationThumb} />
       <View style={styles.participationText}>
         <Text style={styles.participationTitle}>{title}</Text>
         <Text style={styles.participationDate}>{date}</Text>
       </View>
       <ChevronRight size={18} color="#8c6b3e" />
-    </View>
+    </TouchableOpacity>
   );
 }
 
@@ -70,6 +68,25 @@ type ProfileScreenProps = {
 export default function ProfileScreen({ profile }: ProfileScreenProps) {
   const [personalizeVisible, setPersonalizeVisible] = useState(false);
 
+  const handleExportDataset = () => {
+    // Generate CSV (Darwin Core Format)
+    const headers = ['occurrenceID', 'scientificName', 'eventDate', 'decimalLatitude', 'decimalLongitude', 'associatedMedia'];
+    const rows = profile.avistamientos.map((av: any) => {
+      // Mocking Darwin Core data from available avistamiento summary
+      return `"${av.id}","${av.titulo}","${new Date().toISOString()}","8.2934","-62.7233","${av.imagenUrl}"`;
+    });
+    
+    const csvContent = [headers.join(','), ...rows].join('\n');
+    
+    // In a real app we'd use expo-file-system and expo-sharing to save and share the file.
+    // For this mock, we alert the user
+    console.log("Exporting Darwin Core Dataset:\n", csvContent);
+    Alert.alert(
+      "Dataset Exportado", 
+      `Se ha exportado el archivo Excel (Darwin Core) con ${profile.avistamientos.length} avistamientos.\n\nAtributos incluidos: foto, especie, latitud, longitud, etc.`
+    );
+  };
+
   return (
     <LinearGradientSvg colors={['#f7f0df', '#f4ecd7', '#f7f0df']} style={styles.container}>
       <View style={styles.safeArea}>
@@ -78,10 +95,17 @@ export default function ProfileScreen({ profile }: ProfileScreenProps) {
             <ChevronLeft size={22} color="#6b5b3e" />
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.personalizeButton} onPress={() => setPersonalizeVisible(true)}>
-            <Sparkles size={14} color="#7b5c26" />
-            <Text style={styles.personalizeText}>Personalizar</Text>
-          </TouchableOpacity>
+          <View style={{ flexDirection: 'row', gap: 8 }}>
+            <TouchableOpacity style={styles.personalizeButton} onPress={handleExportDataset}>
+              <Download size={14} color="#7b5c26" />
+              <Text style={styles.personalizeText}>Exportar dataset</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity style={styles.personalizeButton} onPress={() => setPersonalizeVisible(true)}>
+              <Sparkles size={14} color="#7b5c26" />
+              <Text style={styles.personalizeText}>Personalizar</Text>
+            </TouchableOpacity>
+          </View>
         </View>
 
         <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.content}>
@@ -105,6 +129,7 @@ export default function ProfileScreen({ profile }: ProfileScreenProps) {
             {profile.avistamientos.map((item: any) => (
               <SightCard
                 key={item.id}
+                id={item.id}
                 title={item.titulo}
                 subtitle={item.subtitulo}
                 imageUrl={item.imagenUrl}
@@ -117,6 +142,7 @@ export default function ProfileScreen({ profile }: ProfileScreenProps) {
             {profile.participaciones.map((item: any) => (
               <ParticipationRow
                 key={item.id}
+                id={item.id}
                 title={item.titulo}
                 date={item.fecha}
                 imageUrl={item.imagenUrl}
@@ -125,22 +151,7 @@ export default function ProfileScreen({ profile }: ProfileScreenProps) {
           </View>
         </ScrollView>
 
-        <View style={styles.bottomNavWrap}>
-          <View style={styles.bottomNav}>
-            <TouchableOpacity style={styles.bottomNavItem}>
-              <Home size={22} color="#7a6440" />
-              <Text style={styles.bottomNavLabel}>Inicio</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.bottomNavItem}>
-              <Plus size={22} color="#7a6440" />
-              <Text style={styles.bottomNavLabel}>Avistamiento</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.bottomNavItem}>
-              <Map size={22} color="#7a6440" />
-              <Text style={styles.bottomNavLabel}>Mapa</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
+        <BottomNav />
       </View>
 
       <Modal visible={personalizeVisible} transparent animationType="fade" onRequestClose={() => setPersonalizeVisible(false)}>

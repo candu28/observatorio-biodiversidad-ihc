@@ -14,12 +14,15 @@ export class MockPerfilRepository implements IPerfilPort {
   }
 
   async getAvistamientosPorUsuario(usuarioId: string): Promise<IAvistamiento[]> {
-    const avistamientos = (dbMockData as any).avistamientos || [];
-    return (avistamientos as IAvistamiento[]).filter((av: any) => av.autor_id === usuarioId || av.autorId === usuarioId);
+    return avistamientosEnMemoria.filter(av => av.autorId === usuarioId);
   }
 
   async getProyectosPorUsuario(usuarioId: string): Promise<IProyecto[]> {
-    const proyectos = (dbMockData as any).proyectos || [];
-    return (proyectos as IProyecto[]).filter((p: any) => p.creador_id === usuarioId || p.creadorId === usuarioId);
+    return proyectosEnMemoria.filter(p => p.creadorId === usuarioId);
+  }
+
+  async registrarInteres(usuarioId: string, avistamientoId: string): Promise<void> {
+    // Mock implementation: could save to in-memory state if we wanted to display it
+    console.log(`Usuario ${usuarioId} registró interés en avistamiento ${avistamientoId}`);
   }
 }

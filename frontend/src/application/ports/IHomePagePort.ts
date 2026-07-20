@@ -5,6 +5,7 @@ export type HomePageCard = {
   fotoUrl: string;
   estado: string;
   height: number;
+  title?: string;
 };
 
 export interface IHomePagePort {

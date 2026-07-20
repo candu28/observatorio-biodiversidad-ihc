@@ -16,9 +16,13 @@ export function BottomNav() {
   const isMapaActive = pathname === '/mapa';
 
   const handleAction = async (type: 'photo' | 'gallery') => {
-    try {
-      const adapter = new ExpoCameraAdapter();
-      const useCase = new CapturarMultimediaAvistamiento(adapter);
+    setSheetVisible(false); // IMPORTANTE: Cerrar este modal primero para evitar conflictos de múltiples modales en Android
+
+    // Pequeño delay para que el modal actual se cierre por completo antes de abrir el Modal de la Cámara
+    setTimeout(async () => {
+      try {
+        const adapter = new ExpoCameraAdapter();
+        const useCase = new CapturarMultimediaAvistamiento(adapter);
 
       let result: CapturedMedia[] = [];
       if (type === 'photo') {
@@ -58,8 +62,8 @@ export function BottomNav() {
       }
     } catch (error: any) {
       Alert.alert('Error', error.message || 'Ocurrió un error al capturar multimedia.');
-      setSheetVisible(false);
     }
+    }, 300); // 300ms de delay
   };
 
   return (

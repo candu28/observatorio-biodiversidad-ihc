@@ -3,7 +3,6 @@ import {
   View,
   Text,
   StyleSheet,
-  SafeAreaView,
   StatusBar,
   Dimensions,
   ActivityIndicator,
@@ -12,6 +11,7 @@ import {
   Image,
   Platform,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 import { Globe, Wifi, WifiOff } from 'lucide-react-native';
 import { BottomNav } from '../../ui/BottomNav';
