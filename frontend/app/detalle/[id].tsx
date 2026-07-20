@@ -8,6 +8,7 @@ import {
   Image,
   ActivityIndicator,
   Platform,
+  TextInput,
 } from 'react-native';
 import { useLocalSearchParams, router } from 'expo-router';
 import { ChevronLeft, CheckCircle2, ThumbsUp, ThumbsDown, Binoculars, Award, Compass, BookOpen, Users, ChevronRight, Plus, Grid } from 'lucide-react-native';
@@ -21,6 +22,8 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 export default function SightingDetailScreen() {
   const { id } = useLocalSearchParams();
   const [isLoading, setIsLoading] = useState(true);
+  const [newSightingText, setNewSightingText] = useState('');
+  const [newCommentText, setNewCommentText] = useState('');
 
   const [data, setData] = useState<any>(() => {
     let rawItem = (dbMockData.avistamientos as any[]).find(a => a.id === id);
@@ -112,6 +115,49 @@ export default function SightingDetailScreen() {
 
       return { ...prev, identificaciones: updatedIdentificaciones };
     });
+  };
+
+  const handleAddSighting = () => {
+    const trimmed = newSightingText.trim();
+    if (!trimmed) return;
+
+    const newItem = {
+      id: `new-sighting-${Date.now()}`,
+      usuario: 'Tú',
+      iniciales: 'TU',
+      color: '#2563eb',
+      tiempo: 'ahora',
+      isTop: false,
+      comentario: trimmed,
+      votosUp: 0,
+      votosDown: 0,
+      userVote: null,
+    };
+
+    setData((prev: any) => {
+      const updatedIdentificaciones = [...prev.identificaciones, newItem];
+      const updatedRaw = prev._rawItem ? { ...prev._rawItem, _identificacionesUiMock: updatedIdentificaciones } : prev._rawItem;
+      return { ...prev, identificaciones: updatedIdentificaciones, _rawItem: updatedRaw };
+    });
+    setNewSightingText('');
+  };
+
+  const handleAddComment = () => {
+    const trimmed = newCommentText.trim();
+    if (!trimmed) return;
+
+    const newComment = {
+      id: `new-comment-${Date.now()}`,
+      usuario: 'Tú',
+      texto: trimmed,
+      tiempo: 'ahora',
+    };
+
+    setData((prev: any) => {
+      const updatedComments = [...prev.comentarios, newComment];
+      return { ...prev, comentarios: updatedComments };
+    });
+    setNewCommentText('');
   };
 
   useEffect(() => {
@@ -234,13 +280,29 @@ export default function SightingDetailScreen() {
                 </View>
               </View>
             ))}
+
+            <View style={styles.addSightingSection}>
+              <Text style={styles.addSectionLabel}>Agregar sugerencia de la especie</Text>
+              <View style={styles.addCommentRow}>
+                <TextInput
+                  style={styles.commentInput}
+                  placeholder="Agregar sugerencia de la especie"
+                  placeholderTextColor="#9ca3af"
+                  value={newSightingText}
+                  onChangeText={setNewSightingText}
+                  multiline
+                />
+                <TouchableOpacity style={styles.addCommentButton} onPress={handleAddSighting}>
+                  <Text style={styles.addCommentButtonText}>Añadir</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
           </View>
 
           <View style={styles.publicCommentsSection}>
             <View style={styles.communityHeader}>
               <View>
                 <Text style={styles.sectionTitle}>Comentarios ({data.comentarios.length})</Text>
-                <Text style={styles.sectionSubtitle}>Mensajes de la publicación general</Text>
               </View>
             </View>
 
@@ -260,6 +322,23 @@ export default function SightingDetailScreen() {
             ) : (
               <Text style={styles.emptyCommentsText}>Aún no hay comentarios en esta publicación.</Text>
             )}
+
+            <View style={styles.addCommentSection}>
+              <Text style={styles.addSectionLabel}>Agregar comentario</Text>
+              <View style={styles.addCommentRow}>
+                <TextInput
+                  style={styles.commentInput}
+                  placeholder="Agregar comentario"
+                  placeholderTextColor="#9ca3af"
+                  value={newCommentText}
+                  onChangeText={setNewCommentText}
+                  multiline
+                />
+                <TouchableOpacity style={styles.addCommentButton} onPress={handleAddComment}>
+                  <Text style={styles.addCommentButtonText}>Añadir</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
           </View>
 
           {/* Ubicación Section */}
@@ -668,13 +747,13 @@ const styles = StyleSheet.create({
     marginRight: 8,
   },
   addCommentButton: {
-    backgroundColor: '#1f4316',
+    backgroundColor: '#16a34a',
     paddingHorizontal: 12,
     paddingVertical: 10,
     borderRadius: 10,
   },
   addCommentButtonText: {
-    color: '#fff',
+    color: '#ffffff',
     fontWeight: '800',
   },
   publicCommentsSection: {
@@ -689,6 +768,18 @@ const styles = StyleSheet.create({
     elevation: 2,
     marginTop: 16,
     marginBottom: 16,
+  },
+  addSightingSection: {
+    marginTop: 16,
+  },
+  addCommentSection: {
+    marginTop: 16,
+  },
+  addSectionLabel: {
+    fontSize: 13,
+    fontWeight: '700',
+    color: '#1f2937',
+    marginBottom: 10,
   },
   emptyCommentsText: {
     fontSize: 13,
