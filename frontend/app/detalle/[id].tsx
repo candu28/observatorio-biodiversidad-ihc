@@ -8,9 +8,13 @@ import {
   Image,
   ActivityIndicator,
   Platform,
+  TextInput,
 } from 'react-native';
 import { useLocalSearchParams, router } from 'expo-router';
-import { ChevronLeft, CheckCircle2, Mail, ThumbsUp, ThumbsDown, Binoculars, Award, Compass, PlusCircle } from 'lucide-react-native';
+import { ChevronLeft, CheckCircle2, Mail, ThumbsUp, ThumbsDown, Binoculars, Award, Compass, BookOpen, Users, ChevronRight, Plus, Grid, PlusCircle } from 'lucide-react-native';
+// Require JSON with ts-ignore to avoid missing module/type declaration errors
+// @ts-ignore
+const dbMockData = require('../../../contracts/mocks/dbMockData.json');
 import { LinearGradientSvg } from '../../src/presentation/components/ui/LinearGradientSvg';
 import { BottomNav } from '../../src/presentation/components/ui/BottomNav';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -19,55 +23,129 @@ export default function SightingDetailScreen() {
   const { id } = useLocalSearchParams();
   const [isLoading, setIsLoading] = useState(true);
 
-  // Mock data simulation based on the design
-  const data = {
-    id: id,
-    categoria: 'ANFIBIOS',
-    nombreComun: 'Sapo Minero',
-    nombreCientifico: 'Dendrobates leucomelas',
-    verificada: true,
-    fotoUrl: 'https://images.unsplash.com/photo-1550977186-b484af8a264a?q=80&w=800&auto=format&fit=crop', // yellow dart frog
-    observadorOriginal: {
-      nombre: 'Delgadillo',
-      tieneMensaje: true,
-    },
-    expertoTop: 'DrHerpeto',
-    totalObservaciones: '1847',
-    identificaciones: [
-      {
-        id: '1',
-        usuario: 'Luis Ferrer',
-        iniciales: 'LF',
-        color: '#6366f1', // Indigo
-        tiempo: 'hace 30min',
-        isTop: true,
-        comentario: 'Confirmado. Es el Dendrobates leucomelas, inconfundible por su patrón amarillo-negro. Especie endémica de la Guayana venezolana.',
-        votosUp: 100,
-        votosDown: 3,
+  const [data, setData] = useState<any>(() => {
+    let rawItem = (dbMockData.avistamientos as any[]).find(a => a.id === id);
+    if (!rawItem) {
+      rawItem = dbMockData.avistamientos[0];
+    }
+
+    if (!rawItem._identificacionesUiMock) {
+      rawItem._identificacionesUiMock = [
+        {
+          id: '1', usuario: 'Luis Ferrer', iniciales: 'LF', color: '#6366f1', tiempo: 'hace 30min', isTop: true,
+          comentario: 'Confirmado. Es el Dendrobates leucomelas, inconfundible por su patrón amarillo-negro. Especie endémica de la Guayana venezolana.', votosUp: 100, votosDown: 3, userVote: null,
+          comments: [
+            { id: 'c1', usuario: 'Ana García', texto: 'Gran aporte, gracias por la foto.', tiempo: 'hace 10min' }
+          ],
+          showComments: false,
+        },
+        {
+          id: '2', usuario: 'Cambur', iniciales: 'CA', color: '#b45309', tiempo: 'hace 12h', isTop: false,
+          comentario: 'Podría ser una especie hermana. El patrón de las bandas negras parece ligeramente diferente al leucomelas típico.', votosUp: 8, votosDown: 45, userVote: null,
+          comments: [],
+          showComments: false,
+        },
+        {
+          id: '3', usuario: 'DrHerpeto', iniciales: 'DH', color: '#15803d', tiempo: 'hace 2d', isTop: true,
+          comentario: 'El patrón es definitivamente D. leucomelas. He analizado 318 registros de esta especie en la región del Caura.', votosUp: 234, votosDown: 1, userVote: null,
+          comments: [],
+          showComments: false,
+        },
+      ];
+    }
+
+    const autor = (dbMockData.usuarios as any[]).find(u => u.id === rawItem.autor_id) || { nombre: 'Desconocido' };
+    const categoriaObj = (dbMockData.categorias_taxonomicas as any[]).find(c => c.id === rawItem.categoria_id);
+
+    return {
+      _rawItem: rawItem,
+      id: rawItem.id,
+      categoria: categoriaObj ? categoriaObj.nombre.toUpperCase() : 'ANFIBIOS',
+      nombreComun: rawItem.especie_verif_nombre || 'Desconocido',
+      nombreCientifico: rawItem.especie_verif_nombre_cientifico || 'Desconocido',
+      verificada: rawItem.estado === 'Verificado',
+      fotoUrl: rawItem.foto_url || 'https://images.unsplash.com/photo-1550977186-b484af8a264a?q=80&w=800',
+      ubicacionTexto: rawItem.ubicacion_texto || 'Desconocida',
+      observadorOriginal: {
+        nombre: autor.nombre,
+        tieneMensaje: true,
       },
-      {
-        id: '2',
-        usuario: 'Cambur',
-        iniciales: 'CA',
-        color: '#b45309', // Amber/Brown
-        tiempo: 'hace 12h',
-        isTop: false,
-        comentario: 'Podría ser una especie hermana. El patrón de las bandas negras parece ligeramente diferente al leucomelas típico.',
-        votosUp: 8,
-        votosDown: 45,
-      },
-      {
-        id: '3',
-        usuario: 'DrHerpeto',
-        iniciales: 'DH',
-        color: '#15803d', // Green
-        tiempo: 'hace 2d',
-        isTop: true,
-        comentario: 'Concuerdo con Luis. Las variaciones de bandas son comunes dentro de la misma especie dependiendo de la localidad.',
-        votosUp: 45,
-        votosDown: 0,
-      },
-    ],
+      expertoTop: 'DrHerpeto',
+      totalObservaciones: '1847',
+      identificaciones: rawItem._identificacionesUiMock,
+    };
+  });
+
+  const handleVote = (commentId: string, type: 'up' | 'down') => {
+    // Simulate per-user single vote behavior (toggle and switch)
+    const currentUserId = (dbMockData.usuarios as any[])[0]?.id || 'local-user';
+    setData((prev: any) => {
+      const updatedIdentificaciones = prev.identificaciones.map((item: any) => {
+        if (item.id !== commentId) return item;
+
+        const prevVote = item.userVote || null; // 'up' | 'down' | null
+        let votosUp = item.votosUp ?? 0;
+        let votosDown = item.votosDown ?? 0;
+        let newVote = prevVote;
+
+        if (prevVote === type) {
+          // toggle off
+          if (type === 'up') votosUp = Math.max(0, votosUp - 1);
+          else votosDown = Math.max(0, votosDown - 1);
+          newVote = null;
+        } else {
+          // switch or add
+          if (prevVote === 'up') votosUp = Math.max(0, votosUp - 1);
+          if (prevVote === 'down') votosDown = Math.max(0, votosDown - 1);
+          if (type === 'up') votosUp += 1;
+          if (type === 'down') votosDown += 1;
+          newVote = type;
+        }
+
+        const updatedItem = { ...item, votosUp, votosDown, userVote: newVote };
+        return updatedItem;
+      });
+
+      if (prev._rawItem) {
+        prev._rawItem._identificacionesUiMock = updatedIdentificaciones;
+      }
+
+      return { ...prev, identificaciones: updatedIdentificaciones };
+    });
+  };
+
+  const toggleComments = (commentId: string) => {
+    setData((prev: any) => {
+      const updatedIdentificaciones = prev.identificaciones.map((item: any) => {
+        if (item.id !== commentId) return item;
+        return { ...item, showComments: !item.showComments };
+      });
+      if (prev._rawItem) prev._rawItem._identificacionesUiMock = updatedIdentificaciones;
+      return { ...prev, identificaciones: updatedIdentificaciones };
+    });
+  };
+
+  const [commentDrafts, setCommentDrafts] = React.useState<Record<string, string>>({});
+
+  const setDraft = (commentId: string, text: string) => {
+    setCommentDrafts(prev => ({ ...prev, [commentId]: text }));
+  };
+
+  const addComment = (commentId: string) => {
+    const text = (commentDrafts[commentId] || '').trim();
+    if (!text) return;
+    const currentUser = (dbMockData.usuarios as any[])[0] || { nombre: 'Usuario' };
+    const newComment = { id: `cm_${Date.now()}`, usuario: currentUser.nombre, texto: text, tiempo: 'ahora' };
+    setData((prev: any) => {
+      const updatedIdentificaciones = prev.identificaciones.map((item: any) => {
+        if (item.id !== commentId) return item;
+        const comments = Array.isArray(item.comments) ? [...item.comments, newComment] : [newComment];
+        return { ...item, comments };
+      });
+      if (prev._rawItem) prev._rawItem._identificacionesUiMock = updatedIdentificaciones;
+      return { ...prev, identificaciones: updatedIdentificaciones };
+    });
+    setDraft(commentId, '');
   };
 
   useEffect(() => {
@@ -89,7 +167,7 @@ export default function SightingDetailScreen() {
   return (
     <LinearGradientSvg colors={['#fdf7e3', '#fdf3d1', '#e8f3d6']} style={styles.container}>
       <SafeAreaView style={styles.safeArea} edges={['top', 'left', 'right']}>
-        
+
         {/* Header */}
         <View style={styles.header}>
           <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
@@ -107,27 +185,11 @@ export default function SightingDetailScreen() {
                 <Text style={styles.verifiedText}>Verificada</Text>
               </View>
             )}
-            {data.verificada && (
-              <TouchableOpacity
-                style={styles.createProjectButton}
-                onPress={() => router.push({
-                  pathname: '/crear-proyecto',
-                  params: {
-                    especieNombre: data.nombreComun,
-                    especieCientifico: data.nombreCientifico,
-                    especieFoto: data.fotoUrl
-                  }
-                })}
-              >
-                <PlusCircle size={14} color="#ffffff" />
-                <Text style={styles.createProjectText}>Crear Proyecto</Text>
-              </TouchableOpacity>
-            )}
           </View>
         </View>
 
-        <ScrollView 
-          showsVerticalScrollIndicator={false} 
+        <ScrollView
+          showsVerticalScrollIndicator={false}
           contentContainerStyle={styles.scrollContent}
         >
           {/* Main Photo */}
@@ -178,20 +240,12 @@ export default function SightingDetailScreen() {
                 <Text style={styles.sectionTitle}>Identificaciones de la Comunidad</Text>
                 <Text style={styles.sectionSubtitle}>{data.identificaciones.length} identificaciones acumuladas</Text>
               </View>
-              <View style={styles.dotsIndicator}>
-                <View style={[styles.dot, styles.dotActive]} />
-                <View style={[styles.dot, styles.dotActive]} />
-                <View style={[styles.dot, styles.dotActive]} />
-                <View style={styles.dot} />
-                <View style={styles.dot} />
-                <View style={styles.dot} />
-              </View>
             </View>
 
             {/* Comments List */}
-            {data.identificaciones.map((item, index) => (
+            {data.identificaciones.map((item: any, index: number) => (
               <View key={item.id} style={[styles.commentItem, index > 0 && styles.commentBorder]}>
-                
+
                 <View style={styles.commentHeader}>
                   <View style={styles.userInfoRow}>
                     <View style={[styles.avatar, { backgroundColor: item.color }]}>
@@ -207,23 +261,140 @@ export default function SightingDetailScreen() {
                     </View>
                   )}
                 </View>
-                
+
                 <Text style={styles.commentText}>{item.comentario}</Text>
-                
+
                 <View style={styles.votesRow}>
-                  <TouchableOpacity style={styles.voteButtonUp}>
+                  <TouchableOpacity style={styles.voteButtonUp} onPress={() => handleVote(item.id, 'up')}>
                     <ThumbsUp size={14} color="#15803d" />
                     <Text style={styles.voteTextUp}>{item.votosUp}</Text>
                   </TouchableOpacity>
-                  <TouchableOpacity style={styles.voteButtonDown}>
+                  <TouchableOpacity style={styles.voteButtonDown} onPress={() => handleVote(item.id, 'down')}>
                     <ThumbsDown size={14} color="#b45309" />
                     <Text style={styles.voteTextDown}>{item.votosDown}</Text>
                   </TouchableOpacity>
                 </View>
+                {/* Comments toggle + list + input */}
+                <View style={{ marginTop: 10 }}>
+                  <TouchableOpacity style={styles.commentsToggle} onPress={() => toggleComments(item.id)}>
+                    <Text style={styles.commentsToggleText}>Comentarios ({(item.comments || []).length})</Text>
+                    <ChevronRight size={14} color="#9ca3af" />
+                  </TouchableOpacity>
 
+                  {item.showComments && (
+                    <View style={styles.commentsContainer}>
+                      {(item.comments || []).map((c: any) => (
+                        <View key={c.id} style={styles.commentListItem}>
+                          <View style={[styles.avatar, { width: 26, height: 26, borderRadius: 13, backgroundColor: '#c4c4c8' }]}>
+                            <Text style={[styles.avatarText, { fontSize: 10 }]}>{(c.usuario || 'U').split(' ').map((s: any) => s[0]).slice(0, 2).join('')}</Text>
+                          </View>
+                          <View style={{ marginLeft: 8, flex: 1 }}>
+                            <Text style={styles.commentAuthor}>{c.usuario}</Text>
+                            <Text style={styles.commentTextSmall}>{c.texto}</Text>
+                          </View>
+                          <Text style={styles.timeText}>{c.tiempo}</Text>
+                        </View>
+                      ))}
+
+                      <View style={styles.addCommentRow}>
+                        <TextInput
+                          style={styles.commentInput}
+                          placeholder="Añadir un comentario..."
+                          value={commentDrafts[item.id] || ''}
+                          onChangeText={(t) => setDraft(item.id, t)}
+                        />
+                        <TouchableOpacity style={styles.addCommentButton} onPress={() => addComment(item.id)}>
+                          <Text style={styles.addCommentButtonText}>Enviar</Text>
+                        </TouchableOpacity>
+                      </View>
+                    </View>
+                  )}
+                </View>
               </View>
             ))}
           </View>
+
+          {/* Ubicación Section */}
+          <Text style={[styles.sectionTitle, { marginTop: 24, marginBottom: 12 }]}>Ubicación del avistamiento</Text>
+          <View style={styles.mapContainer}>
+            <Image source={{ uri: 'https://images.unsplash.com/photo-1524661135-423995f22d0b?q=80&w=600&auto=format&fit=crop' }} style={styles.mapImage} />
+            <View style={styles.mapOverlay}>
+              <Text style={styles.mapOverlayTextLeft}>Bolívar, VE</Text>
+              <Text style={styles.mapOverlayTextRight}>Satélite</Text>
+            </View>
+          </View>
+
+          {/* Proyectos Section */}
+          <Text style={[styles.sectionTitle, { marginTop: 24, marginBottom: 12 }]}>Proyectos relacionados</Text>
+          <View style={styles.projectList}>
+            <TouchableOpacity style={styles.projectCard}>
+              <View style={styles.projectIconContainer}>
+                <BookOpen size={16} color="#71717a" />
+              </View>
+              <View style={styles.projectTextContainer}>
+                <Text style={styles.projectTitle}>Alimentación del Minero</Text>
+                <View style={styles.projectParticipants}>
+                  <Users size={12} color="#71717a" />
+                  <Text style={styles.projectParticipantsText}>47 participantes</Text>
+                </View>
+              </View>
+              <ChevronRight size={16} color="#a1a1aa" />
+            </TouchableOpacity>
+
+            <TouchableOpacity style={styles.projectCard}>
+              <View style={styles.projectIconContainer}>
+                <BookOpen size={16} color="#71717a" />
+              </View>
+              <View style={styles.projectTextContainer}>
+                <Text style={styles.projectTitle}>Respiración del Minero</Text>
+                <View style={styles.projectParticipants}>
+                  <Users size={12} color="#71717a" />
+                  <Text style={styles.projectParticipantsText}>23 participantes</Text>
+                </View>
+              </View>
+              <ChevronRight size={16} color="#a1a1aa" />
+            </TouchableOpacity>
+
+            <TouchableOpacity style={styles.projectCard}>
+              <View style={styles.projectIconContainer}>
+                <BookOpen size={16} color="#71717a" />
+              </View>
+              <View style={styles.projectTextContainer}>
+                <Text style={styles.projectTitle}>Reproducción del Minero</Text>
+                <View style={styles.projectParticipants}>
+                  <Users size={12} color="#71717a" />
+                  <Text style={styles.projectParticipantsText}>112 participantes</Text>
+                </View>
+              </View>
+              <ChevronRight size={16} color="#a1a1aa" />
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={[styles.projectCard, styles.createNewProjectCard]}
+              onPress={() => router.push({
+                pathname: '/crear-proyecto',
+                params: {
+                  especieNombre: data.nombreComun,
+                  especieCientifico: data.nombreCientifico,
+                  especieFoto: data.fotoUrl
+                }
+              })}
+            >
+              <View style={styles.projectIconContainer}>
+                <Plus size={16} color="#4d7c0f" />
+              </View>
+              <View style={styles.projectTextContainer}>
+                <Text style={[styles.projectTitle, { color: '#365314' }]}>Crear nuevo proyecto</Text>
+              </View>
+              <ChevronRight size={16} color="#4d7c0f" />
+            </TouchableOpacity>
+          </View>
+
+          {/* Botón Principal */}
+          <TouchableOpacity style={styles.allObsButton}>
+            <Grid size={16} color="#ffffff" style={{ marginRight: 8 }} />
+            <Text style={styles.allObsButtonText}>Ver todas las observaciones</Text>
+          </TouchableOpacity>
 
         </ScrollView>
         <BottomNav />
@@ -541,5 +712,163 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: '700',
     color: '#b45309',
+  },
+  commentsToggle: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingVertical: 8,
+  },
+  commentsToggleText: {
+    fontSize: 13,
+    fontWeight: '700',
+    color: '#1f2937',
+  },
+  commentsContainer: {
+    marginTop: 8,
+    paddingTop: 8,
+    borderTopWidth: 1,
+    borderTopColor: '#f3f3f3',
+  },
+  commentListItem: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    marginBottom: 10,
+  },
+  commentAuthor: {
+    fontSize: 12,
+    fontWeight: '800',
+    color: '#1f2937',
+  },
+  commentTextSmall: {
+    fontSize: 13,
+    color: '#52525b',
+  },
+  addCommentRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 8,
+  },
+  commentInput: {
+    flex: 1,
+    backgroundColor: '#fff',
+    paddingHorizontal: 12,
+    paddingVertical: Platform.OS === 'ios' ? 10 : 6,
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: '#e6e6e9',
+    marginRight: 8,
+  },
+  addCommentButton: {
+    backgroundColor: '#1f4316',
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    borderRadius: 10,
+  },
+  addCommentButtonText: {
+    color: '#fff',
+    fontWeight: '800',
+  },
+  mapContainer: {
+    width: '100%',
+    height: 140,
+    borderRadius: 20,
+    overflow: 'hidden',
+    position: 'relative',
+    shadowColor: '#000',
+    shadowOpacity: 0.1,
+    shadowOffset: { width: 0, height: 4 },
+    shadowRadius: 8,
+    elevation: 3,
+  },
+  mapImage: {
+    width: '100%',
+    height: '100%',
+    resizeMode: 'cover',
+  },
+  mapOverlay: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    height: 36,
+    backgroundColor: 'rgba(255, 255, 255, 0.8)',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: 16,
+  },
+  mapOverlayTextLeft: {
+    fontSize: 12,
+    fontWeight: '800',
+    color: '#1f2937',
+  },
+  mapOverlayTextRight: {
+    fontSize: 11,
+    fontWeight: '600',
+    color: '#6b7280',
+  },
+  projectList: {
+    gap: 12,
+  },
+  projectCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#f4f4f5',
+    borderRadius: 16,
+    padding: 14,
+  },
+  createNewProjectCard: {
+    backgroundColor: '#f0fdf4',
+    borderWidth: 1,
+    borderColor: '#dcfce7',
+  },
+  projectIconContainer: {
+    width: 32,
+    height: 32,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#e4e4e7',
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#fafafa',
+    marginRight: 12,
+  },
+  projectTextContainer: {
+    flex: 1,
+  },
+  projectTitle: {
+    fontSize: 13,
+    fontWeight: '700',
+    color: '#1f2937',
+  },
+  projectParticipants: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 4,
+    gap: 4,
+  },
+  projectParticipantsText: {
+    fontSize: 11,
+    color: '#71717a',
+  },
+  allObsButton: {
+    flexDirection: 'row',
+    backgroundColor: '#1f4316',
+    borderRadius: 12,
+    paddingVertical: 16,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: 30,
+    shadowColor: '#000',
+    shadowOpacity: 0.15,
+    shadowOffset: { width: 0, height: 4 },
+    shadowRadius: 8,
+    elevation: 4,
+  },
+  allObsButtonText: {
+    color: '#ffffff',
+    fontSize: 14,
+    fontWeight: '800',
   },
 });

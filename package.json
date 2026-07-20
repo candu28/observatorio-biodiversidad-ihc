@@ -9,5 +9,8 @@
     "web": "pnpm --filter ./frontend web",
     "dev:frontend": "pnpm --filter ./frontend start",
     "dev:backend": "pnpm --filter ./backend dev"
+  },
+  "dependencies": {
+    "expo": "~54.0.36"
   }
 }

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   View,
   Text,
@@ -10,33 +10,42 @@ import {
   Platform,
   Alert,
 } from 'react-native';
-import { useLocalSearchParams, router } from 'expo-router';
-import { ChevronLeft, MapPin, Users, Calendar, Plus, BookOpen, User, Leaf } from 'lucide-react-native';
+import { useLocalSearchParams, router, useFocusEffect } from 'expo-router';
+import { ChevronLeft, MapPin, Users, Calendar, Plus, BookOpen, User, Leaf, X, Camera, Image as ImageIcon } from 'lucide-react-native';
 import { LinearGradientSvg } from '../../src/presentation/components/ui/LinearGradientSvg';
 import { BottomNav } from '../../src/presentation/components/ui/BottomNav';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { Modal, Pressable } from 'react-native';
+
 import { ObtenerDetalleProyectoUseCase, ProyectoDetalleViewModel } from '../../src/application/useCases/ObtenerDetalleProyectoUseCase';
 import { MockProyectoRepository } from '../../src/infrastructure/adapters/mock/proyecto/MockProyectoRepository';
+import { CapturarMultimediaAvistamiento } from '../../src/application/useCases/CapturarMultimediaAvistamiento';
+import { ExpoCameraAdapter } from '../../src/infrastructure/adapters/hardware/ExpoCameraAdapter';
+import { AgregarAporteTareaUseCase } from '../../src/application/useCases/AgregarAporteTareaUseCase';
+import { IAporteTarea } from '../../../contracts/types/IAporteTarea';
 
 export default function ProjectDetailScreen() {
   const { id } = useLocalSearchParams();
   const [isLoading, setIsLoading] = useState(true);
   const [data, setData] = useState<ProyectoDetalleViewModel | null>(null);
 
-  useEffect(() => {
-    const loadDetail = async () => {
-      try {
-        const useCase = new ObtenerDetalleProyectoUseCase(new MockProyectoRepository());
-        const result = await useCase.execute(id as string);
-        setData(result);
-      } catch (error) {
-        console.error('Error loading project detail', error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    void loadDetail();
+  const loadDetail = useCallback(async () => {
+    try {
+      const useCase = new ObtenerDetalleProyectoUseCase(new MockProyectoRepository());
+      const result = await useCase.execute(id as string);
+      setData(result);
+    } catch (error) {
+      console.error('Error loading project detail', error);
+    } finally {
+      setIsLoading(false);
+    }
   }, [id]);
+
+  useFocusEffect(
+    useCallback(() => {
+      void loadDetail();
+    }, [loadDetail])
+  );
 
   if (isLoading) {
     return (
@@ -65,15 +74,17 @@ export default function ProjectDetailScreen() {
 
         {/* Header */}
         <View style={styles.header}>
-          <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
-            <ChevronLeft size={22} color="#1f2937" />
-          </TouchableOpacity>
-          <View style={styles.headerUser}>
-            <Image
-              source={{ uri: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=150&auto=format&fit=crop' }}
-              style={styles.userAvatar}
-            />
-            <Text style={styles.userName}>Luis Candurin</Text>
+          <View style={styles.headerLeft}>
+            <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
+              <ChevronLeft size={22} color="#1f2937" />
+            </TouchableOpacity>
+            <View style={styles.headerUser}>
+              <Image
+                source={{ uri: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=150&auto=format&fit=crop' }}
+                style={styles.userAvatar}
+              />
+              <Text style={styles.userName}>Luis Candurin</Text>
+            </View>
           </View>
         </View>
 
@@ -82,8 +93,11 @@ export default function ProjectDetailScreen() {
           {/* Project Title Card */}
           <View style={styles.titleCard}>
             <View style={styles.titleHeader}>
-              <View style={styles.bookIconContainer}>
-                <BookOpen size={20} color="#716040" />
+              <View style={styles.projectIconContainer}>
+                <Image
+                  source={{ uri: 'https://images.unsplash.com/photo-1596700813959-1e359a39e830?q=80&w=600&auto=format&fit=crop' }}
+                  style={styles.projectImage}
+                />
               </View>
               <View style={styles.titleTextContainer}>
                 <Text style={styles.projectTitle}>{proyecto.titulo}</Text>
@@ -105,33 +119,31 @@ export default function ProjectDetailScreen() {
                 <View style={styles.miniAvatarContainer}>
                   <Text style={styles.miniAvatarText}>DH</Text>
                 </View>
-                <View>
+                <View style={styles.taskInfoContainer}>
                   <Text style={styles.contributorName}>DrHerpeto <Text style={styles.timeAgo}>· hace 3h</Text></Text>
+                  <Text style={styles.taskCardTitle}>{tarea.tituloTarea}</Text>
                 </View>
               </View>
 
-              {tarea.aportes.length > 0 ? (
-                <View style={styles.contributionContent}>
-                  <Image source={{ uri: tarea.aportes[0].archivoUrl }} style={styles.contributionImage} />
-                  <Text style={styles.contributionText}>{tarea.tituloTarea}</Text>
-                </View>
-              ) : (
-                <View style={styles.noContribution}>
-                  <Text style={styles.noContributionText}>{tarea.tituloTarea}</Text>
-                  <Text style={styles.noContributionSub}>Sé el primero en aportar a esta tarea.</Text>
-                </View>
-              )}
+              <View style={styles.taskActionRow}>
+                <Text style={styles.taskStatusText}>
+                  {tarea.aportes.length > 0
+                    ? `${tarea.aportes.length} aportes realizados`
+                    : 'Sin aportes todavía'}
+                </Text>
+                <TouchableOpacity
+                  style={styles.smallAddButton}
+                  onPress={() => router.push({
+                    pathname: '/proyecto/tarea/[id]',
+                    params: { id: tarea.tareaId, proyectoId: proyecto.id }
+                  })}
+                >
+                  <Plus size={14} color="#ffffff" />
+                  <Text style={styles.smallAddButtonText}>Ver aportes</Text>
+                </TouchableOpacity>
+              </View>
             </View>
           ))}
-
-          {/* Add Contribution Button */}
-          <TouchableOpacity
-            style={styles.addAporteButton}
-            onPress={() => Alert.alert('Aportar', 'Próximamente: Integración con cámara/galería')}
-          >
-            <Plus size={20} color="#ffffff" />
-            <Text style={styles.addAporteText}>Agregar aporte</Text>
-          </TouchableOpacity>
 
           {/* Project Info Card */}
           <View style={styles.infoCard}>
@@ -171,6 +183,7 @@ export default function ProjectDetailScreen() {
           </View>
 
         </ScrollView>
+
         <BottomNav />
       </SafeAreaView>
     </LinearGradientSvg>
@@ -205,7 +218,11 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingTop: 40,
     paddingBottom: 15,
-    justifyContent: 'space-between',
+  },
+  headerLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
   },
   backButton: {
     width: 44,
@@ -264,6 +281,17 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
+  projectIconContainer: {
+    width: 60,
+    height: 60,
+    borderRadius: 16,
+    backgroundColor: '#f3f0e8',
+    overflow: 'hidden',
+  },
+  projectImage: {
+    width: '100%',
+    height: '100%',
+  },
   titleTextContainer: {
     flex: 1,
   },
@@ -311,24 +339,46 @@ const styles = StyleSheet.create({
   taskHeader: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 10,
-    marginBottom: 12,
+    gap: 12,
+    marginBottom: 15,
   },
   miniAvatarContainer: {
-    width: 32,
-    height: 32,
+    width: 36,
+    height: 36,
     borderRadius: 10,
     backgroundColor: '#6366f1',
     justifyContent: 'center',
     alignItems: 'center',
   },
+  taskInfoContainer: {
+    flex: 1,
+  },
+  taskCardTitle: {
+    fontSize: 14,
+    fontWeight: '700',
+    color: '#374151',
+    marginTop: 2,
+  },
+  taskActionRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingTop: 10,
+    borderTopWidth: 1,
+    borderTopColor: '#f3f4f6',
+  },
+  taskStatusText: {
+    fontSize: 12,
+    color: '#9ca3af',
+    fontWeight: '500',
+  },
   miniAvatarText: {
-    fontSize: 10,
+    fontSize: 12,
     fontWeight: '800',
     color: '#ffffff',
   },
   contributorName: {
-    fontSize: 14,
+    fontSize: 13,
     fontWeight: '800',
     color: '#1f2937',
   },
@@ -337,49 +387,19 @@ const styles = StyleSheet.create({
     color: '#9ca3af',
     fontSize: 11,
   },
-  contributionContent: {
-    flexDirection: 'row',
-    gap: 12,
-    alignItems: 'center',
-  },
-  contributionImage: {
-    width: 80,
-    height: 80,
-    borderRadius: 12,
-  },
-  contributionText: {
-    flex: 1,
-    fontSize: 13,
-    color: '#4b5563',
-    lineHeight: 18,
-  },
-  noContribution: {
-    paddingVertical: 10,
-  },
-  noContributionText: {
-    fontSize: 14,
-    color: '#1f2937',
-    fontWeight: '600',
-    marginBottom: 4,
-  },
-  noContributionSub: {
-    fontSize: 12,
-    color: '#9ca3af',
-  },
-  addAporteButton: {
+  smallAddButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center',
     backgroundColor: '#4d7c0f',
-    paddingVertical: 16,
-    borderRadius: 16,
-    gap: 10,
-    marginVertical: 10,
-    elevation: 3,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 8,
+    gap: 6,
+    alignSelf: 'flex-start',
   },
-  addAporteText: {
-    fontSize: 15,
-    fontWeight: '800',
+  smallAddButtonText: {
+    fontSize: 12,
+    fontWeight: '700',
     color: '#ffffff',
   },
   infoCard: {

@@ -19,6 +19,6 @@ app.get('/health', (req, res) => {
 // API Routes
 app.use('/sync', syncRouter);
 
-app.listen(PORT, () => {
+app.listen(PORT as number, '0.0.0.0', () => {
   console.log(`Server running on port ${PORT}`);
 });
