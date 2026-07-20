@@ -185,22 +185,6 @@ export default function SightingDetailScreen() {
                 <Text style={styles.verifiedText}>Verificada</Text>
               </View>
             )}
-            {data.verificada && (
-              <TouchableOpacity
-                style={styles.createProjectButton}
-                onPress={() => router.push({
-                  pathname: '/crear-proyecto',
-                  params: {
-                    especieNombre: data.nombreComun,
-                    especieCientifico: data.nombreCientifico,
-                    especieFoto: data.fotoUrl
-                  }
-                })}
-              >
-                <PlusCircle size={14} color="#ffffff" />
-                <Text style={styles.createProjectText}>Crear Proyecto</Text>
-              </TouchableOpacity>
-            )}
           </View>
         </View>
 
@@ -385,14 +369,24 @@ export default function SightingDetailScreen() {
               <ChevronRight size={16} color="#a1a1aa" />
             </TouchableOpacity>
 
-            <TouchableOpacity style={styles.projectCard}>
+            <TouchableOpacity
+              style={[styles.projectCard, styles.createNewProjectCard]}
+              onPress={() => router.push({
+                pathname: '/crear-proyecto',
+                params: {
+                  especieNombre: data.nombreComun,
+                  especieCientifico: data.nombreCientifico,
+                  especieFoto: data.fotoUrl
+                }
+              })}
+            >
               <View style={styles.projectIconContainer}>
-                <Plus size={16} color="#71717a" />
+                <Plus size={16} color="#4d7c0f" />
               </View>
               <View style={styles.projectTextContainer}>
-                <Text style={styles.projectTitle}>Crear nuevo proyecto</Text>
+                <Text style={[styles.projectTitle, { color: '#365314' }]}>Crear nuevo proyecto</Text>
               </View>
-              <ChevronRight size={16} color="#a1a1aa" />
+              <ChevronRight size={16} color="#4d7c0f" />
             </TouchableOpacity>
           </View>
 
@@ -823,6 +817,11 @@ const styles = StyleSheet.create({
     backgroundColor: '#f4f4f5',
     borderRadius: 16,
     padding: 14,
+  },
+  createNewProjectCard: {
+    backgroundColor: '#f0fdf4',
+    borderWidth: 1,
+    borderColor: '#dcfce7',
   },
   projectIconContainer: {
     width: 32,
