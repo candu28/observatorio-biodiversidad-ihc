@@ -721,6 +721,7 @@ const styles = StyleSheet.create({
     color: '#6b7280',
     marginTop: 4,
   },
+
   mapContainer: {
     width: '100%',
     height: 140,

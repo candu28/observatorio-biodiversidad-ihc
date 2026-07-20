@@ -12,13 +12,13 @@ import {
   Dimensions,
   Platform,
 } from 'react-native';
-import { CameraView } from 'expo-camera';
+import { CameraView, Camera } from 'expo-camera';
 import * as ImagePicker from 'expo-image-picker';
 import {
   X,
   Zap,
   ZapOff,
-  Camera,
+  Camera as CameraIcon,
   RefreshCw,
   Check,
   Image as ImageIcon,
@@ -548,7 +548,7 @@ export const MediaPickerProvider: React.FC<{ children: React.ReactNode }> = ({ c
                     ) : mode === 'burst' ? (
                       <Sliders size={24} color="#7c2d12" />
                     ) : (
-                      <Camera size={26} color="#4d7c0f" />
+                      <CameraIcon size={26} color="#4d7c0f" />
                     )}
                   </View>
                 </TouchableOpacity>
