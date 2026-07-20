@@ -1,3 +1,5 @@
+import type { IMultimediaAvistamiento } from './IMultimediaAvistamiento';
+
 export type EstadoCertificacion = 'Pendiente' | 'Verificado';
 
 export interface IAvistamiento {
@@ -6,7 +8,8 @@ export interface IAvistamiento {
     autorId: string; // Relación con el Usuario
 
     // Multimedia y Experiencia
-    fotoUrl: string; // Para el 'associatedMedia' de Darwin Core
+    fotoUrl: string; // Para el 'associatedMedia' de Darwin Core (Foto principal)
+    fotosExtra?: IMultimediaAvistamiento[]; // Fotos o videos secundarios
     descripcionExperiencia: string;
 
     // Datos Geográficos (SIG / Mapa de Calor / Darwin Core)
@@ -16,10 +19,12 @@ export interface IAvistamiento {
     fechaCreacion: string; // eventDate (ISO 8601)
 
     // Filtros de Taxonomía y Ecosistema
-    bioma: 'Selva' | 'Sabana' | 'Tepuyes';
-    categoriaTaxonomica: 'Aves' | 'Mamíferos' | 'Insectos' | 'Reptiles y Anfibios' | 'Acuáticos' | 'Flora';
+    biomaId: string;
+    categoriaId: string;
 
     // Consenso Comunitario
     estado: EstadoCertificacion;
-    especieGanadoraNombre?: string; // Nulo al inicio. Se llena cuando hay consenso ('scientificName')
+    especieVerificadaId?: string;
+    especieVerifNombre?: string;     // Ej: "Sapo Minero"
+    especieVerifNombreCientifico?: string; // Ej: "Adelphobates minutus"
 }

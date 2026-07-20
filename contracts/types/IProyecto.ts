@@ -1,28 +1,14 @@
+import { NombreBioma } from './IBioma';
+import { NombreCategoria } from './ICategoriaTaxonomica';
+
 export interface IProyecto {
-    id: string;
+    id: string; // UUID
+    creadorId: string; // UUID
     titulo: string;
     descripcion: string;
-
-    // Limitaciones del proyecto
-    ubicacionLimite: string; // Ej: "Solo Upata" o "Gran Sabana"
-    especiesInvolucradas: string[]; // Ej: ["Sapo Minero", "Rana de Cristal"]
-
-    fechaInicio: string;
-    creadorId: string; // Quién fundó el proyecto
+    bioma: NombreBioma;
+    categoriasTaxonomicas: NombreCategoria[]; // Especies/Categorías que aborda el proyecto
+    ubicacionGeografica: string;
+    fechaInicio: string; // TIMESTAMP
     cantidadParticipantes: number;
-}
-
-export interface ITareaProyecto {
-    id: string;
-    proyectoId: string;
-    titulo: string; // Ej: "Hábitos de alimentación"
-    descripcion: string; // Ej: "Subir videos del sapo comiendo"
-}
-
-export interface IAporteTarea {
-    id: string;
-    tareaId: string;
-    usuarioAportadorId: string;
-    mediaUrl: string; // Foto, video o audio aportado a la tarea
-    comentario: string;
 }

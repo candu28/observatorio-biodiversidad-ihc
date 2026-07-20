@@ -1,22 +1,11 @@
-export interface IEspecialidad {
-    categoria: string; // Ej: "Anfibios", "Aves"
-    cantidadAciertos: number; // Sube +1 cuando la comunidad elige su nombre propuesto
-    esExperto: boolean; // Pasa a 'true' automáticamente cuando cantidadAciertos >= 3
-}
-
 export interface IUsuario {
-    id: string; // UUID de Supabase
+    id: string; // UUID
     nombre: string;
     ubicacion: string;
-    bio?: string; // Opcional (puede ser nulo)
+    bio?: string;
     fotoPerfilUrl?: string;
-    rol: 'Entusiasta' | 'Experto';
-
-    // Gamificación y Métricas
-    especialidades: IEspecialidad[]; // Arreglo con los aciertos por categoría
-    totalAvistamientos: number; // Cuántas publicaciones ha hecho
-
-    // Red de Interés
-    intereses: string[]; // Ej: ["#Selva", "#Aves", "#SapoMinero"] (Llenado en el onboarding o al unirse a proyectos)
-    proyectosAsociadosIds: string[]; // IDs de los proyectos donde participa
+    interes: string[]; // TEXT[]
+    totalAvistamientos: number;
+    totalAciertosEspecies?: number; // Puede ser opcional temporalmente para no quebrar otras cosas
+    createdAt: string; // TIMESTAMP
 }

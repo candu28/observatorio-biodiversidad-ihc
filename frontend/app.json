@@ -1,6 +1,24 @@
 {
-  "plugins": [
-    "expo-router",
-    "expo-sqlite"
-  ]
+  "expo": {
+    "name": "Guaya",
+    "slug": "guaya",
+    "scheme": "guaya",
+    "plugins": [
+      "expo-router",
+      "expo-sqlite",
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "Permite a Guaya acceder a tu cámara para registrar avistamientos de biodiversidad.",
+          "microphonePermission": "Permite a Guaya acceder al micrófono para videos opcionales."
+        }
+      ],
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Permite a Guaya acceder a tu galería para seleccionar fotos de avistamientos."
+        }
+      ]
+    ]
+  }
 }
